@@ -71,6 +71,8 @@ _Coming soon - Screenshots will be added as features are completed_
     - Or press i for iOS simulator, a for Android emulator
 
 ### Project Structure
+
+```
 statefully/
 ├── app/                  # Screens (Expo Router)
 │   ├── (tabs)/          # Tab navigation group
@@ -84,7 +86,12 @@ statefully/
 ├── store/              # Zustand state management
 ├── types/              # TypeScript type definitions
 ├── utils/              # Helper functions
-└── assets/             # Images, fonts, icons
+├── assets/             # Images, fonts, icons
+├── package.json        # Dependencies
+├── tsconfig.json       # TypeScript configuration
+├── app.json            # Expo configuration
+└── README.md           # Project documentation
+```
 
 ###  🎨 Design System
 The app uses a custom design system with:
