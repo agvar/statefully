@@ -1,9 +1,10 @@
+import { Colors, Spacing, Typography } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function ThinkScreen(){
     return(
         <View style = {styles.container}>
-            <Text style = {styles.tile}>Think Stream</Text>
+            <Text style = {styles.title}>Think Stream</Text>
             <Text style = {styles.subtitle}>Capture your thoughts</Text>
         </View>
     );
@@ -14,16 +15,16 @@ const styles = StyleSheet.create({
         flex : 1,
         alignItems : 'center',
         justifyContent : 'center',
-        backgroundColor : '#1a1a1a'
+        backgroundColor : Colors.background.dark
     },
-    tile :{
-        fontSize: 32,
-        fontWeight: 'bold',
-        color:'#ffffff',
-        marginBottom : 8
+    title :{
+        fontSize: Typography.size['4xl'],
+        fontWeight: Typography.weight.bold,
+        color:Colors.text.dark.primary,
+        marginBottom : Spacing.sm
     },
     subtitle :{
-        fontSize: 16,
-        color:'#888888'
+        fontSize: Typography.size.base,
+        color:Colors.text.dark.secondary
     },
 })
