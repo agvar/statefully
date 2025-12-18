@@ -1,3 +1,4 @@
+import { Colors, Spacing, Typography } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function DoScreen(){
@@ -14,16 +15,16 @@ const styles = StyleSheet.create({
         flex : 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#ffffff'
+        backgroundColor: Colors.background.light
     },
     title :{
-        fontSize:32,
-        fontWeight:'bold',
-        color:'#000000',
-        marginBottom: 8,
+        fontSize: Typography.size['4xl'],
+        fontWeight: Typography.weight.bold,
+        color: Colors.text.light.primary,
+        marginBottom: Spacing.sm,
     },
     subtitle:{
-        fontSize: 16,
-        color: '#666666'
+        fontSize: Typography.size.base,
+        color: Colors.text.light.primary
     },
 })
