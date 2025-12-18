@@ -1,3 +1,4 @@
+import { Colors, Spacing, Typography } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function PulseScreen(){
@@ -10,20 +11,20 @@ export default function PulseScreen(){
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent : 'center',
+    container :{
+        flex : 1,
         alignItems: 'center',
-        backgroundColor : '#ffffff'
+        justifyContent: 'center',
+        backgroundColor: Colors.background.light
     },
-    title: {
-        fontSize :32,
-        fontWeight : 'bold',
-        color: '#000000',
-        marginBottom: 8
+    title :{
+        fontSize: Typography.size['4xl'],
+        fontWeight: Typography.weight.bold,
+        color: Colors.text.light.primary,
+        marginBottom: Spacing.sm,
     },
-    subtitle: {
-        fontSize: 16,
-        color: '#666666'
-    }
+    subtitle:{
+        fontSize: Typography.size.base,
+        color: Colors.text.light.primary
+    },
 })
