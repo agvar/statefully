@@ -1,3 +1,4 @@
+import VoiceButton from '@/components/VoiceButton';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -5,7 +6,13 @@ export default function ThinkScreen(){
     return(
         <View style = {styles.container}>
             <Text style = {styles.title}>Think Stream</Text>
-            <Text style = {styles.subtitle}>Capture your thoughts</Text>
+            <View style = {styles.content}>
+                <VoiceButton 
+                onRecordingComplete={(text) =>{
+                    console.log('Recorded',text)
+                }}/>
+
+            </View>
         </View>
     );
 }
@@ -13,17 +20,20 @@ export default function ThinkScreen(){
 const styles = StyleSheet.create({
     container : {
         flex : 1,
-        alignItems : 'center',
-        justifyContent : 'center',
-        backgroundColor : Colors.background.dark
+        backgroundColor : Colors.background.dark,
+        paddingTop: Spacing['2xl']
     },
     title :{
         fontSize: Typography.size['4xl'],
         fontWeight: Typography.weight.bold,
         color:Colors.text.dark.primary,
-        marginBottom : Spacing.sm
+        marginBottom : Spacing.sm,
+        paddingHorizontal: Spacing.md
     },
-    subtitle :{
+    content :{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: Typography.size.base,
         color:Colors.text.dark.secondary
     },
