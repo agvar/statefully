@@ -20,7 +20,7 @@ export const Colors= {
      dark:{
         primary: '#FFFFFF' ,         // white text on dark background
         secondary: '#8E8E93',        // Gray test on dark background
-        tertitary: '#636366'         // Lighter Gray for less important text
+        tertiary: '#636366'         // Lighter Gray for less important text
      },
      light:{
         primary: '#000000' ,        // Black text on light background

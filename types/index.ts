@@ -1,0 +1,36 @@
+/**
+ * Core data types
+ */
+
+//Sentiment Types
+
+export type Sentiment = 'positive'| 'negetive' | 'neutral';
+
+//Thought object
+
+export interface Thought {
+    id: string;                 //Unique id
+    text: string;               // Thought content
+    timestamp: Date;            // when the thought was captured
+    sentiment: Sentiment;       // Sentiment (emotional tone)
+    audioUri?: string;           //Optional: audio file path
+}
+
+//Task object
+
+export interface Task {
+    id: string;
+    title: string;
+    description?: string;
+    duration: number;           //second spend
+    energyLevel: 'high' | 'medium' | 'low';
+    startTime?: Date;
+    endTime?: Date;
+    completed:boolean;
+    sourceThoughtId?: string;
+}
+
+//Filter and sort types of thoughts
+
+export type ThoughtFilter = 'all' | 'positive' | 'negetive' | 'neutral';
+export type ThoughtSort = 'recent' | 'oldest';
