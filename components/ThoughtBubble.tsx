@@ -13,7 +13,7 @@ export default function ThoughtBubble({thought }: ThoughtBubbleProps){
         const minutes = Math.floor(diff / 60000);
 
         if (minutes < 1) return 'Just now';
-        if (minutes <60) return '${minutes}m ago'
+        if (minutes < 60) return `${minutes}m ago`
 
         //format time
 
