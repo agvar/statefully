@@ -4,7 +4,7 @@
 
 //Sentiment Types
 
-export type Sentiment = 'positive'| 'negetive' | 'neutral';
+export type Sentiment = 'positive'| 'negative' | 'neutral';
 
 //Thought object
 
@@ -32,5 +32,5 @@ export interface Task {
 
 //Filter and sort types of thoughts
 
-export type ThoughtFilter = 'all' | 'positive' | 'negetive' | 'neutral';
+export type ThoughtFilter = 'all' | 'positive' | 'negative' | 'neutral';
 export type ThoughtSort = 'recent' | 'oldest';

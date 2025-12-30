@@ -18,7 +18,7 @@ export default function ThinkScreen(){
         id: '2',
         text: 'This has been bummer of a day- I got nothing done.',
         timestamp : new Date(Date.now() - 15 * 60000),
-        sentiment: 'negetive'
+        sentiment: 'negative'
     },
     {
         id: '3',

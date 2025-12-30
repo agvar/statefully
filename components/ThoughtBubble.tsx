@@ -30,7 +30,7 @@ export default function ThoughtBubble({thought }: ThoughtBubbleProps){
         switch (sentiment){
             case 'positive':
                 return Colors.flow;
-            case 'negetive':
+            case 'negative':
                 return Colors.drain;
             default:
                 return Colors.text.dark.tertiary;
