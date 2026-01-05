@@ -1,32 +1,39 @@
 import ThoughtBubble from '@/components/ThoughtBubble';
 import VoiceButton from '@/components/VoiceButton';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useStore } from '@/store/useStore';
 import { Thought } from '@/types';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 export default function ThinkScreen(){
     //create test data for testing
-    const [thoughts,setThoughts] = useState<Thought[]>([
-    {
-        id: '1',
-        text: 'Had a great idea for project,feels like a breakthrough.',
-        timestamp : new Date(Date.now()),
-        sentiment: 'positive'
-    },
-    {
-        id: '2',
-        text: 'This has been bummer of a day- I got nothing done.',
-        timestamp : new Date(Date.now() - 15 * 60000),
-        sentiment: 'negative'
-    },
-    {
-        id: '3',
-        text: 'This has been a normal day-nothing special.',
-        timestamp : new Date(Date.now() - 45 * 60000),
-        sentiment: 'neutral'
+    const thoughts = useStore(state => state.thoughts);
+    const addThought = useStore(state => state.addThought);
+
+    useEffect(() => {
+        if (thoughts.length === 0) {
+            addThought({
+            id: '1',
+            text: 'Had a great idea for a project',
+            timestamp : new Date(Date.now()),
+            sentiment:'positive'
+        }),
+            addThought({
+            id: '2',
+            text: 'Been a bummer of a day- got nothing done',
+            timestamp : new Date(Date.now()- 15*60000),
+            sentiment:'negative'
+        }),
+            addThought({
+            id: '3',
+            text: 'Normal day- nothing special',
+            timestamp : new Date(Date.now()- 45*60000),
+            sentiment:'neutral'
+        })
     }
-    ]);
+
+    }, []);
 
     const HandleRecordingComplete = (text: string) =>{
         const newThought:Thought = {
@@ -35,7 +42,7 @@ export default function ThinkScreen(){
             timestamp: new Date(),
             sentiment: 'neutral'
         };
-        setThoughts(prevThoughts => [newThought, ...prevThoughts] );
+        addThought(newThought);
     };
 
     return(
