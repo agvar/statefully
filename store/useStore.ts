@@ -32,26 +32,7 @@ interface StoreState{
 
 export const useStore = create<StoreState>((set,get) =>({
     //Initial state
-    thoughts: [
-        {
-            id: '1',
-            text: 'Had a great idea for a project',
-            timestamp : new Date(Date.now()),
-            sentiment:'positive'
-        },
-                {
-            id: '2',
-            text: 'Been a bummer of a day- got nothing done',
-            timestamp : new Date(Date.now()- 15*60000),
-            sentiment:'negative'
-        },
-                {
-            id: '3',
-            text: 'Normal day- nothing special',
-            timestamp : new Date(Date.now()- 45*60000),
-            sentiment:'neutral'
-        }
-    ],
+    thoughts: [],
     tasks: [],
 
     //Thought actions
