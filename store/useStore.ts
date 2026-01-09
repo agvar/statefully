@@ -91,13 +91,13 @@ export const useStore = create<StoreState>()(
         const merged = { ...currentState, ...(persistedState as any) };
 
         if (merged.thoughts) {
-            merged.thoughs = merged.thoughts.map((thought: any) =>(
+            merged.thoughts = merged.thoughts.map((thought: any) =>(
                 {...thought, timestamp: new Date(thought.timestamp)}
             ));
         }
 
         if (merged.tasks){
-            merged.tasks= merged.thoughts.map((task:any) => (
+            merged.tasks= merged.tasks.map((task:any) => (
                 {...task,
                     startTime: task.startTime ? new Date(task.startTime) : undefined,
                     endTime: task.endTime ? new Date(task.endTime) : undefined,
