@@ -4,12 +4,14 @@ import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { Thought } from '@/types';
 import { useEffect } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 
 export default function ThinkScreen(){
     //create test data for testing
     const thoughts = useStore(state => state.thoughts);
     const addThought = useStore(state => state.addThought);
+
+    const clearAllThoughts = useStore(state => state.clearAllThoughts);
 
     useEffect(() => {
         if (thoughts.length === 0) {
@@ -64,6 +66,7 @@ export default function ThinkScreen(){
         <View style= {styles.VoiceButtonContainer}>
             <VoiceButton onRecordingComplete={HandleRecordingComplete}/>
         </View>
+        <Button title='Clear all thoughts' onPress={clearAllThoughts} />
         </View>
     );
 }
