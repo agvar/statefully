@@ -38,17 +38,13 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
             }
         }
         if (!isRecording){
-            try {
             await audioRecorder.prepareToRecordAsync();
             await audioRecorder.record();
-            }
-            catch(err) {
-                console.error("Failed to start recording",err)
-            }
         }
         else {
             await audioRecorder.stop();
-            onRecordingComplete("This is a test thought");
+            const text = "Voice recording captured"
+            onRecordingComplete(text);
         }
     };
 
