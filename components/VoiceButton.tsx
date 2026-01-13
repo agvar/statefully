@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { AudioModule, RecordingPresets, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface VoiceButtonProps {
@@ -9,12 +9,12 @@ interface VoiceButtonProps {
 }
 
 export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) {
-    const [isRecording, setisRecording] = useState(false);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
     const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
     const recorderState = useAudioRecorderState(audioRecorder);
-
+    const isRecording = recorderState.isRecording
+    
 
 
     const handlePress= async() => {
@@ -27,10 +27,11 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
             return ;
             }
         }
-        if (recorderState.isRecording){
+        if (!isRecording){
             try {
             await audioRecorder.prepareToRecordAsync();
-            audioRecorder.record();
+            await audioRecorder.record();
+            startPulseAnimation();
             }
             catch(err) {
                 console.error("Failed to start recording",err)
@@ -38,16 +39,8 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
         }
         else {
             await audioRecorder.stop();
-        }
-
-        if(isRecording) {
-            setisRecording(false);
             stopPulseAnimation();
             onRecordingComplete("This is a test thought");
-        }
-        else{
-            setisRecording(true);
-            startPulseAnimation();
         }
     };
 
