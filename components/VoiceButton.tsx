@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { AudioModule, RecordingPresets, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface VoiceButtonProps {
@@ -14,6 +14,16 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
     const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
     const recorderState = useAudioRecorderState(audioRecorder);
     const isRecording = recorderState.isRecording
+
+    useEffect(() =>{
+        if(!isRecording){
+            startPulseAnimation();
+        }
+        else{
+            stopPulseAnimation();
+        }
+
+    },[isRecording])
     
 
 
@@ -31,7 +41,6 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
             try {
             await audioRecorder.prepareToRecordAsync();
             await audioRecorder.record();
-            startPulseAnimation();
             }
             catch(err) {
                 console.error("Failed to start recording",err)
@@ -39,7 +48,6 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
         }
         else {
             await audioRecorder.stop();
-            stopPulseAnimation();
             onRecordingComplete("This is a test thought");
         }
     };
