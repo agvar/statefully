@@ -1,5 +1,6 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { AudioModule, RecordingPresets, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -11,8 +12,34 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
     const [isRecording, setisRecording] = useState(false);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
+    const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+    const recorderState = useAudioRecorderState(audioRecorder);
 
-    const handlePress= () => {
+
+
+    const handlePress= async() => {
+        //check for permission, request if needed
+        const status = await AudioModule.getRecordingPermissionsAsync();
+        if (status.status !== 'granted'){
+            const request = await AudioModule.requestRecordingPermissionsAsync();
+            if (!request.granted) {
+            alert("Permission to access microphone was denied ");
+            return ;
+            }
+        }
+        if (recorderState.isRecording){
+            try {
+            await audioRecorder.prepareToRecordAsync();
+            audioRecorder.record();
+            }
+            catch(err) {
+                console.error("Failed to start recording",err)
+            }
+        }
+        else {
+            await audioRecorder.stop();
+        }
+
         if(isRecording) {
             setisRecording(false);
             stopPulseAnimation();
