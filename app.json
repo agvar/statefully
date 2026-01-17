@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone"
+        "NSMicrophoneUsageDescription": "The  $(PRODUCT_NAME) uses the microphone to record user instructions for tasks"
       }
     },
     "android": {
