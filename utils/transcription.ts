@@ -1,6 +1,6 @@
 import { File } from 'expo-file-system';
 
-export const transcribeAudio = async(fileUri: string): Promise<string> => {
+export const transcribeAudio = async(fileUri: File): Promise<string> => {
     const transcribeUrl = 'https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true'
     try {
         const audioFile = new File(fileUri);
@@ -8,8 +8,8 @@ export const transcribeAudio = async(fileUri: string): Promise<string> => {
     const response = await fetch(transcribeUrl,{
         method : "POST",
         headers: {
-            "Content-Type" :"audio/wav",
-            "Authorization": "TOKEN API_KEY" ,
+            "Content-Type" :"audio/m4a",
+            "Authorization": `Token ${process.env.DEEPGRAM_API_KEY} `,
         },
         body: audioBuffer
     });
