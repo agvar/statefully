@@ -1,8 +1,10 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { AudioModule, RecordingPresets, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
-import { useEffect, useRef } from 'react';
+import { File, Paths } from 'expo-file-system';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+const [isTranscribing, setIsTranscribing ] = useState(false)
 
 interface VoiceButtonProps {
     onRecordingComplete : (text: string) => void;
@@ -43,6 +45,19 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
         }
         else {
             await audioRecorder.stop();
+            const fileUri = audioRecorder.uri;
+            setIsTranscribing(true)
+            if(fileUri) {
+                try {
+                    const destinationFileName = `recording-${Date.now()}.m4a`
+                    const sourceFile = new File(fileUri)
+                    const destinationFile = new File(Paths.document,destinationFileName)
+                    sourceFile.move(destinationFile)
+                }
+                catch(err) {
+                    console.error(`Move of ${fileUri} failed`)
+                }
+            }
             const text = "Voice recording captured"
             onRecordingComplete(text);
         }
