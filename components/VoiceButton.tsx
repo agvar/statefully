@@ -1,4 +1,5 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
+import { transcribeAudio } from '@/utils/transcription';
 import { Ionicons } from '@expo/vector-icons';
 import { AudioModule, RecordingPresets, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
@@ -53,13 +54,17 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
                     const sourceFile = new File(fileUri)
                     const destinationFile = new File(Paths.document,destinationFileName)
                     sourceFile.move(destinationFile)
+                    const transcript = await transcribeAudio(destinationFile);
+                    onRecordingComplete(transcript);
                 }
                 catch(err) {
                     console.error(`Move of ${fileUri} failed`)
                 }
+                finally {
+                    setIsTranscribing(false);
+                }
             }
-            const text = "Voice recording captured"
-            onRecordingComplete(text);
+
         }
     };
 
