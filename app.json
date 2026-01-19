@@ -35,7 +35,7 @@
       "expo-audio"
     ],
     "extra" :{
-      "deepgramApiKey" : process.env.DEEPGRAM_API_KEY
+      "deepgramApiKey" : "process.env.DEEPGRAM_API_KEY"
     }
   }
 }
