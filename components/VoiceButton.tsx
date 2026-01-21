@@ -33,46 +33,55 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
 
     const handlePress= async() => {
         //check for permission, request if needed
-        console.log("Recording started")
-        console.log("requesting permission")
+        console.log("Log: Recording started")
+        console.log("Log: requesting permission")
         const status = await AudioModule.getRecordingPermissionsAsync();
         if (status.status !== 'granted'){
             const request = await AudioModule.requestRecordingPermissionsAsync();
             if (!request.granted) {
             alert("Permission to access microphone was denied ");
-            console.log("permission to microphone denied")
+            console.log("Log: permission to microphone denied")
             return ;
             }
         }
         try {
+            console.log("Log: Permission complete");
             await setAudioModeAsync({
                     allowsRecording:true,
                     playsInSilentMode:true
                 }
-            )}
+            );
+            console.log("Log: setAudioModeAsync succeeded");
+        }
         catch(err){
             console.error("Failed to start recording")
         }
 
         if (!isRecording){
+            console.log("Log: begin recording module");
             await audioRecorder.prepareToRecordAsync();
             await audioRecorder.record();
+            console.log("Log: end recording module");
         }
         else {
+            console.log("Log: start Stop record module");
             await audioRecorder.stop();
             const fileUri = audioRecorder.uri;
             setIsTranscribing(true)
+            console.log(`Log: file saved is ${fileUri}`);
             if(fileUri) {
                 try {
                     const destinationFileName = `recording-${Date.now()}.m4a`
                     const sourceFile = new File(fileUri)
                     const destinationFile = new File(Paths.document,destinationFileName)
                     sourceFile.move(destinationFile)
+                    console.log(`Log: Destination file is ${destinationFile}`);
+                    console.log("Log: start Transcription module");
                     const transcript = await transcribeAudio(destinationFile);
                     onRecordingComplete(transcript);
                 }
                 catch(err) {
-                    console.error(`Move of ${fileUri} failed`)
+                    console.error(err)
                 }
                 finally {
                     setIsTranscribing(false);
