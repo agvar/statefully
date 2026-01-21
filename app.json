@@ -33,9 +33,7 @@
     "plugins": [
       "expo-router",
       "expo-audio"
-    ],
-    "extra" :{
-      "deepgramApiKey" : "process.env.DEEPGRAM_API_KEY"
-    }
+    ]
+
   }
 }
