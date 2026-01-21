@@ -74,14 +74,15 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
                     const destinationFileName = `recording-${Date.now()}.m4a`
                     const sourceFile = new File(fileUri)
                     const destinationFile = new File(Paths.document,destinationFileName)
-                    sourceFile.move(destinationFile)
+                    await sourceFile.move(destinationFile)
                     console.log(`Log: Destination file is ${destinationFile}`);
                     console.log("Log: start Transcription module");
+
                     const transcript = await transcribeAudio(destinationFile);
                     onRecordingComplete(transcript);
                 }
                 catch(err) {
-                    console.error(err)
+                    console.error(`Recording failed with Error: ${err}`)
                 }
                 finally {
                     setIsTranscribing(false);
@@ -158,7 +159,6 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
             <Pressable 
             onPress={handlePress}
             disabled = {isTranscribing}>
-
                 {({ pressed}) => (
                     <Animated.View style = {[
                         styles.button,
@@ -213,8 +213,8 @@ const styles = StyleSheet.create({
 
         },
         buttonRecording:{
-            backgroundColor : Colors.drain,
-            shadowColor: Colors.drain,
+            backgroundColor : Colors.background.light,
+            shadowColor: Colors.background.light,
         },
         buttonTranscribing:{
             backgroundColor : Colors.drain,
