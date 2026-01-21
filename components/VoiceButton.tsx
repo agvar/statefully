@@ -5,13 +5,14 @@ import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder, use
 import { File, Paths } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-const [isTranscribing, setIsTranscribing ] = useState(false)
+
 
 interface VoiceButtonProps {
     onRecordingComplete : (text: string) => void;
 }
 
 export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) {
+    const [isTranscribing, setIsTranscribing ] = useState(false)
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
     const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
