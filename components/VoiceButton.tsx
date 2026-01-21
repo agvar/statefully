@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { transcribeAudio } from '@/utils/transcription';
 import { Ionicons } from '@expo/vector-icons';
-import { AudioModule, RecordingPresets, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
+import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -32,14 +32,27 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
 
     const handlePress= async() => {
         //check for permission, request if needed
+        console.log("Recording started")
+        console.log("requesting permission")
         const status = await AudioModule.getRecordingPermissionsAsync();
         if (status.status !== 'granted'){
             const request = await AudioModule.requestRecordingPermissionsAsync();
             if (!request.granted) {
             alert("Permission to access microphone was denied ");
+            console.log("permission to microphone denied")
             return ;
             }
         }
+        try {
+            await setAudioModeAsync({
+                    allowsRecording:true,
+                    playsInSilentMode:true
+                }
+            )}
+        catch(err){
+            console.error("Failed to start recording")
+        }
+
         if (!isRecording){
             await audioRecorder.prepareToRecordAsync();
             await audioRecorder.record();
@@ -132,11 +145,15 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
 
     return(
         <View style={styles.container}>
-            <Pressable onPress={handlePress}>
+            <Pressable 
+            onPress={handlePress}
+            disabled = {isTranscribing}>
+
                 {({ pressed}) => (
                     <Animated.View style = {[
                         styles.button,
                         isRecording && styles.buttonRecording,
+                        isTranscribing && styles.buttonTranscribing,
                         pressed && styles.buttonPressed,
                         {
                             transform: [{scale: scaleAnim}],
@@ -145,15 +162,21 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
                         }
                     ]}>
                         <Ionicons
-                            name = {isRecording ? "stop-circle-outline" : "mic-outline"}
+                            name = {isTranscribing? "hourglass-outline"
+                                : isRecording ? "stop-circle-outline" 
+                                : "mic-outline"}
                             size={40}
                             color="#ffffff"
                         />
                     </Animated.View>
                 )}
             </Pressable>
+
             <Text style={styles.label}>
-                {isRecording? "Tap to Stop" : "Tap to Speak"}
+                {isTranscribing
+                ? "Processing..."
+                :isRecording? "Tap to Stop" 
+                : "Tap to Speak"}
 
             </Text>
         </View>
@@ -180,6 +203,10 @@ const styles = StyleSheet.create({
 
         },
         buttonRecording:{
+            backgroundColor : Colors.drain,
+            shadowColor: Colors.drain,
+        },
+        buttonTranscribing:{
             backgroundColor : Colors.drain,
             shadowColor: Colors.drain,
         },
