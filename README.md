@@ -17,22 +17,32 @@ The app follows a simple workflow:
 
 ## ✨ Features
 
-- 🎤 **Voice-first input** - Capture thoughts quickly with voice recording
-- 🌓 **Dark/Light mode** - Think Stream uses dark mode, Do Board and Pulse use light mode
-- ⏱️ **Time tracking** - Track how long tasks take with built-in timer
-- 📊 **Visual insights** - See patterns in your productivity and emotional states
-- 💭 **Sentiment analysis** - Understand the emotional tone of your thoughts
+### Implemented ✅
+- 🎤 **Voice-first input** - Capture thoughts with voice recording and automatic transcription
+- 🗣️ **Speech-to-Text** - Powered by Deepgram API for accurate transcription
+- 💾 **Persistent storage** - Thoughts saved automatically and survive app restarts
+- 🎨 **Animated UI** - Smooth pulsing button animations with React Native Animated API
+- 🌓 **Dark mode** - Think Stream uses dark background for focused thought capture
+- 📱 **Permission handling** - Proper microphone permission flow for iOS/Android
+
+### In Progress 🚧
+- 💭 **Sentiment analysis** - Emotional tone detection for thoughts
+- ⏱️ **Time tracking** - Built-in timer for task duration
+- 📊 **Visual insights** - Productivity and emotional state patterns
 - 🎯 **Energy tracking** - Mark tasks by energy level (High, Medium, Low)
-- 📱 **Native iOS experience** - Built with React Native for smooth performance
+- 🌞 **Light mode screens** - Do Board and Pulse screens
 
 ## 🛠️ Tech Stack
 
 - **Framework**: [Expo](https://expo.dev/) (React Native)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Navigation**: [React Navigation](https://reactnavigation.org/)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand) with persist middleware
 - **Data Persistence**: AsyncStorage
-- **UI Components**: Custom components with React Native Paper
+- **Audio Recording**: expo-audio
+- **File System**: expo-file-system
+- **Speech-to-Text**: [Deepgram API](https://deepgram.com/)
+- **UI Components**: Custom components built with React Native core
 - **Icons**: Ionicons (via @expo/vector-icons)
 
 ## 📱 Screenshots
@@ -40,13 +50,7 @@ The app follows a simple workflow:
 _Coming soon - Screenshots will be added as features are completed_
 
 ## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v20.x or higher)
-- npm or yarn
-- Expo Go app (for testing on physical device)
-- iOS Simulator (Mac) or Android Emulator (optional)
+- **Deepgram API Key** - Sign up at [deepgram.com](https://deepgram.com/) for speech-to-text
 
 ### Installation
 
@@ -54,27 +58,57 @@ _Coming soon - Screenshots will be added as features are completed_
    ```bash
    git clone https://github.com/agvar/statefully.git
    cd statefully
+   ```
 
 2. **Navigate to the project directory**
-    ```bash
-    cd statefully
+   ```bash
+   cd statefully
+   ```
 
-3. **Install dependencies**    
-    ```bash
-    npm install
+3. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-4. **Start the development server**    
-    ```bash
-    npm start
-5. **Run on your device**   
-    - Scan the QR code with Expo Go (iOS) or Expo app (Android)
-    - Or press i for iOS simulator, a for Android emulator
+4. **Set up environment variables**
+   
+   Create a `.env` file in the `statefully` directory:
+   ```bash
+   DEEPGRAM_API_KEY=your_deepgram_api_key_here
+   ```
+   
 
-### Project Structure
+5. **Start the development server**
+   ```bash
+   npm start
+   ```
 
-```
-statefully/
-├── app/                  # Screens (Expo Router)
+6. **Run on your device**   # Screens (Expo Router)
+│   ├── (tabs)/             # Tab navigation group
+│   │   ├── _layout.tsx     # Tab bar configuration
+│   │   ├── think.tsx       # Think Stream screen (Voice recording)
+│   │   ├── do.tsx          # Do Board screen (Task management)
+│   │   └── pulse.tsx       # Pulse screen (Analytics)
+│   ├── _layout.tsx         # Root layout
+│   └── index.tsx           # Entry point
+├── components/             # Reusable UI components
+│   ├── ThoughtBubble.tsx   # Individual thought display
+│   └── VoiceButton.tsx     # Animated recording button
+├── constants/              # Design tokens
+│   └── theme.ts           # Colors, typography, spacing, shadows
+├── store/                  # State management
+│   └── useStore.ts        # Zustand store with persistence
+├── types/                  # TypeScript definitions
+│   └── index.ts           # Thought, Task, Sentiment types
+├── utils/                  # Helper functions
+│   └── transcription.ts   # Deepgram API integration
+├── assets/                 # Static resources
+├── .env                    # Environment variables (not in repo)
+├── .gitignore             # Git ignore rules
+├── package.json           # Dependencies
+├── tsconfig.json          # TypeScript configuration
+├── app.json               # Expo configuration
+└── README.md                # Screens (Expo Router)
 │   ├── (tabs)/          # Tab navigation group
 │   │   ├── think.tsx    # Think Stream screen
 │   │   ├── do.tsx       # Do Board screen
@@ -84,15 +118,40 @@ statefully/
 ├── constants/           # Theme, colors, typography
 │   └── theme.ts        # Design system
 ├── store/              # Zustand state management
-├── types/              # TypeScript type definitions
-├── utils/              # Helper functions
-├── assets/             # Images, fonts, icons
-├── package.json        # Dependencies
-├── tsconfig.json       # TypeScript configuration
-├── app.json            # Expo configuration
-└── README.md           # Project documentation
-```
+├─ 🎨 Design System
 
+The app uses a custom design system with:
+
+- **Color Palette**: Navy blue primary, Bronze accents, Flow (blue) and Drain (orange) states
+- **Typography**: iOS-inspired scale (12px - 36px)
+- **Spacing**: 8px-based system (4, 8, 16, 24, 32, 48, 64)
+- **Shadows**: Subtle iOS-style elevation (sm, md, lg)
+- **Animations**: React Native Animated API for smooth transitions
+
+All design tokens are centralized in [constants/theme.ts](constants/theme.ts) for consistency.
+
+## 🔧 Configuration
+
+### Microphone Permissions
+
+The app requires microphone access for voice recording. Permissions are configured in:
+
+- **iOS**: `ios.infoPlist.NSMicrophoneUsageDescription` in `app.json`
+- **Android**: `recordAudioAndroid: true` in `app.json`
+
+### Deepgram API Setup
+
+1. Sign up at [deepgram.com](https://deepgram.com/)
+2. Create a new API key
+3. Add it to your `.env` file
+4. The app uses the `nova-3` model with smart formatting enabled
+
+## 📝 Development Notes
+
+- **State Management**: Zustand store persists thoughts and tasks to AsyncStorage
+- **Date Handling**: Custom merge function handles Date serialization/deserialization
+- **Audio Files**: Recordings saved to document directory as `.m4a` format
+- **Animations**: Pulsing button uses looped parallel animations for scale and opacity
 ###  🎨 Design System
 The app uses a custom design system with:
 
