@@ -4,6 +4,7 @@
 
 export type EnergyState = 'flow' | 'drain';
 export type ActivitySource = 'voice' | 'manual';
+
 // Activity Type
 
 export interface Activity {
@@ -17,9 +18,6 @@ export interface Activity {
     transcription?: string;
 
 }
-
-
-
 
 //Sentiment Types
 
