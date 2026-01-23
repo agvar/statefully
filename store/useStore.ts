@@ -1,4 +1,4 @@
-import { Task, Thought } from '@/types';
+import { Activity, ActivitySource, EnergyState } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -11,23 +11,28 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 //Define store shape
 interface StoreState{
-    thoughts: Thought[];
-    tasks: Task[];
+    //thoughts: Thought[];
+    //tasks: Task[];
+    activities :Activity[];
+    activeActivity: Activity | null;
 
-    //Actions for thoughts
-    addThought: (thought: Thought) => void;
-    removeThought: (id:string) => void;
-    updateThought: (id:string, updates:Partial<Thought>) => void;
+    startActivity: (name:string, source: ActivitySource, transcription?: string) => void;
+    stopActivity: () => void;
+    tagActivity:(id:string, energyState:EnergyState) => void;
 
-    //Action for Tasks
-    addTask: (task: Task) => void;
-    removeTask: (id: string) => void;
-    updateTask: (id:string, updates:Partial<Task>) => void;
-    toggleTaskComplete : (id:string) => void;
+    //Manual CRUD
+   // addManualActivity:(Activity:Omit<Activity,'id'>) => void;
+    //updateActivity:(id: string, updates:Partial<Activity>) => void;
+    //deleteActivity: (id:string) => void;
 
-    //Utility actions
-    clearAllThoughts: () => void;
-    clearAllTasks : () => void;
+    //Computed/helper
+   // getCompletedActivities: () => Activity[];
+    //getUntaggedActivities: () =>Activity[];
+   // getTodayStats: () => { flowHours:number, drainHours: number};
+
+       //Utility actions
+   // clearAllThoughts: () => void;
+   // clearAllTasks : () => void;
 }
 
 //Create the store
@@ -35,77 +40,68 @@ interface StoreState{
 export const useStore = create<StoreState>()(
     persist(
     (set,get) =>({
-    //Initial state
-    thoughts: [],
-    tasks: [],
+        activities :[],
+        activeActivity: null,
 
-    //Thought actions
-    addThought: (thought) =>
-        set((state) => ({
-            thoughts: [thought, ...state.thoughts]
-        })),
+        startActivity : (name, source, transcription) => {
+            if(get().activeActivity){
+                throw new Error("Stop current activity first");
+            }
 
-    removeThought: (id) =>
-        set((state) => ({
-            thoughts: state.thoughts.filter(t => t.id !== id)
-        })),
+            const newActivity:Activity = {
+                id: Date.now().toString(),
+                name,
+                startTime: new Date(),
+                duration: 0,
+                source,
+                transcription
+            };
+            set({ activeActivity: newActivity });
 
-    updateThought: (id, updates) =>
-        set((state) => ({
-            thoughts: state.thoughts.map(
-                t => t.id === id ? { ...t, ...updates} : t
-            )
-        })),
+        },
 
-    //Task actions
-    addTask: (task) => 
-        set((state) => ({
-            tasks : [...state.tasks, task]
-        })),
-    
-    removeTask: (id) => 
-        set( (state) => ({
-            tasks: state.tasks.filter(t => t.id !== id)
-        })),
+        stopActivity: () =>{
+            const active= get().activeActivity;
+            if(!active) return;
 
-    updateTask: (id, updates) =>
-        set((state) =>({
-            tasks: state.tasks.map(t => t.id === id ? {...t, ...updates} : t)
-        })),
-    
-    toggleTaskComplete : (id) =>set((state) =>
-        ({
-            tasks: state.tasks.map(t => t.id === id ? {...t, completed: !t.completed} : t)
-        })),
+            const endTime= new Date();
+            const duration = (endTime.getTime() - active.startTime.getTime())/1000;
 
-    //Utility actions
-    clearAllThoughts: () => set({ thoughts: [] }),
-    clearAllTasks: () => set({ tasks: [] }),
-}),
+            const stoppedActivity = {
+                ...active, endTime, duration
+            };
+
+            set(state => ({
+                activeActivity: null,
+                activities: [stoppedActivity, ...state.activities]
+            }));
+        },
+        tagActivity :(id,energyState) =>{
+            set(state =>({
+                activities: state.activities.map((activity:Activity) =>
+                    activity.id == id ? {...activity, energyState}: activity
+                )
+            }));
+        }
+ 
+    }),
 {
     name: 'statefully-storage', //unique name for storage key
     storage: createJSONStorage(() => AsyncStorage),
+    partialize: (state) =>({
+       activities : state.activities,
+    }),
 
     //custom merge function to handle dates
-    merge : (persistedState, currentState) =>{
-        const merged = { ...currentState, ...(persistedState as any) };
-
-        if (merged.thoughts) {
-            merged.thoughts = merged.thoughts.map((thought: any) =>(
-                {...thought, timestamp: new Date(thought.timestamp)}
-            ));
-        }
-
-        if (merged.tasks){
-            merged.tasks= merged.tasks.map((task:any) => (
-                {...task,
-                    startTime: task.startTime ? new Date(task.startTime) : undefined,
-                    endTime: task.endTime ? new Date(task.endTime) : undefined,
-                 }));
-        }
-
-        return merged;
-    }
-}
- )
+    merge : (persisted: any, current: StoreState) =>{
+        const activities = (persisted.activities || []).map(
+            (activity:Activity) => ({
+                    ...activity,
+                    startTime: new Date(activity.startTime),
+                    endTime: activity.endTime? new Date(activity.endTime): undefined
+            })
+                );
+            return {...current, activities}
+                }
+    })
 );
