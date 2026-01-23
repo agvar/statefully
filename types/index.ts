@@ -2,6 +2,8 @@
  * Core data types
  */
 
+export type EnergyState = 'flow' | 'drain';
+export type ActivitySource = 'voice' | 'manual';
 // Activity Type
 
 export interface Activity {
@@ -10,8 +12,8 @@ export interface Activity {
     startTime : Date;
     endTime?: Date;
     duration: number;
-    energyState?: 'flow' | 'drain';
-    source: 'voice' | 'manual';
+    energyState?: EnergyState;
+    source: ActivitySource;
     transcription?: string;
 
 }
