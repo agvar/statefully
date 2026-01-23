@@ -41,3 +41,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+#documentatition
+Design_Summary_baseline.txt

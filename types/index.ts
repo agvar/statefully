@@ -2,6 +2,23 @@
  * Core data types
  */
 
+// Activity Type
+
+export interface Activity {
+    id: string;
+    name: string;
+    startTime : Date;
+    endTime?: Date;
+    duration: number;
+    energyState?: 'flow' | 'drain';
+    source: 'voice' | 'manual';
+    transcription?: string;
+
+}
+
+
+
+
 //Sentiment Types
 
 export type Sentiment = 'positive'| 'negative' | 'neutral';
