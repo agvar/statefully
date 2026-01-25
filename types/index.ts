@@ -18,6 +18,7 @@ export interface Activity {
     transcription?: string;
 
 }
+/*
 
 //Sentiment Types
 
@@ -51,3 +52,5 @@ export interface Task {
 
 export type ThoughtFilter = 'all' | 'positive' | 'negative' | 'neutral';
 export type ThoughtSort = 'recent' | 'oldest';
+
+*/
