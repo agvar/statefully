@@ -55,6 +55,7 @@ export default function ActiveActivityCard({ activity, onStop}: ActiveActivityCa
             {/*Indicator showing running */}
             <View style={styles.footer}>
                 <View style={styles.pulsingDot} />
+                <Text style={styles.runningText}> Running</Text>
             </View>
         </View>
     );
