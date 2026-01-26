@@ -1,59 +1,51 @@
 import ThoughtBubble from '@/components/ThoughtBubble';
+import ActiveActivityCard from '@/components/cards/ActiveActivityCard';
+import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
+import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
+
 import VoiceButton from '@/components/VoiceButton';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
-import { Thought } from '@/types';
+import { Activity,EnergyState } from '@/types';
 import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 
 export default function ThinkScreen(){
     //create test data for testing
-    const thoughts = useStore(state => state.thoughts);
-    const addThought = useStore(state => state.addThought);
+    const activeActivity = useStore(state => state.activeActivity);
+    const unTaggedActivities = useStore(state => state.getUntaggedActivities());
+    const completedActivities = useStore(state => state.getCompletedActivities());
+    const clearActivities = useStore(state => state.clearAllActivities)
 
-    const clearAllThoughts = useStore(state => state.clearAllThoughts);
-/*
-    useEffect(() => {
-        if (thoughts.length === 0) {
-            addThought({
-            id: '1',
-            text: 'Had a great idea for a project',
-            timestamp : new Date(Date.now()),
-            sentiment:'positive'
-        }),
-            addThought({
-            id: '2',
-            text: 'Been a bummer of a day- got nothing done',
-            timestamp : new Date(Date.now()- 15*60000),
-            sentiment:'negative'
-        }),
-            addThought({
-            id: '3',
-            text: 'Normal day- nothing special',
-            timestamp : new Date(Date.now()- 45*60000),
-            sentiment:'neutral'
-        })
-    }
+    const startActivity = useStore(state => state.startActivity)
+    const stopActivity = useStore(state => state.stopActivity)
+    const tagActivity = useStore(state => state.tagActivity)
 
-    }, []);
-    */
+    //Handle voice input ->start new activity
+    const handleVoiceInput = (transcription: string) => {
+        try {
+            const activityName = transcription.trim();
+            startActivity(activityName, 'voice',transcription )
 
-    const HandleRecordingComplete = (text: string) =>{
-        const newThought:Thought = {
-            id : Date.now().toString(),
-            text: text,
-            timestamp: new Date(),
-            sentiment: 'neutral'
-        };
-        addThought(newThought);
+        } catch(err) {
+            alert('Stop current activity before starting a new one');
+        }
+
     };
+
+    //Handle tagging
+    const handleTag = (id:string, energyState: EnergyState) {
+        tagActivity(id,energyState);
+    };
+
 
     return(
         <View style = {styles.container}>
+            {/* Header */}
             <View style = {styles.header}>
-                <Text style = {styles.title}>Think Stream</Text>
+                <Text style = {styles.title}>Think Stream ✨</Text>
             </View>
 
-            {/* Thought List */}
+            {/* Scrollable Content */}
         <FlatList
             data = {thoughts}
             renderItem = {({ item }) => <ThoughtBubble thought = {item} />}
@@ -64,9 +56,9 @@ export default function ThinkScreen(){
         />
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.VoiceButtonContainer}>
-            <VoiceButton onRecordingComplete={HandleRecordingComplete}/>
+            <VoiceButton onRecordingComplete={handleVoiceInput}/>
         </View>
-        <Button title='Clear all thoughts' onPress={clearAllThoughts} />
+        <Button title='Clear all Activities' onPress={clearAllThoughts} />
         </View>
     );
 }

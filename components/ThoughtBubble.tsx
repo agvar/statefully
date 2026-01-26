@@ -1,9 +1,9 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
-import { Thought } from '@/types';
+import { Activity } from '@/types';
 import { StyleSheet, Text, View } from 'react-native';
 
 interface ThoughtBubbleProps {
-    thought: Thought;
+    thought: Activity;
 }
 
 export default function ThoughtBubble({thought }: ThoughtBubbleProps){
