@@ -17,9 +17,9 @@ export default function UntaggedActivityCard({activity, onTag}:UntaggedActivityC
             return `${hours}h ${minutes}m`;
         }
         if(minutes > 0){
-            return `${minutes}`
+            return `${minutes}m`
         }
-        return `${seconds}`
+        return `${seconds}s`
     };
 
     return(
@@ -38,7 +38,7 @@ export default function UntaggedActivityCard({activity, onTag}:UntaggedActivityC
             <View style={styles.pickerSection}>
                 <Text style={styles.prompt}>How did that feel?</Text>
                 <View style={styles.buttonRow}>
-                    
+
                     {/*Flow button */}
                     <TouchableOpacity
                         style={[styles.button, styles.flowButton]}
