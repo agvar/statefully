@@ -47,18 +47,47 @@ export default function ThinkScreen(){
 
             {/* Scrollable Content */}
         <FlatList
-            data = {thoughts}
-            renderItem = {({ item }) => <ThoughtBubble thought = {item} />}
-            keyExtractor ={item => item.id}
-            contentContainerStyle= {styles.listContent}
-            showsVerticalScrollIndicator = {false}
-            inverted
+            style={styles.scrollContent}
+            contentContainerStyle={styles.scrollContentContainer}
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={
+                <>
+                    {/*Active Activity section*/}
+                    {
+                        activeActivity &&(
+                            <ActiveActivityCard
+                                activity={activeActivity}
+                                onStop={stopActivity}
+                            />
+                        )
+                    }
+
+                    {/*Untagged Activities section */}
+                    {
+                        unTaggedActivities.map(activity=>(
+                            <UntaggedActivityCard 
+                                key={activity.id}
+                                activity={activity}
+                                onTag= {(energyState) =>{handleTag(activity.id,energyState)}}
+                            />
+                        ))
+                    }
+                    {/*Section header for comppleted */}
+                    {
+                        completedActivities.length >0 &&(
+                            <View style={styles.sectionHeader}>
+                                <Text style={styles.sectionTitle}>Recent Activities</Text>
+                            </View>
+                        )
+                    }
+                </>
+            }
         />
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.VoiceButtonContainer}>
             <VoiceButton onRecordingComplete={handleVoiceInput}/>
         </View>
-        <Button title='Clear all Activities' onPress={clearAllThoughts} />
+        <Button title='Clear all Activities' onPress={clearActivities} />
         </View>
     );
 }
@@ -69,7 +98,7 @@ const styles = StyleSheet.create({
         backgroundColor : Colors.background.dark,
     },
     header:{
-        paddingTop: Spacing['2xl'] + 20,
+        paddingTop: Spacing['2xl'] + 20, // Safe area + spacing
         paddingHorizontal: Spacing.md,
         paddingBottom: Spacing.md,
         backgroundColor: Colors.background.dark
@@ -79,9 +108,35 @@ const styles = StyleSheet.create({
         fontWeight: Typography.weight.bold,
         color:Colors.text.dark.primary,
     },
-    listContent :{
-        paddingBottom: Spacing.md,
-        flexGrow: 1
+    scrollContent: {
+        flex: 1,
+    },
+    scrollContentContainer: {
+        paddingBottom: Spacing.xl,
+    },
+    sectionHeader: {
+        paddingHorizontal: Spacing.md,
+        paddingTop: Spacing.lg,
+        paddingBottom: Spacing.sm,
+    },
+    sectionTitle: {
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.semibold,
+        color: Colors.text.dark.secondary,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    emptyState: {
+        padding: Spacing.xl,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: Spacing['3xl'],
+    },
+    emptyText: {
+        fontSize: Typography.size.base,
+        color: Colors.text.dark.secondary,
+        textAlign: 'center',
+        lineHeight: Typography.size.base * 1.5,
     },
     VoiceButtonContainer:{
         paddingVertical: Spacing.lg,
@@ -89,5 +144,11 @@ const styles = StyleSheet.create({
         backgroundColor:Colors.background.dark,
         borderTopWidth:1,
         borderTopColor: Colors.border.dark
-    }
+    },
+    voiceHint: {
+        marginTop: Spacing.sm,
+        fontSize: Typography.size.sm,
+        color: Colors.text.dark.secondary,
+    },
+    
 });
