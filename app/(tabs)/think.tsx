@@ -1,4 +1,3 @@
-import ThoughtBubble from '@/components/ThoughtBubble';
 import ActiveActivityCard from '@/components/cards/ActiveActivityCard';
 import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
@@ -6,15 +5,16 @@ import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 import VoiceButton from '@/components/VoiceButton';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
-import { Activity,EnergyState } from '@/types';
-import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
+import { EnergyState } from '@/types/index';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function ThinkScreen(){
     //create test data for testing
     const activeActivity = useStore(state => state.activeActivity);
-    const unTaggedActivities = useStore(state => state.getUntaggedActivities());
-    const completedActivities = useStore(state => state.getCompletedActivities());
-    const clearActivities = useStore(state => state.clearAllActivities)
+    const unTaggedActivities = useStore(useShallow(state => state.getUntaggedActivities()));
+    const completedActivities = useStore(useShallow(state => state.getCompletedActivities()));
+    //const clearActivities = useStore(state => state.clearAllActivities)
 
     const startActivity = useStore(state => state.startActivity)
     const stopActivity = useStore(state => state.stopActivity)
@@ -33,7 +33,7 @@ export default function ThinkScreen(){
     };
 
     //Handle tagging
-    const handleTag = (id:string, energyState: EnergyState) {
+    const handleTag = (id:string, energyState: EnergyState): void => {
         tagActivity(id,energyState);
     };
 
@@ -82,12 +82,26 @@ export default function ThinkScreen(){
                     }
                 </>
             }
+            data = {completedActivities}
+            renderItem={({ item }) => (
+                <CompletedActivityCard activity={item} />
+            )}
+            keyExtractor={item=> item.id}
+            ListEmptyComponent={
+                !activeActivity && unTaggedActivities.length == 0 ? (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyText}>
+                            Tap the microphone to start tracking your first activity
+                        </Text>
+                    </View>
+                ): null
+            }
         />
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.VoiceButtonContainer}>
             <VoiceButton onRecordingComplete={handleVoiceInput}/>
+            <Text style={styles.voiceHint}>Tap to Speak</Text>
         </View>
-        <Button title='Clear all Activities' onPress={clearActivities} />
         </View>
     );
 }
