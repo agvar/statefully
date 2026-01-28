@@ -72,7 +72,7 @@ export default function ThinkScreen(){
                             />
                         ))
                     }
-                    {/*Section header for comppleted */}
+                    {/*Section header for completed */}
                     {
                         completedActivities.length >0 &&(
                             <View style={styles.sectionHeader}>
@@ -100,7 +100,6 @@ export default function ThinkScreen(){
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.VoiceButtonContainer}>
             <VoiceButton onRecordingComplete={handleVoiceInput}/>
-            <Text style={styles.voiceHint}>Tap to Speak</Text>
         </View>
         </View>
     );
