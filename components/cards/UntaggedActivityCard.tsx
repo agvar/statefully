@@ -69,7 +69,7 @@ export default function UntaggedActivityCard({activity, onTag}:UntaggedActivityC
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: Colors.background.card,
+        backgroundColor: Colors.background.cardDark,
         borderRadius: BorderRadius.lg,
         padding: Spacing.lg,
         marginHorizontal: Spacing.md,
