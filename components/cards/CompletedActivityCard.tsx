@@ -50,7 +50,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
                 <View style={[styles.badge,{ backgroundColor: energy.color + '20'}]}>
                     <Text style={styles.badgeEmoji}>{energy.emoji}</Text>
                     <Text style={[styles.badgeText, {color: energy.color}]}>
-                        {energy.emoji}
+                        {energy.text}
                     </Text>
                 </View>
             </View>
@@ -70,7 +70,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: Colors.background.card,
+        backgroundColor: Colors.background.cardDark,
         borderRadius: BorderRadius.md,
         padding: Spacing.md,
         marginHorizontal: Spacing.md,
