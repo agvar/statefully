@@ -13,6 +13,7 @@ export const Colors= {
         light: '#FFFFFF',           // Do Board/Pulse Background
         lightGray: '#F5F5F5',       // Subtle Background variation
         card: '#FFFFFF',            // Card Backgrounds
+        cardDark : '#2C2C2E',       // Dark card background
     },
 
     //Text Colors
