@@ -26,7 +26,7 @@ export const Colors= {
      light:{
         primary: '#000000' ,        // Black text on light background
         secondary: '#3C3C43',       // Dark Grey on light background
-        tertitary: '#8E8E93'        // Medium Gray for less important text
+        tertiary: '#8E8E93'        // Medium Gray for less important text
      }
     },
 
