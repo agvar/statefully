@@ -28,11 +28,12 @@ export default function TabLayout(){
                 }}
             />
             <Tabs.Screen
-                name="do"
+                name="log"
                 options={{
                     title: "Do",
+                    headerTitle: 'Activity Log',
                     tabBarIcon:({ color, size }) => (
-                        <Ionicons name="checkmark-circle-outline" size={size} color={color} />
+                        <Ionicons name="list-outline" size={size} color={color} />
                     ),
                 }}
             />
