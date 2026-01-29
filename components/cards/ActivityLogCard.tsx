@@ -38,7 +38,7 @@ export default function ActivityLogCard({activity, onEdit, onDelete}:ActivityLog
         //Energy badge
         const getEnergyDisplay = () =>{
             if(!activity.energyState){
-                return {emoji :'⏳', text: ' Untagged', color:Colors.text.light.tertitary};
+                return {emoji :'⏳', text: ' Untagged', color:Colors.text.light.tertiary};
             }
             if(activity.energyState === 'flow'){
                 return {emoji :'✨', text: ' Flow', color:Colors.flow};
