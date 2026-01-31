@@ -10,7 +10,7 @@ export const Colors= {
     // Background colors
     background: {
         dark: '#000000',            // Think Stream dark background
-        light: '#FFFFFF',           // Do Board/Pulse Background
+        light: '#F2F2F7',           // Do Board/Pulse Background
         lightGray: '#F5F5F5',       // Subtle Background variation
         card: '#FFFFFF',            // Card Backgrounds
         cardDark : '#2C2C2E',       // Dark card background
