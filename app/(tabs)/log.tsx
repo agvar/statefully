@@ -21,7 +21,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
             [
                 { text: 'Cancel', style :'cancel'},
                 {
-                    text:'Dalete',
+                    text:'Delete',
                     style:'destructive',
                     onPress: () => deleteActivity(activity.id)
                 },
@@ -41,7 +41,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
             onPress =  {() => setShowAddModal(true)}
             activeOpacity={0.7}
             >
-                <Text style={styles.addButtonText}>+ Add Manual Acytivity</Text>
+                <Text style={styles.addButtonText}>+ Add Manual Activity</Text>
             </TouchableOpacity>
 
             {/* Activity List*/}
@@ -51,16 +51,16 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
                 renderSectionHeader={({ section}) => (
                     <DateSectionHeader 
                     date = { section.date}
-                    activities={ section.activities}
+                    activities={ section.data}
                     />
                 )}
-                renderItem={({item})=> {
+                renderItem={({item})=> (
                     <ActivityLogCard 
                         activity = {item}
                         onEdit={ ()=> handleEdit(item)}
                         onDelete={()=>handleDelete(item)}
                     />
-                }}
+                )}
                 contentContainerStyle={styles.listContent}
                 stickySectionHeadersEnabled={false}
                 ListEmptyComponent={
@@ -96,7 +96,7 @@ const groupActivitiesByDate = (activities: Activity[]) =>{
     return Object.entries(groups)
         .map(([datestring,activities]) => ({
             date : new Date(datestring),
-            activities : activities.sort((b,a) => 
+            data : activities.sort((a,b) => 
                 b.startTime.getTime()- a.startTime.getTime())
             ,
     }))
