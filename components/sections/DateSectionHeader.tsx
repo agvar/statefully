@@ -72,7 +72,7 @@ export default function DateSectionHeader({date,activities}:DateSectionHeaderPro
     return (
         <View style={styles.container}>
             {/* Date */}
-            <Text style={styles.dateText}>formatDate(date)</Text>
+            <Text style={styles.dateText}>{formatDate(date)}</Text>
 
             {/* Total */}
             <Text style={styles.totalText}>
@@ -84,6 +84,7 @@ export default function DateSectionHeader({date,activities}:DateSectionHeaderPro
                 <Text style={styles.flowText}>
                     {stats.flow} Flow ✨
                 </Text>
+                <Text style={styles.separator}> / </Text> 
                 <Text style={styles.drainText}>
                     {stats.drain} Drain 😰
                 </Text>
