@@ -95,7 +95,7 @@ const groupActivitiesByDate = (activities: Activity[]) =>{
 
     return Object.entries(groups)
         .map(([datestring,activities]) => ({
-            date : new Date(datestring),
+            date : new Date(datestring + 'T00:00:00' ),
             data : activities.sort((a,b) => 
                 b.startTime.getTime()- a.startTime.getTime())
             ,
@@ -110,7 +110,8 @@ const groupActivitiesByDate = (activities: Activity[]) =>{
         backgroundColor: Colors.background.light,
     },
     addButton: {
-        margin: Spacing.md,
+        marginTop: Spacing['2xl'] + 20, // Safe area + spacing
+        marginHorizontal: Spacing.md,
         padding: Spacing.md,
         backgroundColor: Colors.primary,
         borderRadius: 12,
