@@ -9,9 +9,10 @@ import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface VoiceButtonProps {
     onRecordingComplete : (text: string) => void;
+    disabled?: boolean;
 }
 
-export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) {
+export default function VoiceButton({ onRecordingComplete, disabled = false }: VoiceButtonProps ) {
     const [isTranscribing, setIsTranscribing ] = useState(false)
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
@@ -20,18 +21,19 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
     const isRecording = recorderState.isRecording
 
     useEffect(() =>{
-        if(!isRecording){
+        if(!isRecording && !disabled){
             startPulseAnimation();
         }
         else{
             stopPulseAnimation();
         }
 
-    },[isRecording])
+    },[isRecording,disabled])
     
 
 
     const handlePress= async() => {
+        if(disabled) return ;
         //check for permission, request if needed
         console.log("Log: Recording started")
         console.log("Log: requesting permission")
@@ -158,7 +160,9 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
         <View style={styles.container}>
             <Pressable 
             onPress={handlePress}
-            disabled = {isTranscribing}>
+            disabled = {isTranscribing || disabled}
+            style ={[styles.button, disabled && styles.buttonDisabled]}
+            >
                 {({ pressed}) => (
                     <Animated.View style = {[
                         styles.button,
@@ -182,10 +186,13 @@ export default function VoiceButton({ onRecordingComplete }: VoiceButtonProps ) 
                 )}
             </Pressable>
 
-            <Text style={styles.label}>
+            <Text style={[styles.label,disabled && styles.labelDisabled]}>
                 {isTranscribing
                 ? "Processing..."
-                :isRecording? "Tap to Stop" 
+                :isRecording
+                ? "Tap to Stop" 
+                :disabled
+                ?"Activity in progress"
                 : "Tap to Speak"}
 
             </Text>
@@ -212,6 +219,10 @@ const styles = StyleSheet.create({
             elevation: 10
 
         },
+        buttonDisabled: {
+            opacity: 0.4,  
+            backgroundColor: Colors.text.dark.tertiary, 
+        },
         buttonRecording:{
             backgroundColor : Colors.background.light,
             shadowColor: Colors.background.light,
@@ -227,7 +238,10 @@ const styles = StyleSheet.create({
             marginTop: Spacing.md,
             fontSize: Typography.size.lg,
             color: Colors.text.dark.primary
-        }
+        },
+        labelDisabled: {
+            color: Colors.text.dark.tertiary,  
+}
 
     
 })
