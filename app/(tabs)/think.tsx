@@ -99,7 +99,9 @@ export default function ThinkScreen(){
         />
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.VoiceButtonContainer}>
-            <VoiceButton onRecordingComplete={handleVoiceInput}/>
+                <VoiceButton onRecordingComplete={handleVoiceInput}
+                disabled={activeActivity !== null}
+            />
         </View>
         </View>
     );
