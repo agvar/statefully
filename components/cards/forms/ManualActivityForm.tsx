@@ -1,6 +1,7 @@
 import { Activity, EnergyState } from '@/types/index';
+import { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 
 interface ManualActivityProps {
@@ -65,5 +66,69 @@ export default function ManualActivityForm({visible, onClose, onSave}: ManualAct
         setEndTime(new Date());
         setEnergyState(undefined);
     }
+
+    const handleStartTimeChange = (event:DateTimePickerEvent, selectedDate?: Date) => {
+        if(event.type === 'dismissed'){
+            setShowStartPicker(false);
+            return;
+        }
+        if(selectedDate){
+            setStartTime(selectedDate)
+            if(selectedDate > endTime ) {
+                setEndTime(new Date(selectedDate.getTime() + 3600000));
+            }
+        }
+
+        if (Platform.OS === 'android') {
+            setShowStartPicker(false);
+        }
+    }
+
+    const handleEndTimeChange = (event:DateTimePickerEvent, selectedDate?: Date) => {
+        if(event.type === 'dismissed'){
+            setShowEndPicker(false);
+            return;
+        }
+        if(selectedDate){
+            setEndTime(selectedDate)
+        }
+
+        if (Platform.OS === 'android') {
+            setShowEndPicker(false);
+        }
+    }
+    const formatTime = (date: Date): string =>{
+        return date.toLocaleTimeString('en-US',
+            {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true 
+            }
+        );
+   };
+
+    const formatDate = (date: Date): string =>{
+        return date.toLocaleTimeString('en-US',
+            {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric' 
+            }
+        );
+   };
+
+   const getDuration=(): string =>{
+    if (startTime >= endTime){
+        return 'Invalid';
+    }
+    const seconds = (endTime.getTime() - startTime.getTime()) /1000;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600)/ 60);
+    if(hours > 0) {
+        return `${hours}h ${minutes}m`
+    }
+    return `${minutes}m`
+   };
+
     
 }
