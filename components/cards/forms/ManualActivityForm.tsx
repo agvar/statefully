@@ -2,6 +2,9 @@ import { Activity, EnergyState } from '@/types/index';
 import { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
+import { View, Modal, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView } from 'react-native/types_generated/index';
 
 
 interface ManualActivityProps {
@@ -130,5 +133,22 @@ export default function ManualActivityForm({visible, onClose, onSave}: ManualAct
     return `${minutes}m`
    };
 
-    
+    return(
+        <Modal
+            visible={visible}
+            animationType='slide'
+            presentationStyle='pageSheet'
+            onRequestClose={onClose}
+        >
+            <SafeAreaView style={StyleSheet.comtainer edges={['top']}}>
+                <KeyboardAvoidingView
+                
+                >
+
+                </KeyboardAvoidingView>
+
+            </SafeAreaView>
+
+        </Modal>>
+    )
 }
