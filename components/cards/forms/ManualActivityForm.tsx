@@ -1,10 +1,11 @@
 import { Activity, EnergyState } from '@/types/index';
-import { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker,{DateTimePickerEvent} from "@react-native-community/datetimepicker
 import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
-import { View, Modal, Text, StyleSheet } from 'react-native';
+import { View, Modal, Text, StyleSheet,KeyboardAvoidingView, 
+    ScrollView,TouchableOpacity, TextInput} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAvoidingView } from 'react-native/types_generated/index';
+import { Spacing, Colors } from '@/constants/theme';
 
 
 interface ManualActivityProps {
@@ -140,11 +141,69 @@ export default function ManualActivityForm({visible, onClose, onSave}: ManualAct
             presentationStyle='pageSheet'
             onRequestClose={onClose}
         >
-            <SafeAreaView style={StyleSheet.comtainer edges={['top']}}>
+            <SafeAreaView style={styles.container} edges={['top']}>
                 <KeyboardAvoidingView
-                
+                    behavior={Platform.OS === 'ios' ? 'padding': 'height'}
+                    style={{ flex:1 }}
                 >
+                    <ScrollView
+                        contentContainerStyle={styles.scrollContent}
+                        keyboardShouldPersistTaps="handled"
+                    >   
+                        {/* Header */}
+                        <View style={styles.header}>
+                            <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
+                                <Text style={styles.cancelText}>Cancel</Text>
+                            </TouchableOpacity>
+                            
+                            <Text style={styles.title}>Add Activity</Text>
 
+                            <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+                                <Text style={styles.saveButtonText}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/*  Activity Name*/}
+                        <View style={styles.section}>
+                            <Text style={styles.label}>Activity Name</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={activityName}
+                                onChangeText={setActivityName}
+                                placeholder='e.g., Working on presentation'
+                                placeholderTextColor={Colors.text.light.tertiary}
+                                autoCapitalize="sentences"
+                                returnKeyType="done"
+                                maxLength={100}
+                            />
+
+                        {/* Start Time */}
+                        <View style={styles.section}>
+                            <Text style={styles.label}> Start Time</Text>
+                            <TouchableOpacity
+                                style={styles.dateTimeButton}
+                                onPress={() => setShowStartPicker(true)}
+                            >
+                                <Text style={styles.dateTimeText}>
+                                    {formatDate(startTime)} at {formatTime(startTime)}
+                                </Text>
+                            </TouchableOpacity>
+                            {
+                                showStartPicker &&(
+                                    <DateTimePicker
+                                        value={startTime}
+                                        mode="datetime"
+                                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                        onChange={handleStartTimeChange}
+                                        maximumDate={new Date()}
+                                    />
+                                )
+                            }
+
+                        </View>
+
+                        </View>
+                    </ScrollView>
                 </KeyboardAvoidingView>
 
             </SafeAreaView>
@@ -152,3 +211,25 @@ export default function ManualActivityForm({visible, onClose, onSave}: ManualAct
         </Modal>>
     )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background.light,
+  },
+  
+  scrollContent: {
+    padding: Spacing.md,
+    paddingBottom: Spacing.xl,
+  },
+  
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border.light,
+  },
+})
