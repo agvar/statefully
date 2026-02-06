@@ -1,4 +1,5 @@
 import ActivityLogCard from '@/components/cards/ActivityLogCard';
+import ManualActivityForm from '@/components/forms/ManualActivityForm';
 import DateSectionHeader from '@/components/sections/DateSectionHeader';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
@@ -9,6 +10,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
  export default function ActivityLogScreen ()  {
     const activities = useStore(state => state.activities);
     const deleteActivity = useStore(store => store.deleteActivity);
+    const addManualActivity = useStore(store => store.addManualActivity)
 
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
@@ -32,6 +34,11 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
     const handleEdit = (activity: Activity) => {
         setEditingActivity(activity);
     };
+
+    const handleAddActivity = (activity: Omit<Activity, 'id'>)=>{
+        addManualActivity(activity);
+        setShowAddModal(false);
+    }
 
     return(
         <View style={styles.container}>
@@ -74,6 +81,11 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
             />
 
                 {/* Add ManualActivityForm modal */}
+                <ManualActivityForm 
+                    visible={showAddModal}
+                    onClose={()=>setShowAddModal(false)}
+                    onSave={handleAddActivity}
+                />
         </View>
 
     )
