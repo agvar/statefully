@@ -11,6 +11,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
     const activities = useStore(state => state.activities);
     const deleteActivity = useStore(store => store.deleteActivity);
     const addManualActivity = useStore(store => store.addManualActivity)
+    const updateActivity = useStore(store => store.updateActivity)
 
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
@@ -38,6 +39,11 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
     const handleAddActivity = (activity: Omit<Activity, 'id'>)=>{
         addManualActivity(activity);
         setShowAddModal(false);
+    }
+
+    const handleUpdateActivity = (id:string, updates:Partial<Activity>)=>{
+        updateActivity(id, updates);
+        setEditingActivity(null);
     }
 
     return(
@@ -85,6 +91,15 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
                     visible={showAddModal}
                     onClose={()=>setShowAddModal(false)}
                     onSave={handleAddActivity}
+                />
+
+                {/* Edit form */}
+                <ManualActivityForm 
+                    visible={editingActivity !== null}
+                    onClose={()=>setEditingActivity(null)}
+                    onSave={handleAddActivity}
+                    initialActivity={editingActivity || undefined}
+                    onUpdate={handleUpdateActivity}
                 />
         </View>
 
