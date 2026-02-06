@@ -199,7 +199,47 @@ export default function ManualActivityForm({visible, onClose, onSave}: ManualAct
                                     />
                                 )
                             }
+                        </View>
+                        {/* Energy state */}
+                        <View style={styles.section}>
+                            <Text style={styles.label}>Energy State</Text>
+                            <View style={styles.energySelector}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.energyButton,
+                                        energyState === 'flow' && styles.energyButtonSelected,
+                                        {borderColor: Colors.flow},
+                                    ]}
+                                    onPress={()=> setEnergyState('flow')}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.energyButtonText,
+                                            energyState === 'flow' && { color: Colors.flow}
+                                        ]}
+                                    >
+                                        ✨ Flow
+                                    </Text>
+                                </TouchableOpacity>
 
+                                <TouchableOpacity
+                                    style={[
+                                        styles.energyButton,
+                                        energyState === 'drain' && styles.energyButtonSelected,
+                                        {borderColor: Colors.drain},
+                                    ]}
+                                    onPress={()=> setEnergyState('drain')}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.energyButtonText,
+                                            energyState === 'drain' && { color: Colors.drain}
+                                        ]}
+                                    >
+                                        😰 Drain
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
                         </View>
