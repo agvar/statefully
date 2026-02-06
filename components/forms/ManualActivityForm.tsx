@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { Activity, EnergyState } from '@/types/index';
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,22 +9,47 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 interface ManualActivityProps {
 visible:boolean,
 onClose: () => void,
-onSave: (activity:Omit<Activity,'id'>)=> void
+onSave: (activity:Omit<Activity,'id'>)=> void,
+initialActivity?:Activity,
+onUpdate?: (id: string, updates: Partial<Activity>) => void
 
 }
 
-export default function ManualActivityForm({visible, onClose, onSave}: ManualActivityProps){
-    const [activityName, setActivityName] = useState('');
-    const [startTime, setStartTime] = useState(new Date());
+export default function ManualActivityForm({
+    visible, 
+    onClose, 
+    onSave,
+    initialActivity,
+    onUpdate
+}: ManualActivityProps){
+    const [activityName, setActivityName] = useState(
+        initialActivity?.name || '');
+
+    const [startTime, setStartTime] = useState(
+        initialActivity?.startTime || new Date());
+
     const [endTime, setEndTime] = useState(()=>{
+        if(initialActivity?.endTime){
+            return initialActivity.endTime;
+        }
         const now = new Date();
         return new Date(now.getTime() + (3600 * 1000))
     });
-    const [energyState, setEnergyState] = useState<EnergyState | undefined>(undefined);
+    const [energyState, setEnergyState] = useState<EnergyState | undefined>(
+        initialActivity?.energyState
+    );
 
     //Picker visibilty for iOS only
     const [showStartPicker,setShowStartPicker] = useState(false);
     const [showEndPicker,setShowEndPicker] = useState(false);
+    
+    useEffect(() =>{
+        if(visible){
+            resetForm();
+        }
+    },[visible,initialActivity]);
+
+    const isEditMode = initialActivity !== undefined;
 
     const validateForm = (): string | null => {
         const durationMs= endTime.getTime() - startTime.getTime();
@@ -56,27 +81,48 @@ export default function ManualActivityForm({visible, onClose, onSave}: ManualAct
         }
         const durationSeconds = (endTime.getTime() -  startTime.getTime())/1000;
 
-        const newActivity: Omit<Activity, 'id'> = {
-            name:activityName.trim(),
-            startTime: startTime,
-            endTime: endTime,
-            duration: durationSeconds,
-            energyState: energyState!,
-            source: 'manual',
-            transcription: undefined,
-        };
-
-        onSave(newActivity);
+        if (isEditMode && initialActivity && onUpdate)
+            {
+                onUpdate(initialActivity.id,
+                    {
+                        name:activityName.trim(),
+                        startTime: startTime,
+                        endTime: endTime,
+                        duration: durationSeconds,
+                        energyState: energyState!,
+                    }
+                )
+            }
+        else
+            {const newActivity: Omit<Activity, 'id'> = {
+                name:activityName.trim(),
+                startTime: startTime,
+                endTime: endTime,
+                duration: durationSeconds,
+                energyState: energyState!,
+                source: 'manual',
+                transcription: undefined,
+            };
+            onSave(newActivity);
+            }
         resetForm();
         onClose();
 
     };
 
     const resetForm = () => {
+        if(initialActivity){
+        setActivityName(initialActivity.name);
+        setStartTime(initialActivity.startTime);
+        setEndTime(initialActivity.endTime || new Date());
+        setEnergyState(initialActivity.energyState);
+        }
+        else {
         setActivityName('');
         setStartTime(new Date());
         setEndTime(new Date());
         setEnergyState(undefined);
+        }
     }
 
     const handleStartTimeChange = (event:DateTimePickerEvent, selectedDate?: Date) => {
@@ -167,7 +213,9 @@ export default function ManualActivityForm({visible, onClose, onSave}: ManualAct
                                 <Text style={styles.cancelText}>Cancel</Text>
                             </TouchableOpacity>
                             
-                            <Text style={styles.title}>Add Activity</Text>
+                            <Text style={styles.title}>
+                                {isEditMode? 'Edit Activity' : 'Add Activity'}
+                                </Text>
 
                             <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
                                 <Text style={styles.saveButtonText}>Save</Text>
