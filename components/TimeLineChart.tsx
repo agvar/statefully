@@ -1,7 +1,8 @@
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { Activity } from '@/types/index';
-import { StyleSheet, View } from 'react-native';
-import Svg, { Text } from 'react-native-svg';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 interface TimelineChartProps {
     activities : Activity[]
@@ -34,6 +35,30 @@ interface TimelineChartProps {
 
             <Svg width={chartWidth} height={chartHeight}>
               {/*  Time axis markers (0,6,12,18,24)*/}
+              {
+                [0,6,12,18,24].map(hour =>(
+                  <React.Fragment key={hour}>
+                    {/* Vertical grid line */}
+                    <Rect 
+                      x={(chartWidth/24) * hour}
+                      y={0}
+                      width ={1}
+                      height = {chartHeight}
+                      fill = "#E5E5EA"
+                    />
+                    {/* Time Label*/}
+                    <SvgText
+                      x={(chartWidth/24) * hour}
+                      y={chartHeight-5}
+                      fontSize="10"
+                      fill = {Colors.text.light.tertiary}
+                      textAnchor="middle"
+                    >
+                      {hour}
+                    </SvgText>
+                  </React.Fragment>
+                ))
+              }
 
             </Svg>
         </View>
