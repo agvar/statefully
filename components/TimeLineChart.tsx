@@ -11,10 +11,12 @@ interface TimelineChartProps {
  export default function TimelineChart({activities}:TimelineChartProps)  {
     const chartWidth= 350;
     const chartHeight = 80;
+    const barHeight = 40;
+    const barY = 25;
 
     const todayActivities = activities
     .filter( activity=> isToday(activity.startTime))
-    .sort((a,b) => b.startTime.getTime() - a.startTime.getTime());
+    .sort((a,b) => a.startTime.getTime() - b.startTime.getTime());
 
     const timeToX= (date: Date) =>{
         const hours = date.getHours();
@@ -23,13 +25,20 @@ interface TimelineChartProps {
         return ((chartWidth/24) * decimalHours)
     };
 
-    const chartDurationToWidth = (seconds:number) =>{
+    const durationToWidth = (seconds:number) =>{
         const hours = seconds/3600;
         return ((chartWidth/24) * hours) 
     };
 
     if (todayActivities.length === 0){
         return(
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No activities Today</Text>
+          </View>
+        );
+    }
+    
+    return(
         <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}> No activities today</Text>
 
@@ -59,23 +68,51 @@ interface TimelineChartProps {
                   </React.Fragment>
                 ))
               }
-
+              {/*Activity bars */}
+              {
+                todayActivities.map(activity =>{
+                  const x = timeToX(activity.startTime);
+                  const width = durationToWidth(activity.duration);
+                  const color = activity.energyState === 'flow'
+                    ? Colors.flow
+                    :activity.energyState == 'drain'
+                    ? Colors.drain
+                    : '#CCCCCC';
+                    return(
+                      <Rect 
+                        key = {activity.id}
+                        x= {x}
+                        y={barY}
+                        width = {Math.max(width,2)}
+                        height={barHeight}
+                        fill = {color}
+                        rx ={4}
+                      />
+                    )
+                }
+                )
+              }
             </Svg>
+
+            {/* Legend */}
+            <View style={styles.legend}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot,{backgroundColor: Colors.flow}]}>
+                  <Text style={styles.legendText}>Flow</Text>
+                </View>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot,{backgroundColor: Colors.drain}]}>
+                  <Text style={styles.legendText}>Drain</Text>
+                </View>
+              </View>
+            </View>
         </View>
-        );
+    );
     }
-    
-    return(
-        <View style={styles.container}>
-            <Text style={styles.title}>Day Timeline</Text>
 
-            <Svg />
-
-        </View>
-    )
-    
-
-    const isToday=(date: Date):boolean =>{
+    //Helper functions
+    function isToday (date: Date):boolean {
         const today = new Date();
         return  (
             date.getDate() === today.getDate() &&
@@ -83,7 +120,7 @@ interface TimelineChartProps {
             date.getFullYear() === today.getFullYear()
         );
     }
-}
+
 
 const styles = StyleSheet.create({
   container: {
