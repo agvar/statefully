@@ -39,8 +39,8 @@ interface TimelineChartProps {
     }
     
     return(
-        <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}> No activities today</Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>Day Timeline</Text>
 
             <Svg width={chartWidth} height={chartHeight}>
               {/*  Time axis markers (0,6,12,18,24)*/}
@@ -97,14 +97,12 @@ interface TimelineChartProps {
             {/* Legend */}
             <View style={styles.legend}>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot,{backgroundColor: Colors.flow}]}>
-                  <Text style={styles.legendText}>Flow</Text>
-                </View>
+                <View style={[styles.legendDot,{backgroundColor: Colors.flow}]} />
+                <Text style={styles.legendText}>Flow</Text>
               </View>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot,{backgroundColor: Colors.drain}]}>
-                  <Text style={styles.legendText}>Drain</Text>
-                </View>
+                <View style={[styles.legendDot,{backgroundColor: Colors.drain}]} />
+                <Text style={styles.legendText}>Drain</Text>
               </View>
             </View>
         </View>
