@@ -19,18 +19,18 @@ export default function TabLayout(){
         }}
         >
             <Tabs.Screen
-                name="think"
+                name="now"
                 options={{
-                    title: "Think",
+                    title: "Now",
                     tabBarIcon:({ color, size }) => (
-                        <Ionicons name="bulb-outline" size={size} color={color} />
+                        <Ionicons name="radio-outline" size={size} color={color} />
                     ),
                 }}
             />
             <Tabs.Screen
                 name="log"
                 options={{
-                    title: "Do",
+                    title: "Log",
                     headerTitle: 'Activity Log',
                     tabBarIcon:({ color, size }) => (
                         <Ionicons name="list-outline" size={size} color={color} />

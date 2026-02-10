@@ -9,7 +9,7 @@ import { EnergyState } from '@/types/index';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
-export default function ThinkScreen(){
+export default function NowScreen(){
     //create test data for testing
     const activeActivity = useStore(state => state.activeActivity);
     const unTaggedActivities = useStore(useShallow(state => state.getUntaggedActivities()));
@@ -42,7 +42,7 @@ export default function ThinkScreen(){
         <View style = {styles.container}>
             {/* Header */}
             <View style = {styles.header}>
-                <Text style = {styles.title}>Think Stream ✨</Text>
+                <Text style = {styles.title}>Now ⚡</Text>
             </View>
 
             {/* Scrollable Content */}
