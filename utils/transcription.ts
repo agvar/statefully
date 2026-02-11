@@ -7,9 +7,9 @@ export const transcribeAudio = async(audioFile: File): Promise<string> => {
     try {
         //const audioFile = new File(fileUri);
         const audioBuffer = await audioFile.arrayBuffer();
-    const response = await fetch(transcribeUrl,{
-        method : "POST",
-        headers: {
+        const response = await fetch(transcribeUrl,{
+            method : "POST",
+            headers: {
             "Content-Type" :"audio/m4a",
             "Authorization":`Token ${apiKey} `,
         },
