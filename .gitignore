@@ -44,3 +44,6 @@ yarn-error.*
 
 #documentatition
 Design_Summary_baseline.txt
+
+#models
+/assets/models/*
