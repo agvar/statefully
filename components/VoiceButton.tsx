@@ -1,8 +1,8 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
-import { transcribeAudio } from '@/utils/transcription';
+import { processAudioForMoonshine } from '@/utils/audioProcessor';
 import { Ionicons } from '@expo/vector-icons';
 import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
-import { File, Paths } from 'expo-file-system';
+import * as FileSystem from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -74,13 +74,23 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
             if(fileUri) {
                 try {
                     const destinationFileName = `recording-${Date.now()}.m4a`
-                    const sourceFile = new File(fileUri)
-                    const destinationFile = new File(Paths.document,destinationFileName)
-                    await sourceFile.move(destinationFile)
-                    console.log(`Log: Destination file is ${destinationFile}`);
-                    console.log("Log: start Transcription module");
+                    const fileinfo = await FileSystem.getInfoAsync(fileUri)
+                    if(!fileinfo.exists) {
+                        throw new Error('Recoding file not found')
+                    }
 
-                    const transcript = await transcribeAudio(destinationFile);
+                    const base64data = await FileSystem.readAsStringAsync(fileUri,
+                        { encoding: FileSystem.EncodingType.Base64}
+                    )
+                    const processedAudio = await processAudioForMoonshine(base64data)
+                    const transcript = await transcribewithMoonshine(processedAudio)
+                    //const sourceFile = new File(fileUri)
+                    //const destinationFile = new File(Paths.document,destinationFileName)
+                    //await sourceFile.move(destinationFile)
+                    //console.log(`Log: Destination file is ${destinationFile}`);
+                    //console.log("Log: start Transcription module");
+
+                    //const transcript = await transcribeAudio(destinationFile);
                     onRecordingComplete(transcript);
                 }
                 catch(err) {
