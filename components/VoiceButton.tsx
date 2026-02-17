@@ -1,10 +1,8 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
-import { processAudioForMoonshine } from '@/utils/audioProcessor';
 import { Ionicons } from '@expo/vector-icons';
-import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AudioRecorder, AudioManager } from 'react-native-audio-api';
 
 
 interface VoiceButtonProps {
@@ -13,12 +11,12 @@ interface VoiceButtonProps {
 }
 
 export default function VoiceButton({ onRecordingComplete, disabled = false }: VoiceButtonProps ) {
-    const [isTranscribing, setIsTranscribing ] = useState(false)
+    const [ isTranscribing, setIsTranscribing ] = useState(false)
+    const [ isRecording, setIsRecording ] = useState(false);
+    const audioChunksRef = useRef<Float32Array[]>([]);
+    const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
-    const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-    const recorderState = useAudioRecorderState(audioRecorder);
-    const isRecording = recorderState.isRecording
 
     useEffect(() =>{
         if(!isRecording && !disabled){
@@ -30,80 +28,94 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
 
     },[isRecording,disabled])
     
+    useEffect(()=>{
+        const recorder = new AudioRecorder();
+        recorder.onAudioReady(
+        {
+            sampleRate: 16000,
+            channelCount: 1,
+            bufferLength:1600
+        },
+        ({buffer,numFrames,when})=>{
+            const chunk = buffer.getChannelData(0);
+            const chunkCopy = new Float32Array(chunk);
+            audioChunksRef.current.push(chunkCopy);
+
+        }
+    );
+    recorderRef.current= recorder;
+    return () =>{
+        recorder.clearOnAudioReady();
+        recorderRef.current = null;
+    }
+    },[]);
+
 
 
     const handlePress= async() => {
-        if(disabled) return ;
-        //check for permission, request if needed
-        console.log("Log: Recording started")
-        console.log("Log: requesting permission")
-        const status = await AudioModule.getRecordingPermissionsAsync();
-        if (status.status !== 'granted'){
-            const request = await AudioModule.requestRecordingPermissionsAsync();
-            if (!request.granted) {
-            alert("Permission to access microphone was denied ");
-            console.log("Log: permission to microphone denied")
-            return ;
-            }
-        }
+        const recorder = recorderRef.current;
+        if(disabled || !recorder) return ;
         try {
-            console.log("Log: Permission complete");
-            await setAudioModeAsync({
-                    allowsRecording:true,
-                    playsInSilentMode:true
+            if (!isRecording){
+                console.log("Log: begin recording module");
+                const permission = await AudioManager.requestRecordingPermissions();
+                if(permission !== 'Granted'){
+                    alert ("Microphone permission denied");
+                    return
                 }
-            );
-            console.log("Log: setAudioModeAsync succeeded");
-        }
-        catch(err){
-            console.error("Failed to start recording")
-        }
+                const activated = await AudioManager.setAudioSessionActivity(true);
+                if(!activated){
+                    alert ("Could not activate audio session");
+                    return;
+                }
 
-        if (!isRecording){
-            console.log("Log: begin recording module");
-            await audioRecorder.prepareToRecordAsync();
-            await audioRecorder.record();
-            console.log("Log: end recording module");
-        }
-        else {
-            console.log("Log: start Stop record module");
-            await audioRecorder.stop();
-            const fileUri = audioRecorder.uri;
-            setIsTranscribing(true)
-            console.log(`Log: file saved is ${fileUri}`);
-            if(fileUri) {
+                const result = recorder.start();
+                if(result.status === 'error'){
+                    console.error(result.message);
+                    return;
+                }
+                setIsRecording(true);
+            }
+            else {
+                await recorder.stop();
+                await AudioManager.setAudioSessionActivity(false);
+                setIsTranscribing(true)
+                setIsRecording(false)
+                //process audio chunks
+                const chunks = audioChunksRef.current;
+                const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
+                const combinedAudio= new Float32Array(totalLength);
+                let offset = 0;
+                for (const chunk of chunks) {
+                    combinedAudio.set(chunk,offset);
+                    offset += chunk.length;
+                }
+
+                //clear for next recording
+                audioChunksRef.current = [];
+
+                //transcribe
+                setIsTranscribing(true);
+                const transcribeWithMoonshine = async (audio:Float32Array): Promise<string> =>{
+                    console.log ("Audio samples to transcribe");
+                    await new Promise(resolve => setTimeout(resolve,1000));
+                    return `Test Transcription (${audio.length} samples, ${(audio.length/16000).toFixed(1)}s)`
+                }
+
                 try {
-                    const destinationFileName = `recording-${Date.now()}.m4a`
-                    const fileinfo = await FileSystem.getInfoAsync(fileUri)
-                    if(!fileinfo.exists) {
-                        throw new Error('Recoding file not found')
-                    }
-
-                    const base64data = await FileSystem.readAsStringAsync(fileUri,
-                        { encoding: FileSystem.EncodingType.Base64}
-                    )
-                    const processedAudio = await processAudioForMoonshine(base64data)
-                    const transcript = await transcribewithMoonshine(processedAudio)
-                    //const sourceFile = new File(fileUri)
-                    //const destinationFile = new File(Paths.document,destinationFileName)
-                    //await sourceFile.move(destinationFile)
-                    //console.log(`Log: Destination file is ${destinationFile}`);
-                    //console.log("Log: start Transcription module");
-
-                    //const transcript = await transcribeAudio(destinationFile);
-                    onRecordingComplete(transcript);
-                }
-                catch(err) {
-                    console.error(`Recording failed with Error: ${err}`)
-                }
-                finally {
+                    const text = await transcribeWithMoonshine(combinedAudio);
+                    onRecordingComplete(text);
+                }catch(err){
+                    console.error('Transcription error',err);
+                }finally {
                     setIsTranscribing(false);
                 }
             }
-
+    }catch(err) {
+            console.error(`Recording failed with Error: ${err}`)
         }
-    };
-
+    }
+;
     const startPulseAnimation = () =>{
         Animated.loop(
             Animated.parallel([
