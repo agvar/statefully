@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AudioRecorder, AudioManager } from 'react-native-audio-api';
+import { useMoonshineModel } from '@/utils/moonshineTranscription';
 
 
 interface VoiceButtonProps {
@@ -103,7 +104,7 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                 }
 
                 try {
-                    const text = await transcribeWithMoonshine(combinedAudio);
+                    const text = await useMoonshineModel(combinedAudio);
                     onRecordingComplete(text);
                 }catch(err){
                     console.error('Transcription error',err);
