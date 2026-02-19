@@ -97,14 +97,14 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
 
                 //transcribe
                 setIsTranscribing(true);
-                const transcribeWithMoonshine = async (audio:Float32Array): Promise<string> =>{
-                    console.log ("Audio samples to transcribe");
-                    await new Promise(resolve => setTimeout(resolve,1000));
-                    return `Test Transcription (${audio.length} samples, ${(audio.length/16000).toFixed(1)}s)`
-                }
 
                 try {
-                    const text = await useMoonshineModel(combinedAudio);
+                    const { isReady, error, transcribe } = useMoonshineModel();
+
+                    if(!isReady || error) {
+                        throw new Error('Model is not loaded yet');
+                    }
+                    const text = await transcribe(combinedAudio);
                     onRecordingComplete(text);
                 }catch(err){
                     console.error('Transcription error',err);
