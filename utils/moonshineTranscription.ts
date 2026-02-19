@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { TensorPtr, useExecutorchModule, ScalarType ,TokenizerModule} from "react-native-executorch";
 
 
-export  async function useMoonshineModel(audioData:Float32Array):Promise<string> {
+export  function useMoonshineModel() {
     try {
         const encoder = useExecutorchModule({
             modelSource: require('../assets/models/moonshine_tiny_xnnpack_encoder.pte')
@@ -31,42 +31,40 @@ export  async function useMoonshineModel(audioData:Float32Array):Promise<string>
         const isReady = encoder.isReady && decoder.isReady && istokenizerReady;
         const error = encoder.error || decoder.error;
 
-        if(!isReady || error) {
-                throw new Error('Model is not loaded yet');
-        }
-
-        const audioTensor:TensorPtr ={
-            dataPtr : audioData,
-            sizes : [1, audioData.length],
-            scalarType :ScalarType.FLOAT,
-        }
-        
-        const encoderOutput = await encoder.forward([audioTensor]);
-        const hiddenStateTensor = encoderOutput[0];
-
-        let currentToken = [1];
-        let transcript = "";
-
-        for (let i=0;i<200;i++){
-            const currentTokenTensor = {
-            dataPtr : new Float32Array(currentToken),
-            sizes : [1, currentToken.length],
-            scalarType :ScalarType.INT,
+        const transcribe =async (audioData:Float32Array) => {
+            const audioTensor:TensorPtr ={
+                dataPtr : audioData,
+                sizes : [1, audioData.length],
+                scalarType :ScalarType.FLOAT,
             }
-
-            const decoderOutput = await decoder.forward([hiddenStateTensor,currentTokenTensor]);
-            const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
-            const logits = new Float32Array(rawBuffer);
-            const nextTokenId = logits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
             
-            if (nextTokenId == 2) break;
-            const TokenToWord = await tokenizer?.idToToken(nextTokenId);
-            transcript += TokenToWord
+            const encoderOutput = await encoder.forward([audioTensor]);
+            const hiddenStateTensor = encoderOutput[0];
 
-            currentToken.push(nextTokenId);
+            let currentToken = [1];
+            let transcript = "";
+
+            for (let i=0;i<200;i++){
+                const currentTokenTensor = {
+                dataPtr : new Int32Array(currentToken),
+                sizes : [1, currentToken.length],
+                scalarType :ScalarType.INT,
+                }
+
+                const decoderOutput = await decoder.forward([hiddenStateTensor,currentTokenTensor]);
+                const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
+                const logits = new Float32Array(rawBuffer);
+                const nextTokenId = logits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
+                
+                if (nextTokenId == 2) break;
+                const TokenToWord = await tokenizer?.idToToken(nextTokenId);
+                transcript += TokenToWord
+
+                currentToken.push(nextTokenId);
+            }
+                return transcript;
         }
-            return transcript;
-
+        return {isReady,error, transcribe};
 
     } catch(err){
         console.error(err)
