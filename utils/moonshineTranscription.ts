@@ -3,35 +3,36 @@ import { TensorPtr, useExecutorchModule, ScalarType ,TokenizerModule} from "reac
 
 
 export  function useMoonshineModel() {
-    try {
-        const encoder = useExecutorchModule({
-            modelSource: require('../assets/models/moonshine_tiny_xnnpack_encoder.pte')
-        });
-        const decoder = useExecutorchModule({
-            modelSource: require('../assets/models/moonshine_tiny_xnnpack_decoder.pte')
-        });
-        const [tokenizer, setTokenizer] = useState<TokenizerModule | null>(null);
-        const [istokenizerReady, setisTokenizerReady] = useState(false);
 
-        useEffect(() => {
-            async function setupTokenizer() {
-            try {   
-                const tokenizerInstance = new TokenizerModule();
-                await tokenizerInstance.load(require('../assets/models/moonshine_tiny_tokenizer.json'));
-                setTokenizer(tokenizerInstance);
-                setisTokenizerReady(true);
-            } catch (err) {
-                console.error("Failed to load tokenizer",err)
-            }
+    const encoder = useExecutorchModule({
+        modelSource: require('../assets/models/moonshine_tiny_xnnpack_encoder.pte')
+    });
+    const decoder = useExecutorchModule({
+        modelSource: require('../assets/models/moonshine_tiny_xnnpack_decoder.pte')
+    });
+    const [tokenizer, setTokenizer] = useState<TokenizerModule | null>(null);
+    const [istokenizerReady, setisTokenizerReady] = useState(false);
+
+    useEffect(() => {
+        async function setupTokenizer() {
+        try {   
+            const tokenizerInstance = new TokenizerModule();
+            await tokenizerInstance.load(require('../assets/models/moonshine_tiny_tokenizer.json'));
+            setTokenizer(tokenizerInstance);
+            setisTokenizerReady(true);
+        } catch (err) {
+            console.error("Failed to load tokenizer",err)
         }
-            setupTokenizer();
+    }
+        setupTokenizer();
 
-        },[]);
+    },[]);
 
-        const isReady = encoder.isReady && decoder.isReady && istokenizerReady;
-        const error = encoder.error || decoder.error;
+    const isReady = encoder.isReady && decoder.isReady && istokenizerReady;
+    const error = encoder.error || decoder.error;
 
-        const transcribe =async (audioData:Float32Array) => {
+    const transcribe =async (audioData:Float32Array) => {
+        try{
             const audioTensor:TensorPtr ={
                 dataPtr : audioData,
                 sizes : [1, audioData.length],
@@ -63,13 +64,14 @@ export  function useMoonshineModel() {
                 currentToken.push(nextTokenId);
             }
                 return transcript;
+        } catch(err){
+            console.error("Transcription Error",err);
+            
         }
-        return {isReady,error, transcribe};
+    return {isReady,error, transcribe};
 
-    } catch(err){
-        console.error(err)
-        throw err;
-    }
+} 
+
 
 
 
