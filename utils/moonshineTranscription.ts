@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { TensorPtr, useExecutorchModule, ScalarType ,TokenizerModule} from "react-native-executorch";
 
+interface MoonshineModelHook{
+    isReady: boolean;
+    error: string | undefined;
+    transcribe :(audioData:Float32Array) =>Promise<string> ;
+};
 
-export  function useMoonshineModel() {
+export  function useMoonshineModel():MoonshineModelHook {
 
     const encoder = useExecutorchModule({
         modelSource: require('../assets/models/moonshine_tiny_xnnpack_encoder.pte')
@@ -17,7 +22,7 @@ export  function useMoonshineModel() {
         async function setupTokenizer() {
         try {   
             const tokenizerInstance = new TokenizerModule();
-            await tokenizerInstance.load(require('../assets/models/moonshine_tiny_tokenizer.json'));
+            await tokenizerInstance.load({tokenizerSource:require('../assets/models/moonshine_tiny_tokenizer.json')});
             setTokenizer(tokenizerInstance);
             setisTokenizerReady(true);
         } catch (err) {
@@ -29,15 +34,17 @@ export  function useMoonshineModel() {
     },[]);
 
     const isReady = encoder.isReady && decoder.isReady && istokenizerReady;
-    const error = encoder.error || decoder.error;
+    const error = encoder.error?.message || decoder.error?.message;
 
     const transcribe =async (audioData:Float32Array) => {
+        console.log("starting transcription process");
+        console.log(`length of audio float32 array ${audioData.length}`)
         try{
             const audioTensor:TensorPtr ={
                 dataPtr : audioData,
                 sizes : [1, audioData.length],
                 scalarType :ScalarType.FLOAT,
-            }
+            };
             
             const encoderOutput = await encoder.forward([audioTensor]);
             const hiddenStateTensor = encoderOutput[0];
@@ -64,15 +71,14 @@ export  function useMoonshineModel() {
                 currentToken.push(nextTokenId);
             }
                 return transcript;
-        } catch(err){
+        } 
+        catch(err){
             console.error("Transcription Error",err);
-            
+            throw new Error ("Transcription Error");
         }
+    } 
+
     return {isReady,error, transcribe};
-
-} 
-
-
 
 
 };
