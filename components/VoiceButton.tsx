@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AudioRecorder, AudioManager } from 'react-native-audio-api';
-import { useMoonshineModel } from '@/utils/moonshineTranscription';
+import { useSpeechToText} from 'react-native-executorch';
 
 
 interface VoiceButtonProps {
@@ -18,6 +18,20 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
     const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
+    //const { isReady, error, transcribe } = useMoonshineModel();
+    const { transcribe, error,downloadProgress, isReady,isGenerating } = useSpeechToText({
+        model: {
+            isMultilingual: false,
+            encoderSource: require('../assets/models/moonshine_tiny_xnnpack_encoder.pte'),
+            decoderSource: require('../assets/models/moonshine_tiny_xnnpack_decoder.pte'),
+            tokenizerSource: require('../assets/models/moonshine_tiny_tokenizer.json'),
+        }
+    });
+
+    console.log('Voice button rendered error value:',error);
+    console.log('Voice button rendered isReady value:',isReady);
+    console.log('Voice button  download progress value:',downloadProgress);
+    console.log('Voice button  isGenerating:',isGenerating);
 
     useEffect(() =>{
         if(!isRecording && !disabled){
@@ -64,13 +78,22 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     alert ("Microphone permission denied");
                     return
                 }
+                console.log("Microphone permission granted");
+                await AudioManager.setAudioSessionOptions({
+                    iosCategory: 'record',
+                    iosMode: 'default',
+                    iosOptions: [],
+                });
+
                 const activated = await AudioManager.setAudioSessionActivity(true);
                 if(!activated){
                     alert ("Could not activate audio session");
                     return;
                 }
+                console.log("Microphone audio session activated");
 
                 const result = recorder.start();
+                console.log(`recorder status: ${result.status}`);
                 if(result.status === 'error'){
                     console.error(result.message);
                     return;
@@ -79,9 +102,14 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
             }
             else {
                 await recorder.stop();
+                console.log("Stopping recording")
+                if (!isReady){
+                    console.error ('Models not loaded yet');
+                }
                 await AudioManager.setAudioSessionActivity(false);
                 setIsTranscribing(true)
                 setIsRecording(false)
+
                 //process audio chunks
                 const chunks = audioChunksRef.current;
                 const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
@@ -91,7 +119,7 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     combinedAudio.set(chunk,offset);
                     offset += chunk.length;
                 }
-
+                console.log("Copy audio ")
                 //clear for next recording
                 audioChunksRef.current = [];
 
@@ -99,8 +127,6 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                 setIsTranscribing(true);
 
                 try {
-                    const { isReady, error, transcribe } = useMoonshineModel();
-
                     if(!isReady || error) {
                         throw new Error('Model is not loaded yet');
                     }
@@ -183,7 +209,7 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
         <View style={styles.container}>
             <Pressable 
             onPress={handlePress}
-            disabled = {isTranscribing || disabled}
+            disabled = {isTranscribing || disabled || !isReady}
             style ={[styles.button, disabled && styles.buttonDisabled]}
             >
                 {({ pressed}) => (
