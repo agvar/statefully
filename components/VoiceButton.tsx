@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AudioRecorder, AudioManager } from 'react-native-audio-api';
 import { useSpeechToText} from 'react-native-executorch';
+import { useMoonshineModel } from '@/utils/moonshineTranscription';
 
 
 interface VoiceButtonProps {
@@ -18,8 +19,8 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
     const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
-    //const { isReady, error, transcribe } = useMoonshineModel();
-    const { transcribe, error,downloadProgress, isReady,isGenerating } = useSpeechToText({
+    const { isReady, error, transcribe } = useMoonshineModel();
+    /*const { transcribe, error,downloadProgress, isReady,isGenerating } = useSpeechToText({
         model: {
             isMultilingual: false,
             encoderSource: require('../assets/models/moonshine_tiny_xnnpack_encoder.pte'),
@@ -27,11 +28,9 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
             tokenizerSource: require('../assets/models/moonshine_tiny_tokenizer.json'),
         }
     });
-
-    console.log('Voice button rendered error value:',error);
-    console.log('Voice button rendered isReady value:',isReady);
-    console.log('Voice button  download progress value:',downloadProgress);
-    console.log('Voice button  isGenerating:',isGenerating);
+    */
+    //console.log('Voice button rendered error value:',error);
+    //console.log('Voice button rendered isReady value:',isReady);
 
     useEffect(() =>{
         if(!isRecording && !disabled){
