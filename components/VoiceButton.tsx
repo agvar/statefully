@@ -129,6 +129,9 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     if(!isReady || error) {
                         throw new Error('Model is not loaded yet');
                     }
+
+
+
                     const text = await transcribe(combinedAudio);
                     onRecordingComplete(text);
                 }catch(err){
