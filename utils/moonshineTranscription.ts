@@ -72,7 +72,7 @@ export  function useMoonshineModel():MoonshineModelHook {
     const transcribe =async (audioData:Float32Array) => {
         console.log("starting transcription process");
         //console.log(`length of audio float32 array ${audioData.length}`)
-        //console.log('input sample audio',audioData.slice(0,5));
+        console.log('input sample audio',audioData.slice(0,10));
         const STATIC_INPUT= 480000;
         const paddedAudio = new Float32Array(STATIC_INPUT);
         paddedAudio.set(audioData.slice(0,STATIC_INPUT))
@@ -90,6 +90,7 @@ export  function useMoonshineModel():MoonshineModelHook {
             console.log('encounter hidden sizes',hiddenStateTensor.sizes);
             
             //pad encoder hidden state
+            /*
             const rawEncoderData = new Float32Array(hiddenStateTensor.dataPtr as ArrayBuffer);
             const PADDED_TIME = 1248;
             const FEATURE_DIM = 288;
@@ -101,9 +102,9 @@ export  function useMoonshineModel():MoonshineModelHook {
                 sizes :[1,PADDED_TIME,FEATURE_DIM],
                 scalarType:ScalarType.FLOAT
             }
-
+            */
             
-            let currentTokens = [1,1,1];
+            let currentTokens = [1];
             let transcript = "";
             const PADDED_TOKENS=178;
             
@@ -123,21 +124,48 @@ export  function useMoonshineModel():MoonshineModelHook {
                 //console.log('decoder input',[currentTokenTensor, paddedHiddenTensor]);
                 
                 const decoderOutput = await decoder.forward([ currentTokenTensor, hiddenStateTensor ]);
-                console.log("Decoder sucessfull");
+                //console.log("Decoder sucessfull");
+                //const vocabSize = decoderOutput[0].sizes[2];
                 const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
-                const logits = new Float32Array(rawBuffer);
-                const nextTokenId = logits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
+                const outputTokens = new BigInt64Array(rawBuffer);
                 
-                if (nextTokenId == 2) break;
-                const TokenToWord = await tokenizer?.idToToken(nextTokenId);
-                transcript += TokenToWord
+                //const allLogits = new Float32Array(rawBuffer);
+
+                /*const lastTokenindex = currentTokens.length - 1;
+                const startOffset = lastTokenindex * vocabSize
+                const lastTokenLogits = allLogits.subarray(startOffset, startOffset + vocabSize)
+
+                console.log('allLogits',allLogits);
+                console.log('allLogits length',allLogits.length);
+                console.log('lastTokenLogits',lastTokenLogits);
+                console.log('last logits length',lastTokenLogits.length);
+
+                */
+                console.log('outputTokens',outputTokens);
+                console.log('current tokens',currentTokens);
+                console.log('current length',outputTokens[currentTokens.length-1]);
+
+                
+                if (i===2) break;
+
+                //const nextTokenId = lastTokenLogits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
+                const nextTokenId= Number(outputTokens[currentTokens.length])
+
+                if (nextTokenId === 2) break;
+                if (nextTokenId === 0 || nextTokenId === 3){
+                    console.log("next token id",nextTokenId);
+                    console.log("Model predicted PAD or UNK, stopping");
+                    break;
+                }
+                const word = await tokenizer?.idToToken(nextTokenId);
+                if (word && !word.startsWith("<")){
+                    transcript += word
+                    console.log("Word",word)
+                }
+                
 
                 currentTokens.push(nextTokenId);
             }
-              
-
-                //const decoderOutput = await decoder.forward([hiddenStateTensor]);
-                //console.log('decoder output',decoderOutput)
                 return transcript;
         } 
         catch(err){
