@@ -35,12 +35,25 @@ export  function useMoonshineModel():MoonshineModelHook {
 
     useEffect(() =>{
         const debugModel = async() =>{
-            const mod =  new ExecutorchModule();
-            await mod.load(require('../assets/models/moonshine_tiny_xnnpack_decoder.pte'));
+            const EncoderModel =  new ExecutorchModule();
+            await EncoderModel.load(require('../assets/models/moonshine_tiny_xnnpack_encoder.pte'));
             try {
                 for (let i=0; i<5;i++){
-                    const shape = await mod.getInputShape('forward',i);
-                    console.log(`shape for ${i} input is ${shape}`)
+                    const shape = await EncoderModel.getInputShape('forward',i);
+                    console.log(`Enoder shape for ${i} input is ${shape}`)
+                }
+
+            } catch(err)
+            {
+                console.log(' no more input slots found');
+            }
+
+            const DecoderModel =  new ExecutorchModule();
+            await DecoderModel.load(require('../assets/models/moonshine_tiny_xnnpack_decoder.pte'));
+            try {
+                for (let i=0; i<5;i++){
+                    const shape = await DecoderModel.getInputShape('forward',i);
+                    console.log(`Decoder shape for ${i} input is ${shape}`)
                 }
 
             } catch(err)
@@ -60,35 +73,57 @@ export  function useMoonshineModel():MoonshineModelHook {
         console.log("starting transcription process");
         //console.log(`length of audio float32 array ${audioData.length}`)
         //console.log('input sample audio',audioData.slice(0,5));
+        const STATIC_INPUT= 480000;
+        const paddedAudio = new Float32Array(STATIC_INPUT);
+        paddedAudio.set(audioData.slice(0,STATIC_INPUT))
         try{
             const audioTensor:TensorPtr ={
-                dataPtr : audioData,
-                sizes : [1,audioData.length],
+                dataPtr : paddedAudio,
+                sizes : [1,STATIC_INPUT],
                 scalarType :ScalarType.FLOAT,
             };
             
             console.log('encoder input length',[audioTensor].length);
             const encoderOutput = await encoder.forward([audioTensor]);
+            console.log("encoder sucessfull")
             const hiddenStateTensor = encoderOutput[0];
             console.log('encounter hidden sizes',hiddenStateTensor.sizes);
             
+            //pad encoder hidden state
+            const rawEncoderData = new Float32Array(hiddenStateTensor.dataPtr as ArrayBuffer);
+            const PADDED_TIME = 1248;
+            const FEATURE_DIM = 288;
+            const  paddedHiddenData = new Float32Array(1 * PADDED_TIME * FEATURE_DIM)
+            paddedHiddenData.set(rawEncoderData);
             
-            let currentToken = [1];
-            let transcript = "";
+            const paddedHiddenTensor : TensorPtr = {
+                dataPtr:paddedHiddenData,
+                sizes :[1,PADDED_TIME,FEATURE_DIM],
+                scalarType:ScalarType.FLOAT
+            }
 
             
-            for (let i=0;i<200;i++){
-                const tokenArray = new Int32Array(currentToken);
+            let currentTokens = [1,1,1];
+            let transcript = "";
+            const PADDED_TOKENS=178;
+            
+            for (let i=0;i<PADDED_TOKENS;i++){
+                const tokenBuffer = new BigInt64Array(PADDED_TOKENS);
+                currentTokens.forEach((id,idx) => {
+                    tokenBuffer[idx] = BigInt(id);
+                })
+
                 const currentTokenTensor = {
-                dataPtr : tokenArray,
-                sizes : [1, currentToken.length],
+                dataPtr : tokenBuffer,
+                sizes : [1,PADDED_TOKENS],
                 scalarType :ScalarType.LONG,
                 }
-                console.log("first token for decoder",currentTokenTensor.sizes)
-                console.log("hidden state encoder",hiddenStateTensor.sizes)
-                console.log('decoder input',[currentTokenTensor, hiddenStateTensor]);
+                //console.log("first token for decoder",currentTokenTensor.sizes)
+                //console.log("hidden state encoder",paddedHiddenTensor.sizes)
+                //console.log('decoder input',[currentTokenTensor, paddedHiddenTensor]);
                 
-                const decoderOutput = await decoder.forward([hiddenStateTensor, currentTokenTensor]);
+                const decoderOutput = await decoder.forward([ currentTokenTensor, hiddenStateTensor ]);
+                console.log("Decoder sucessfull");
                 const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
                 const logits = new Float32Array(rawBuffer);
                 const nextTokenId = logits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
@@ -97,7 +132,7 @@ export  function useMoonshineModel():MoonshineModelHook {
                 const TokenToWord = await tokenizer?.idToToken(nextTokenId);
                 transcript += TokenToWord
 
-                currentToken.push(nextTokenId);
+                currentTokens.push(nextTokenId);
             }
               
 
