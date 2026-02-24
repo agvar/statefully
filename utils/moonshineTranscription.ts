@@ -72,21 +72,41 @@ export  function useMoonshineModel():MoonshineModelHook {
     const transcribe =async (audioData:Float32Array) => {
         console.log("starting transcription process");
         //console.log(`length of audio float32 array ${audioData.length}`)
-        console.log('input sample audio',audioData.slice(0,10));
+        
         const STATIC_INPUT= 480000;
         const paddedAudio = new Float32Array(STATIC_INPUT);
         paddedAudio.set(audioData.slice(0,STATIC_INPUT))
+
+        //test with sample human audio
+        const testSignal = new Float32Array(STATIC_INPUT)
+        for (let i=0;i<80000;i++){
+            const t = i / 16000;
+
+    // Fundamental frequency (100Hz) + speech formants (700Hz, 1200Hz)
+            testSignal[i] = (
+            Math.sin(2 * Math.PI * 100 * t) * 0.5 + 
+            Math.sin(2 * Math.PI * 700 * t) * 0.3 + 
+            Math.sin(2 * Math.PI * 1200 * t) * 0.2
+            ) * 0.8; 
+        }
+
+
         try{
             const audioTensor:TensorPtr ={
-                dataPtr : paddedAudio,
+                dataPtr : testSignal.buffer,
                 sizes : [1,STATIC_INPUT],
                 scalarType :ScalarType.FLOAT,
             };
+
+
             
             console.log('encoder input length',[audioTensor].length);
+            console.log('input sample audio',testSignal.slice(0,10));
             const encoderOutput = await encoder.forward([audioTensor]);
             console.log("encoder sucessfull")
             const hiddenStateTensor = encoderOutput[0];
+            const hiddenStateArray = new Float32Array(hiddenStateTensor.dataPtr as ArrayBuffer);
+            console.log("Hidden State Samples:", hiddenStateArray.slice(0, 10));
             console.log('encounter hidden sizes',hiddenStateTensor.sizes);
             
             //pad encoder hidden state
@@ -115,7 +135,7 @@ export  function useMoonshineModel():MoonshineModelHook {
                 })
 
                 const currentTokenTensor = {
-                dataPtr : tokenBuffer,
+                dataPtr : tokenBuffer.buffer,
                 sizes : [1,PADDED_TOKENS],
                 scalarType :ScalarType.LONG,
                 }
@@ -128,6 +148,7 @@ export  function useMoonshineModel():MoonshineModelHook {
                 //const vocabSize = decoderOutput[0].sizes[2];
                 const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
                 const outputTokens = new BigInt64Array(rawBuffer);
+                console.log('outputTokens',outputTokens);
                 
                 //const allLogits = new Float32Array(rawBuffer);
 
@@ -141,32 +162,49 @@ export  function useMoonshineModel():MoonshineModelHook {
                 console.log('last logits length',lastTokenLogits.length);
 
                 */
-                console.log('outputTokens',outputTokens);
-                console.log('current tokens',currentTokens);
-                console.log('current length',outputTokens[currentTokens.length-1]);
+                //console.log('outputTokens',outputTokens);
+                //console.log('current tokens list',currentTokens);
+                console.log('current token value',outputTokens[currentTokens.length-1]);
 
                 
-                if (i===2) break;
+                //if (i===2) break;
 
                 //const nextTokenId = lastTokenLogits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
-                const nextTokenId= Number(outputTokens[currentTokens.length])
+                const nextTokenId= Number(outputTokens[currentTokens.length-1])
 
-                if (nextTokenId === 2) break;
+                if (nextTokenId === 1) {
+                    // If we've been stuck on '1' for too long, the audio might be too quiet/unclear
+                    if (i > 10) { 
+                        console.log("Model is stuck in a 'Start' loop. Audio might be unrecognized.");
+                        break; 
+                    }
+                    // Just continue to the next iteration without adding to currentTokens
+                    continue; 
+                }
+
+
+                if (nextTokenId === 2) {
+                    console.log('outputTokens',outputTokens);
+                    break;
+                };
                 if (nextTokenId === 0 || nextTokenId === 3){
+                    console.log('outputTokens',outputTokens);
                     console.log("next token id",nextTokenId);
                     console.log("Model predicted PAD or UNK, stopping");
                     break;
                 }
+                
+                
                 const word = await tokenizer?.idToToken(nextTokenId);
                 if (word && !word.startsWith("<")){
                     transcript += word
                     console.log("Word",word)
-                }
+            }
                 
-
                 currentTokens.push(nextTokenId);
             }
-                return transcript;
+                
+            return transcript;
         } 
         catch(err){
             console.error("Transcription Error",err);
