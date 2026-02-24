@@ -15,7 +15,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "The  $(PRODUCT_NAME) uses the microphone to record user instructions for tasks"
+        "NSMicrophoneUsageDescription": "The  $(PRODUCT_NAME) uses the microphone to record user instructions for tasks",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.anonymous.statefully"
     },
@@ -45,11 +46,19 @@
         {
           "iosBackgroundMode": true,
           "androidForegroundService": true,
-          "androidFSTypes": ["microphone"]
+          "androidFSTypes": [
+            "microphone"
+          ]
         }
       ],
       "@react-native-community/datetimepicker",
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ad131309-b0f2-4e61-a4f9-a35996e3b42b"
+      }
+    }
   }
 }
