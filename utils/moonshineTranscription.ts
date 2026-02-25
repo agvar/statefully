@@ -73,11 +73,15 @@ export  function useMoonshineModel():MoonshineModelHook {
         console.log("starting transcription process");
         //console.log(`length of audio float32 array ${audioData.length}`)
         
-        const STATIC_INPUT= 480000;
-        const paddedAudio = new Float32Array(STATIC_INPUT);
-        paddedAudio.set(audioData.slice(0,STATIC_INPUT))
+        //const STATIC_INPUT= 480000;
+        //const paddedAudio = new Float32Array(STATIC_INPUT);
+        //const actualLength = Math.min(audioData.length, STATIC_INPUT)
+        //paddedAudio.set(audioData.subarray(0, actualLength));
+
+
 
         //test with sample human audio
+        /*
         const testSignal = new Float32Array(STATIC_INPUT)
         for (let i=0;i<80000;i++){
             const t = i / 16000;
@@ -89,19 +93,19 @@ export  function useMoonshineModel():MoonshineModelHook {
             Math.sin(2 * Math.PI * 1200 * t) * 0.2
             ) * 0.8; 
         }
-
+*/
 
         try{
             const audioTensor:TensorPtr ={
-                dataPtr : testSignal.buffer,
-                sizes : [1,STATIC_INPUT],
+                dataPtr : audioData,
+                sizes : [1,audioData.length],
                 scalarType :ScalarType.FLOAT,
             };
 
 
             
-            console.log('encoder input length',[audioTensor].length);
-            console.log('input sample audio',testSignal.slice(0,10));
+            //console.log('encoder input length',[audioTensor].length);
+            //console.log('input sample audio',paddedAudio.slice(0,10));
             const encoderOutput = await encoder.forward([audioTensor]);
             console.log("encoder sucessfull")
             const hiddenStateTensor = encoderOutput[0];
@@ -145,33 +149,34 @@ export  function useMoonshineModel():MoonshineModelHook {
                 
                 const decoderOutput = await decoder.forward([ currentTokenTensor, hiddenStateTensor ]);
                 //console.log("Decoder sucessfull");
-                //const vocabSize = decoderOutput[0].sizes[2];
+                const vocabSize = decoderOutput[0].sizes[2];
                 const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
                 const outputTokens = new BigInt64Array(rawBuffer);
-                console.log('outputTokens',outputTokens);
-                
-                //const allLogits = new Float32Array(rawBuffer);
+                //console.log('outputTokens',outputTokens);
+                /*
+                const allLogits = new Float32Array(rawBuffer);
 
-                /*const lastTokenindex = currentTokens.length - 1;
+                const lastTokenindex = currentTokens.length - 1;
                 const startOffset = lastTokenindex * vocabSize
                 const lastTokenLogits = allLogits.subarray(startOffset, startOffset + vocabSize)
 
-                console.log('allLogits',allLogits);
-                console.log('allLogits length',allLogits.length);
-                console.log('lastTokenLogits',lastTokenLogits);
-                console.log('last logits length',lastTokenLogits.length);
-
+                console.log('🎤 Logits first 10 samples:', allLogits.slice(0, 10));
+                console.log('🎤 All logits min:', Math.min(...allLogits));
+                console.log('🎤 All logits max:', Math.max(...allLogits));
+                console.log('🎤 logits has zero values?', allLogits.some(v => v !== 0));
                 */
-                //console.log('outputTokens',outputTokens);
+                
+                console.log('outputTokens',outputTokens.slice(0,10));
                 //console.log('current tokens list',currentTokens);
-                console.log('current token value',outputTokens[currentTokens.length-1]);
+                //console.log('current token value',outputTokens[currentTokens.length-1]);
 
                 
-                //if (i===2) break;
+                if (i===4) break;
 
                 //const nextTokenId = lastTokenLogits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
-                const nextTokenId= Number(outputTokens[currentTokens.length-1])
-
+                const nextTokenId= Number(outputTokens[currentTokens.length])
+                console.log('Next TokenId',nextTokenId);
+                /*
                 if (nextTokenId === 1) {
                     // If we've been stuck on '1' for too long, the audio might be too quiet/unclear
                     if (i > 10) { 
@@ -181,14 +186,12 @@ export  function useMoonshineModel():MoonshineModelHook {
                     // Just continue to the next iteration without adding to currentTokens
                     continue; 
                 }
-
+                */
 
                 if (nextTokenId === 2) {
-                    console.log('outputTokens',outputTokens);
                     break;
                 };
                 if (nextTokenId === 0 || nextTokenId === 3){
-                    console.log('outputTokens',outputTokens);
                     console.log("next token id",nextTokenId);
                     console.log("Model predicted PAD or UNK, stopping");
                     break;
