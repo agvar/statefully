@@ -73,39 +73,18 @@ export  function useMoonshineModel():MoonshineModelHook {
         console.log("starting transcription process");
         //console.log(`length of audio float32 array ${audioData.length}`)
         
-        //const STATIC_INPUT= 480000;
-        //const paddedAudio = new Float32Array(STATIC_INPUT);
-        //const actualLength = Math.min(audioData.length, STATIC_INPUT)
-        //paddedAudio.set(audioData.subarray(0, actualLength));
+        const STATIC_INPUT= 480000;
+        const paddedAudio = new Float32Array(STATIC_INPUT);
+        const actualLength = Math.min(audioData.length, STATIC_INPUT)
+        paddedAudio.set(audioData.subarray(0, actualLength));
 
-
-
-        //test with sample human audio
-        /*
-        const testSignal = new Float32Array(STATIC_INPUT)
-        for (let i=0;i<80000;i++){
-            const t = i / 16000;
-
-    // Fundamental frequency (100Hz) + speech formants (700Hz, 1200Hz)
-            testSignal[i] = (
-            Math.sin(2 * Math.PI * 100 * t) * 0.5 + 
-            Math.sin(2 * Math.PI * 700 * t) * 0.3 + 
-            Math.sin(2 * Math.PI * 1200 * t) * 0.2
-            ) * 0.8; 
-        }
-*/
 
         try{
             const audioTensor:TensorPtr ={
-                dataPtr : audioData,
-                sizes : [1,audioData.length],
+                dataPtr : paddedAudio,
+                sizes : [1,paddedAudio.length],
                 scalarType :ScalarType.FLOAT,
             };
-
-
-            
-            //console.log('encoder input length',[audioTensor].length);
-            //console.log('input sample audio',paddedAudio.slice(0,10));
             const encoderOutput = await encoder.forward([audioTensor]);
             console.log("encoder sucessfull")
             const hiddenStateTensor = encoderOutput[0];
