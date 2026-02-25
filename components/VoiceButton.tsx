@@ -20,17 +20,6 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
     const { isReady, error, transcribe } = useMoonshineModel();
-    /*const { transcribe, error,downloadProgress, isReady,isGenerating } = useSpeechToText({
-        model: {
-            isMultilingual: false,
-            encoderSource: require('../assets/models/moonshine_tiny_xnnpack_encoder.pte'),
-            decoderSource: require('../assets/models/moonshine_tiny_xnnpack_decoder.pte'),
-            tokenizerSource: require('../assets/models/moonshine_tiny_tokenizer.json'),
-        }
-    });
-    */
-    //console.log('Voice button rendered error value:',error);
-    //console.log('Voice button rendered isReady value:',isReady);
 
     useEffect(() =>{
         if(!isRecording && !disabled){
@@ -111,6 +100,11 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
 
                 //process audio chunks
                 const chunks = audioChunksRef.current;
+                console.log('🎤 Number of chunks captured:', chunks.length);
+                console.log('🎤 First chunk length:', chunks[0]?.length || 0);
+                console.log('🎤 Random chunk samples:', chunks[1]?.slice(0, 10) || 'No chunks!');
+    
+
                 const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
                 const combinedAudio= new Float32Array(totalLength);
                 let offset = 0;
@@ -119,6 +113,11 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     offset += chunk.length;
                 }
                 console.log("Copy audio ")
+                console.log('🎤 Combined audio first 10 samples:', combinedAudio.slice(0, 10));
+                console.log('🎤 Combined audio min:', Math.min(...combinedAudio));
+                console.log('🎤 Combined audio max:', Math.max(...combinedAudio));
+                console.log('🎤 Has non-zero values?', combinedAudio.some(v => v !== 0));
+    
                 //clear for next recording
                 audioChunksRef.current = [];
 
