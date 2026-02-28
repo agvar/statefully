@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import {convertAudiotoWav} from '../utils/audioDebug';
-import { TensorPtr, useExecutorchModule, ScalarType ,TokenizerModule, ExecutorchModule} from "react-native-executorch";
+import convertAudiotoWav from '../utils/audioDebug';
+import { TensorPtr, useExecutorchModule, ScalarType ,TokenizerModule, ExecutorchModule } from "react-native-executorch";
 
 interface MoonshineModelHook{
     isReady: boolean;
@@ -73,7 +73,13 @@ export  function useMoonshineModel():MoonshineModelHook {
     const transcribe =async (audioData:Float32Array) => {
         console.log("starting transcription process");
         //console.log(`length of audio float32 array ${audioData.length}`)
-        convertAudiotoWav(audioData);
+        try {
+            const uri = await convertAudiotoWav(audioData);
+            console.log("wav path: ", uri);
+        } catch(err){
+            console.log("error fetching eav debug file")
+        }
+        
         
         const STATIC_INPUT= 480000;
         const paddedAudio = new Float32Array(STATIC_INPUT);
