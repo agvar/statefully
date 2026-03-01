@@ -56,6 +56,7 @@ export  function useMoonshineModel():MoonshineModelHook {
                     const shape = await DecoderModel.getInputShape('forward',i);
                     console.log(`Decoder shape for ${i} input is ${shape}`)
                 }
+                //DecoderModel.getInputShape
 
             } catch(err)
             {
@@ -73,13 +74,14 @@ export  function useMoonshineModel():MoonshineModelHook {
     const transcribe =async (audioData:Float32Array) => {
         console.log("starting transcription process");
         //console.log(`length of audio float32 array ${audioData.length}`)
+        /*
         try {
             const uri = await convertAudiotoWav(audioData);
             console.log("wav path: ", uri);
         } catch(err){
             console.log("error fetching eav debug file")
         }
-        
+        */
         
         const STATIC_INPUT= 480000;
         const paddedAudio = new Float32Array(STATIC_INPUT);
@@ -99,22 +101,16 @@ export  function useMoonshineModel():MoonshineModelHook {
             const hiddenStateArray = new Float32Array(hiddenStateTensor.dataPtr as ArrayBuffer);
             console.log("Hidden State Samples:", hiddenStateArray.slice(0, 10));
             console.log('encounter hidden sizes',hiddenStateTensor.sizes);
-            
-            //pad encoder hidden state
-            /*
-            const rawEncoderData = new Float32Array(hiddenStateTensor.dataPtr as ArrayBuffer);
-            const PADDED_TIME = 1248;
-            const FEATURE_DIM = 288;
-            const  paddedHiddenData = new Float32Array(1 * PADDED_TIME * FEATURE_DIM)
-            paddedHiddenData.set(rawEncoderData);
-            
-            const paddedHiddenTensor : TensorPtr = {
-                dataPtr:paddedHiddenData,
-                sizes :[1,PADDED_TIME,FEATURE_DIM],
-                scalarType:ScalarType.FLOAT
+
+            const encoderArray = await tokenizer?.encode("hello");
+            console.log("Encoded Array",encoderArray);
+
+            for (let i=0;i<5;i++){
+                const decoderId = await tokenizer?.decode([i]);
+                console.log(`ID ${i} translates to ${decoderId}`);
             }
-            */
             
+
             let currentTokens = [1];
             let transcript = "";
             const PADDED_TOKENS=178;
@@ -139,7 +135,12 @@ export  function useMoonshineModel():MoonshineModelHook {
                 const vocabSize = decoderOutput[0].sizes[2];
                 const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
                 const outputTokens = new BigInt64Array(rawBuffer);
-                //console.log('outputTokens',outputTokens);
+                console.log('outputTokens size:',decoderOutput[0].sizes);
+                console.log('rawBuffer total size:',rawBuffer.byteLength);
+                console.log('output as int64, sample 20',outputTokens.slice(0,20));
+                const test_outTokenFloat = new Float32Array(rawBuffer).slice(0,20);
+                console.log('output as float32, sample 20',test_outTokenFloat);
+                console.log('math for output',decoderOutput[0].sizes[1]* decoderOutput[0].sizes[2]*4)
                 /*
                 const allLogits = new Float32Array(rawBuffer);
 
@@ -191,7 +192,8 @@ export  function useMoonshineModel():MoonshineModelHook {
                     console.log("Word",word)
             }
                 
-                currentTokens.push(nextTokenId);
+                //currentTokens.push(nextTokenId);
+                currentTokens = [nextTokenId];
             }
                 
             return transcript;
