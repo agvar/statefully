@@ -3,8 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AudioRecorder, AudioManager } from 'react-native-audio-api';
-import { useSpeechToText} from 'react-native-executorch';
-import { useMoonshineModel } from '@/utils/moonshineTranscription';
+import { useSpeechToText, WHISPER_TINY_EN_QUANTIZED} from 'react-native-executorch';
+//import { useMoonshineModel } from '@/utils/moonshineTranscription';
 
 
 interface VoiceButtonProps {
@@ -19,7 +19,10 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
     const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
-    const { isReady, error, transcribe } = useMoonshineModel();
+    //const { isReady, error, transcribe } = useMoonshineModel();
+    const {isReady,error, transcribe} = useSpeechToText({
+            model : WHISPER_TINY_EN_QUANTIZED
+    });
 
     useEffect(() =>{
         if(!isRecording && !disabled){
@@ -52,8 +55,6 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
         recorderRef.current = null;
     }
     },[]);
-
-
 
     const handlePress= async() => {
         const recorder = recorderRef.current;
@@ -91,7 +92,7 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
             else {
                 await recorder.stop();
                 console.log("Stopping recording")
-                if (!isReady){
+                if (!isReady || error){
                     console.error ('Models not loaded yet');
                 }
                 await AudioManager.setAudioSessionActivity(false);
@@ -100,10 +101,11 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
 
                 //process audio chunks
                 const chunks = audioChunksRef.current;
+                /*
                 console.log('🎤 Number of chunks captured:', chunks.length);
                 console.log('🎤 First chunk length:', chunks[0]?.length || 0);
                 console.log('🎤 Random chunk samples:', chunks[1]?.slice(0, 10) || 'No chunks!');
-    
+                */
 
                 const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
                 const combinedAudio= new Float32Array(totalLength);
@@ -112,12 +114,13 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     combinedAudio.set(chunk,offset);
                     offset += chunk.length;
                 }
+                /*
                 console.log("Copy audio ")
                 console.log('🎤 Combined audio first 10 samples:', combinedAudio.slice(0, 10));
                 console.log('🎤 Combined audio min:', Math.min(...combinedAudio));
                 console.log('🎤 Combined audio max:', Math.max(...combinedAudio));
                 console.log('🎤 Has non-zero values?', combinedAudio.some(v => v !== 0));
-    
+                */
                 //clear for next recording
                 audioChunksRef.current = [];
 
