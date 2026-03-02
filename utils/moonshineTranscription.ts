@@ -5,7 +5,7 @@ import { TensorPtr, useExecutorchModule, ScalarType ,TokenizerModule, Executorch
 interface MoonshineModelHook{
     isReady: boolean;
     error: string | undefined;
-    transcribe :(audioData:Float32Array) =>Promise<string> ;
+    transcribe :(audioData:Float32Array) =>Promise<string|undefined> ;
 };
 
 export  function useMoonshineModel():MoonshineModelHook {
@@ -34,6 +34,7 @@ export  function useMoonshineModel():MoonshineModelHook {
 
     },[]);
 
+    /*
     useEffect(() =>{
         const debugModel = async() =>{
             const EncoderModel =  new ExecutorchModule();
@@ -67,21 +68,22 @@ export  function useMoonshineModel():MoonshineModelHook {
         debugModel();
     },[]
     );
+    */
 
     const isReady = encoder.isReady && decoder.isReady && istokenizerReady;
     const error = encoder.error?.message || decoder.error?.message;
 
-    const transcribe =async (audioData:Float32Array) => {
+    const transcribe =async (audioData:Float32Array) : Promise<string| undefined>=> {
         console.log("starting transcription process");
-        //console.log(`length of audio float32 array ${audioData.length}`)
-        /*
+        console.log(`length of audio float32 array ${audioData.length}`)
+        
         try {
             const uri = await convertAudiotoWav(audioData);
             console.log("wav path: ", uri);
         } catch(err){
             console.log("error fetching eav debug file")
         }
-        */
+        
         
         const STATIC_INPUT= 480000;
         const paddedAudio = new Float32Array(STATIC_INPUT);
@@ -101,7 +103,7 @@ export  function useMoonshineModel():MoonshineModelHook {
             const hiddenStateArray = new Float32Array(hiddenStateTensor.dataPtr as ArrayBuffer);
             console.log("Hidden State Samples:", hiddenStateArray.slice(0, 10));
             console.log('encounter hidden sizes',hiddenStateTensor.sizes);
-
+            /*
             const encoderArray = await tokenizer?.encode("hello");
             console.log("Encoded Array",encoderArray);
 
@@ -109,94 +111,74 @@ export  function useMoonshineModel():MoonshineModelHook {
                 const decoderId = await tokenizer?.decode([i]);
                 console.log(`ID ${i} translates to ${decoderId}`);
             }
-            
+            */
 
             let currentTokens = [1];
-            let transcript = "";
-            const PADDED_TOKENS=178;
+            const TOTAL_TOKENS=178;
+            const transcriptTokenIds =[]
             
-            for (let i=0;i<PADDED_TOKENS;i++){
-                const tokenBuffer = new BigInt64Array(PADDED_TOKENS);
+            for (let i=0;i<TOTAL_TOKENS;i++){
+                const tokenBuffer = new BigInt64Array(currentTokens.length);
                 currentTokens.forEach((id,idx) => {
                     tokenBuffer[idx] = BigInt(id);
                 })
 
                 const currentTokenTensor = {
                 dataPtr : tokenBuffer.buffer,
-                sizes : [1,PADDED_TOKENS],
+                sizes : [1,currentTokens.length],
                 scalarType :ScalarType.LONG,
                 }
-                //console.log("first token for decoder",currentTokenTensor.sizes)
-                //console.log("hidden state encoder",paddedHiddenTensor.sizes)
-                //console.log('decoder input',[currentTokenTensor, paddedHiddenTensor]);
                 
                 const decoderOutput = await decoder.forward([ currentTokenTensor, hiddenStateTensor ]);
-                //console.log("Decoder sucessfull");
-                const vocabSize = decoderOutput[0].sizes[2];
+                //const vocabSize = decoderOutput[0].sizes[2];
                 const rawBuffer = decoderOutput[0].dataPtr as ArrayBuffer;
-                const outputTokens = new BigInt64Array(rawBuffer);
-                console.log('outputTokens size:',decoderOutput[0].sizes);
-                console.log('rawBuffer total size:',rawBuffer.byteLength);
-                console.log('output as int64, sample 20',outputTokens.slice(0,20));
-                const test_outTokenFloat = new Float32Array(rawBuffer).slice(0,20);
-                console.log('output as float32, sample 20',test_outTokenFloat);
-                console.log('math for output',decoderOutput[0].sizes[1]* decoderOutput[0].sizes[2]*4)
-                /*
-                const allLogits = new Float32Array(rawBuffer);
 
+                const outputTokensInt = new BigInt64Array(rawBuffer);
+                console.log('outputTokens size:',decoderOutput[0].sizes);
+                console.log('rawBuffer byte size:',rawBuffer.byteLength);
+                //console.log('output as int64, sample 20',outputTokensInt.slice(0,20));
+
+                //const test_outTokenFloat = new Float32Array(rawBuffer).slice(0,20);
+                //console.log('output as float32, sample 20',test_outTokenFloat);
+
+                const test_outTokenInt16 = new Int16Array(rawBuffer);
+                console.log('output as int16, all',test_outTokenInt16);
+                
+                //const allLogits = new Float32Array(rawBuffer);
+                //console.log('allLogits',allLogits);
+                /*
                 const lastTokenindex = currentTokens.length - 1;
                 const startOffset = lastTokenindex * vocabSize
                 const lastTokenLogits = allLogits.subarray(startOffset, startOffset + vocabSize)
 
-                console.log('🎤 Logits first 10 samples:', allLogits.slice(0, 10));
-                console.log('🎤 All logits min:', Math.min(...allLogits));
-                console.log('🎤 All logits max:', Math.max(...allLogits));
-                console.log('🎤 logits has zero values?', allLogits.some(v => v !== 0));
                 */
                 
-                console.log('outputTokens',outputTokens.slice(0,10));
-                //console.log('current tokens list',currentTokens);
-                //console.log('current token value',outputTokens[currentTokens.length-1]);
+                //if (i===4) break;
 
-                
-                if (i===4) break;
+                //const nextTokenId = allLogits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
+                const nextTokenId= Number(outputTokensInt[outputTokensInt.length - 1])
 
-                //const nextTokenId = lastTokenLogits.reduce((maxI, x, currI, arr) => (x > arr[maxI] ? currI : maxI), 0);
-                const nextTokenId= Number(outputTokens[currentTokens.length])
-                console.log('Next TokenId',nextTokenId);
                 /*
-                if (nextTokenId === 1) {
-                    // If we've been stuck on '1' for too long, the audio might be too quiet/unclear
-                    if (i > 10) { 
-                        console.log("Model is stuck in a 'Start' loop. Audio might be unrecognized.");
-                        break; 
-                    }
-                    // Just continue to the next iteration without adding to currentTokens
-                    continue; 
-                }
+                const nextTokenId = allLogits.reduce(
+                    (maxIdx, val, idx) => val > allLogits[maxIdx] ? idx : maxIdx, 0);
                 */
+                console.log('Next TokenId',nextTokenId);
 
                 if (nextTokenId === 2) {
                     break;
                 };
-                if (nextTokenId === 0 || nextTokenId === 3){
-                    console.log("next token id",nextTokenId);
-                    console.log("Model predicted PAD or UNK, stopping");
-                    break;
-                }
-                
                 
                 const word = await tokenizer?.idToToken(nextTokenId);
-                if (word && !word.startsWith("<")){
-                    transcript += word
-                    console.log("Word",word)
-            }
-                
-                //currentTokens.push(nextTokenId);
-                currentTokens = [nextTokenId];
-            }
-                
-            return transcript;
+                if(word && !word.startsWith("<")) {
+                    transcriptTokenIds.push(nextTokenId);
+                }
+                currentTokens.push(nextTokenId);
+                console.log("currentTokens:",currentTokens);
+                //currentTokens = [nextTokenId];
+            };
+
+            const transcription = await tokenizer?.decode(transcriptTokenIds);
+            return transcription;
         } 
         catch(err){
             console.error("Transcription Error",err);
