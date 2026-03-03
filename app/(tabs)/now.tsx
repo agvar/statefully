@@ -6,7 +6,7 @@ import VoiceButton from '@/components/VoiceButton';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { EnergyState } from '@/types/index';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function NowScreen(){
@@ -23,9 +23,14 @@ export default function NowScreen(){
     //Handle voice input ->start new activity
     const handleVoiceInput = (transcription: string) => {
         try {
-            const activityName = transcription.trim();
-            startActivity(activityName, 'voice',transcription )
-
+            const activityName = transcription;
+            if (activityName.length === 0){
+                Alert.alert("No Speech Detected", "No activity was created. Please try again.");
+                return
+            } else {
+                startActivity(activityName, 'voice',transcription )
+            }
+            
         } catch(err) {
             alert('Stop current activity before starting a new one');
         }
