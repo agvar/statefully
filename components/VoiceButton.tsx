@@ -20,19 +20,19 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
     //const { isReady, error, transcribe } = useMoonshineModel();
-    const {isReady,error, transcribe} = useSpeechToText({
+    const {isReady,error, transcribe,downloadProgress} = useSpeechToText({
             model : WHISPER_TINY_EN_QUANTIZED
     });
 
     useEffect(() =>{
-        if(!isRecording && !disabled){
+        if(!isRecording && !disabled && isReady){
             startPulseAnimation();
         }
         else{
             stopPulseAnimation();
         }
 
-    },[isRecording,disabled])
+    },[isRecording,disabled,isReady])
     
     useEffect(()=>{
         const recorder = new AudioRecorder();
@@ -101,11 +101,6 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
 
                 //process audio chunks
                 const chunks = audioChunksRef.current;
-                /*
-                console.log('🎤 Number of chunks captured:', chunks.length);
-                console.log('🎤 First chunk length:', chunks[0]?.length || 0);
-                console.log('🎤 Random chunk samples:', chunks[1]?.slice(0, 10) || 'No chunks!');
-                */
 
                 const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
                 const combinedAudio= new Float32Array(totalLength);
@@ -114,13 +109,6 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     combinedAudio.set(chunk,offset);
                     offset += chunk.length;
                 }
-                /*
-                console.log("Copy audio ")
-                console.log('🎤 Combined audio first 10 samples:', combinedAudio.slice(0, 10));
-                console.log('🎤 Combined audio min:', Math.min(...combinedAudio));
-                console.log('🎤 Combined audio max:', Math.max(...combinedAudio));
-                console.log('🎤 Has non-zero values?', combinedAudio.some(v => v !== 0));
-                */
                 //clear for next recording
                 audioChunksRef.current = [];
 
@@ -219,6 +207,7 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                         isRecording && styles.buttonRecording,
                         isTranscribing && styles.buttonTranscribing,
                         pressed && styles.buttonPressed,
+                        !isReady && styles.buttonLoading,
                         {
                             transform: [{scale: scaleAnim}],
                             opacity: opacityAnim
@@ -235,9 +224,19 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     </Animated.View>
                 )}
             </Pressable>
+            
+            {!isReady && downloadProgress > 0 && (
+                <View style = {styles.progressContainer}>
+                    <View style={[styles.progressFill, { width : downloadProgress * 120 }]} />
+                </View>
+            )
+
+            }
 
             <Text style={[styles.label,disabled && styles.labelDisabled]}>
-                {isTranscribing
+                {!isReady
+                ?`Loading Model ${Math.round(downloadProgress * 100)}%`
+                : isTranscribing
                 ? "Processing..."
                 :isRecording
                 ? "Tap to Stop" 
@@ -273,6 +272,10 @@ const styles = StyleSheet.create({
             opacity: 0.4,  
             backgroundColor: Colors.text.dark.tertiary, 
         },
+        buttonLoading: {
+            opacity: 0.4,  
+            backgroundColor: Colors.text.dark.tertiary, 
+        },
         buttonRecording:{
             backgroundColor : Colors.background.light,
             shadowColor: Colors.background.light,
@@ -291,7 +294,20 @@ const styles = StyleSheet.create({
         },
         labelDisabled: {
             color: Colors.text.dark.tertiary,  
-}
+        },
+        progressContainer:{
+            width:120,
+            height: 4,
+            backgroundColor : 'rgba(255,255,255,0.2)',
+            borderRadius: BorderRadius.full,
+            marginTop: Spacing.sm,
+            overflow: 'hidden',
+        },
+        progressFill:{
+            height: '100%',
+            backgroundColor: Colors.flow,
+            borderRadius: BorderRadius.full,
+        }
 
     
 })
