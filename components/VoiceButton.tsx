@@ -120,7 +120,8 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                         throw new Error('Model is not loaded yet');
                     }
                     const text = await transcribe(combinedAudio);
-                    onRecordingComplete(text);
+                    const cleanedtext = cleanTranscription(text);
+                    onRecordingComplete(cleanedtext);
                 }catch(err){
                     console.error('Transcription error',err);
                 }finally {
@@ -239,16 +240,24 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                 : isTranscribing
                 ? "Processing..."
                 :isRecording
-                ? "Tap to Stop" 
+                ? "Recording Activity..." 
                 :disabled
                 ?"Activity in progress"
-                : "Tap to Speak"}
+                : "What are you doing right now?"}
 
             </Text>
         </View>
     );
 
 }
+
+const cleanTranscription = (raw: string): string => {
+    return raw
+        .replace(/\[.*?\]/g, '')      // removes [BLANK_AUDIO], [MUSIC], etc.
+        .replace(/\(.*?\)/g, '')      // removes (wind blowing), (coughing), etc.
+        .replace(/\s+/g, ' ')        // collapse multiple spaces
+        .trim();
+};
 
 const styles = StyleSheet.create({
         container :{
