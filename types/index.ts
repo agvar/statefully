@@ -4,6 +4,7 @@
 
 export type EnergyState = 'flow' | 'drain';
 export type ActivitySource = 'voice' | 'manual';
+export type EmotionState = 'alive' | 'calm' | 'low' | 'wired';
 
 // Activity Type
 
@@ -21,6 +22,13 @@ export interface Activity {
     recurrenceCount?: number;
 
 }
+
+interface EmotionCheckin {
+    id: string;
+    timestamp : Date;
+    state : EmotionState;
+    note?: string;
+};
 /*
 
 //Sentiment Types
