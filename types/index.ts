@@ -16,6 +16,9 @@ export interface Activity {
     energyState?: EnergyState;
     source: ActivitySource;
     transcription?: string;
+    type: 'task' | 'thought';
+    intensity ?: 1 | 2 | 3 | 4 | 5
+    recurrenceCount?: number;
 
 }
 /*
