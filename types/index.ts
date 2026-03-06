@@ -23,7 +23,7 @@ export interface Activity {
 
 }
 
-interface EmotionCheckin {
+export interface EmotionCheckin {
     id: string;
     timestamp : Date;
     state : EmotionState;
