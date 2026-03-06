@@ -1,4 +1,4 @@
-import { Activity, ActivitySource, EnergyState, EmotionCheckin, EmotionState} from '@/types';
+import { Activity, ActivitySource, EnergyState, EmotionCheckin, EmotionState, Intensity, ActivityType} from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -15,18 +15,19 @@ interface StoreState{
     activeActivity: Activity | null;
     emotionCheckIns : EmotionCheckin[];
 
-    startActivity: (name:string, source: ActivitySource, transcription?: string) => void;
+    startActivity: (name:string, source: ActivitySource, type:ActivityType,transcription?: string) => void;
     stopActivity: () => void;
     tagActivity:(id:string, energyState:EnergyState) => void;
     getCurrentActiveActivity:() => Activity | null;
     getActivityById:(id:string) => Activity | undefined;
-
+    addThought: (name:string,intensity: Intensity,energyState: EnergyState,source: ActivitySource,transcription?:string) => void;
+    addEmotionCheckin :(emotionState: EmotionState,note?: string) => void ;
+    incrementThoughtRecurrence: (id: string) => void;
 
     //Manual CRUD
     addManualActivity:(Activity:Omit<Activity,'id'>) => void;
     updateActivity:(id: string, updates:Partial<Activity>) => void;
     deleteActivity: (id:string) => void;
-    addEmotionCheckin :(emotionState: EmotionState,note?: string)=>void ;
 
     //Computed/helper
     getCompletedActivities: () => Activity[];
@@ -68,7 +69,8 @@ export const useStore = create<StoreState>()(
                 startTime: new Date(),
                 duration: 0,
                 source,
-                transcription
+                transcription,
+                type:'task'
             };
             set({ activeActivity: newActivity });
 
@@ -174,9 +176,49 @@ export const useStore = create<StoreState>()(
                 activeActivity : null
             });
         },
-        addEmotionCheckin:()=>{
-            return null
-        }
+        addEmotionCheckin:(emotionState: EmotionState,note?: string)=>{
+            const newEmotion: EmotionCheckin = {
+                    id: Date.now().toString(),
+                    timestamp : new Date(),
+                    state : emotionState,
+                    note: note,
+            };
+            set(state => ({
+                 emotionCheckIns: [newEmotion, ...state.emotionCheckIns]
+             }));
+        },
+        incrementThoughtRecurrence :(id) =>{
+            set(state =>({
+                activities: state.activities.map((activity:Activity) =>
+                    activity.id == id ? 
+                        {...activity, 
+                            recurrenceCount:(activity.recurrenceCount ?? 0) + 1,
+                            startTime: new Date()
+                        }
+                        : activity
+                )
+            }));
+        },
+        addThought : (name, intensity, energyState, source, transcription) => {
+            const now = new Date();
+            const newThought:Activity = {
+                id: Date.now().toString(),
+                name,
+                startTime: now,
+                endTime:now,
+                energyState,
+                duration: 0,
+                source,
+                transcription,
+                type:'thought',
+                intensity,
+                recurrenceCount:0
+            };
+            set(state => ({
+                activities: [newThought, ...state.activities]
+            }));
+
+        },
     }),
 {
     name: 'statefully-storage', //unique name for storage key
