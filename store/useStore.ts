@@ -1,4 +1,4 @@
-import { Activity, ActivitySource, EnergyState } from '@/types';
+import { Activity, ActivitySource, EnergyState, EmotionCheckin, EmotionState} from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -13,6 +13,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 interface StoreState{
     activities :Activity[];
     activeActivity: Activity | null;
+    emotionCheckIns : EmotionCheckin[];
 
     startActivity: (name:string, source: ActivitySource, transcription?: string) => void;
     stopActivity: () => void;
@@ -25,12 +26,24 @@ interface StoreState{
     addManualActivity:(Activity:Omit<Activity,'id'>) => void;
     updateActivity:(id: string, updates:Partial<Activity>) => void;
     deleteActivity: (id:string) => void;
+    addEmotionCheckin :(emotionState: EmotionState,note?: string)=>void ;
 
     //Computed/helper
     getCompletedActivities: () => Activity[];
     getUntaggedActivities: () =>Activity[];
     getTodayStats: () => { flowHours:number, drainHours: number};
-
+    //getCheckInsForDate: (date: Date) => EmotionCheckin[];'
+    //getThoughtsForDate: (date: Date) => Activity[];
+    //getActivitiesForDate: (date: Date) => Activity[];
+    /*getStatsForDate : (date:Date) => {
+        flowHours: number;
+        drainHours: number;
+        flowScore: number;
+        thoughtCount: number;
+        drainThoughtCount: number;
+        dominantEmotion: EmotionState | null;
+    }
+*/
     //Utility actions
     clearAllActivities: () => void;
 }
@@ -42,6 +55,7 @@ export const useStore = create<StoreState>()(
     (set,get) =>({
         activities :[],
         activeActivity: null,
+        emotionCheckIns:[],
 
         startActivity : (name, source, transcription) => {
             if(get().activeActivity){
@@ -159,6 +173,9 @@ export const useStore = create<StoreState>()(
                 activities:[],
                 activeActivity : null
             });
+        },
+        addEmotionCheckin:()=>{
+            return null
         }
     }),
 {
