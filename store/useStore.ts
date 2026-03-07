@@ -30,10 +30,11 @@ interface StoreState{
     deleteActivity: (id:string) => void;
 
     //Computed/helper
-    getCompletedActivities: () => Activity[];
+    getCompletedTasks: () => Activity[];
     getUntaggedActivities: () =>Activity[];
-    getTodayStats: (activities:Activity[]) => { flowHours:number, drainHours: number};
+    getTodayStats: () => { flowHours:number, drainHours: number};
     getEmotionCheckInsForDate: (date: Date) => EmotionCheckin[];
+    getCompletedThoughts: () => Activity[];
     getThoughtsForDate: (date: Date) => Activity[];
     getTasksForDate: (date: Date) => Activity[];
     getStatsForDate : (date:Date) => {
@@ -54,12 +55,12 @@ interface StoreState{
 export const useStore = create<StoreState>()( 
     persist(
     (set,get) =>{ 
+        const isSameDay = (a:Date , b: Date) => new Date(a).setHours(0,0,0,0) === new Date(b).setHours(0,0,0,0);
+
         const getActivitiesForDate = (items:Activity[], date: Date,type: ActivityType) =>{
-            const isSameDay = (a:Date , b: Date) => a.setHours(0,0,0,0) === b.setHours(0,0,0,0);
             return items.filter(item => item.type == type && isSameDay(new Date(item.startTime),date))
         };
         const getEmotionCheckinForDate = (items:EmotionCheckin[], date: Date) =>{
-            const isSameDay = (a:Date , b: Date) => new Date(a).setHours(0,0,0,0) === new Date(b).setHours(0,0,0,0);
             return items.filter(item => isSameDay(new Date(item.timestamp),date))
         };
         
@@ -112,9 +113,14 @@ export const useStore = create<StoreState>()(
                 )
             }));
         },
-        getCompletedActivities: () =>{
+        getCompletedTasks: () =>{
             return get().activities.filter((activity: Activity)=>
-                activity.energyState != undefined
+                activity.energyState != undefined && activity.type === 'task'
+            )
+        },
+        getCompletedThoughts: () =>{
+            return get().activities.filter((activity: Activity)=>
+                activity.energyState != undefined && activity.type === 'thought'
             )
         },
         getUntaggedActivities: () =>{
