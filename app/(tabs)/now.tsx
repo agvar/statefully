@@ -213,5 +213,15 @@ const styles = StyleSheet.create({
         fontSize: Typography.size.sm,
         color: Colors.text.dark.secondary,
     },
-    
+    modeToggle:{
+        flexDirection:'row',
+        alignItems:'center',
+        padding: Spacing.sm
+    },
+    modeButton:{
+
+    },
+    modeButtonActive:{
+
+    }
 });

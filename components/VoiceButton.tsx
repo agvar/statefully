@@ -240,9 +240,8 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 : isTranscribing
                 ? "Processing..."
                 :isRecording
-                ? "Recording Activity..." 
-                : captureMode === 'thought'
-                ? "Speak your thought"
+                ? captureMode === 'thought' ? "Recording Thought..." : "Recording Task..." 
+                : captureMode === 'thought' ?  "Speak your thought"
                 : "What are you doing ?"}
 
             </Text>
