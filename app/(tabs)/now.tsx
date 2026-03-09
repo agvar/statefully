@@ -148,7 +148,6 @@ export default function NowScreen(){
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.VoiceButtonContainer}>
                 <VoiceButton onRecordingComplete={handleVoiceInput}
-                disabled={activeActivity !== null}
                 captureMode= {captureMode}
             />
         </View>

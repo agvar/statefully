@@ -9,11 +9,10 @@ import { useSpeechToText, WHISPER_TINY_EN_QUANTIZED} from 'react-native-executor
 
 interface VoiceButtonProps {
     onRecordingComplete : (text: string) => void;
-    disabled?: boolean;
     captureMode:'task'| 'thought';
 }
 
-export default function VoiceButton({ onRecordingComplete, disabled = false, captureMode }: VoiceButtonProps ) {
+export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceButtonProps ) {
     const [ isTranscribing, setIsTranscribing ] = useState(false)
     const [ isRecording, setIsRecording ] = useState(false);
     const audioChunksRef = useRef<Float32Array[]>([]);
@@ -26,14 +25,14 @@ export default function VoiceButton({ onRecordingComplete, disabled = false, cap
     });
 
     useEffect(() =>{
-        if(!isRecording && !disabled && isReady){
+        if(!isRecording &&  isReady){
             startPulseAnimation();
         }
         else{
             stopPulseAnimation();
         }
 
-    },[isRecording,disabled,isReady])
+    },[isRecording,isReady])
     
     useEffect(()=>{
         const recorder = new AudioRecorder();
@@ -59,7 +58,7 @@ export default function VoiceButton({ onRecordingComplete, disabled = false, cap
 
     const handlePress= async() => {
         const recorder = recorderRef.current;
-        if(disabled || !recorder) return ;
+        if(!recorder) return ;
         try {
             if (!isRecording){
                 console.log("Log: begin recording module");
@@ -200,8 +199,8 @@ export default function VoiceButton({ onRecordingComplete, disabled = false, cap
         <View style={styles.container}>
             <Pressable 
             onPress={handlePress}
-            disabled = {isTranscribing || disabled || !isReady}
-            style ={[styles.button, disabled && styles.buttonDisabled]}
+            disabled = {isTranscribing  || !isReady}
+            style ={[styles.button, styles.buttonDisabled]}
             >
                 {({ pressed}) => (
                     <Animated.View style = {[
@@ -235,15 +234,13 @@ export default function VoiceButton({ onRecordingComplete, disabled = false, cap
 
             }
 
-            <Text style={[styles.label,disabled && styles.labelDisabled]}>
+            <Text style={[styles.label, styles.labelDisabled]}>
                 {!isReady
                 ?`Loading Model ${Math.round(downloadProgress * 100)}%`
                 : isTranscribing
                 ? "Processing..."
                 :isRecording
                 ? "Recording Activity..." 
-                :disabled
-                ?"Activity in progress"
                 : captureMode === 'thought'
                 ? "Speak your thought"
                 : "What are you doing ?"}
