@@ -10,9 +10,10 @@ import { useSpeechToText, WHISPER_TINY_EN_QUANTIZED} from 'react-native-executor
 interface VoiceButtonProps {
     onRecordingComplete : (text: string) => void;
     disabled?: boolean;
+    captureMode:'task'| 'thought';
 }
 
-export default function VoiceButton({ onRecordingComplete, disabled = false }: VoiceButtonProps ) {
+export default function VoiceButton({ onRecordingComplete, disabled = false, captureMode }: VoiceButtonProps ) {
     const [ isTranscribing, setIsTranscribing ] = useState(false)
     const [ isRecording, setIsRecording ] = useState(false);
     const audioChunksRef = useRef<Float32Array[]>([]);
@@ -243,7 +244,9 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                 ? "Recording Activity..." 
                 :disabled
                 ?"Activity in progress"
-                : "What are you doing right now?"}
+                : captureMode === 'thought'
+                ? "Speak your thought"
+                : "What are you doing ?"}
 
             </Text>
         </View>

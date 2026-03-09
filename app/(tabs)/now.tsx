@@ -7,7 +7,7 @@ import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { EnergyState, Intensity } from '@/types/index';
 import { useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function NowScreen(){
@@ -125,10 +125,31 @@ export default function NowScreen(){
                 ): null
             }
         />
+        {/* Mode toggle- only visible when no active task */}
+        { !activeActivity && (
+            <View style={styles.modeToggle}>
+                <TouchableOpacity
+                    style= {[styles.modeButton, captureMode === 'task' && styles.modeButtonActive]}
+                    onPress ={() => setCaptureMode('task')}
+                >
+                    <Text>📋 Task</Text>
+                </TouchableOpacity>
+                                <TouchableOpacity
+                    style= {[styles.modeButton, captureMode === 'thought' && styles.modeButtonActive]}
+                    onPress ={() => setCaptureMode('thought')}
+                >
+                    <Text>💭 Thought</Text>
+                </TouchableOpacity>
+            </View>
+        )
+
+        }
+
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.VoiceButtonContainer}>
                 <VoiceButton onRecordingComplete={handleVoiceInput}
                 disabled={activeActivity !== null}
+                captureMode= {captureMode}
             />
         </View>
         </View>
