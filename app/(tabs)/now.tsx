@@ -5,7 +5,8 @@ import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 import VoiceButton from '@/components/VoiceButton';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
-import { EnergyState } from '@/types/index';
+import { EnergyState, Intensity } from '@/types/index';
+import { useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -13,29 +14,51 @@ export default function NowScreen(){
     //create test data for testing
     const activeActivity = useStore(state => state.activeActivity);
     const unTaggedActivities = useStore(useShallow(state => state.getUntaggedActivities()));
-    const completedActivities = useStore(useShallow(state => state.getCompletedActivities()));
+    const completedActivities = useStore(useShallow(state => state.getCompletedTasks()));
     //const clearActivities = useStore(state => state.clearAllActivities)
 
     const startActivity = useStore(state => state.startActivity)
     const stopActivity = useStore(state => state.stopActivity)
     const tagActivity = useStore(state => state.tagActivity)
+    const addThought = useStore(state =>state.addThought);
+
+    const [captureMode,setCaptureMode] = useState<'task'|'thought'>('task');
+    const [pendingThought, setPendingThought] = useState<string| null>(null);
+    const [taggingSheetVisible, setTaggingSheetVisible] = useState(false);
 
     //Handle voice input ->start new activity
     const handleVoiceInput = (transcription: string) => {
-        try {
             const activityName = transcription;
             if (activityName.length === 0){
                 Alert.alert("No Speech Detected", "No activity was created. Please try again.");
-                return
+                return;
+            } 
+            if(captureMode=='thought' || activeActivity !== null){
+                setPendingThought(transcription);
+                setTaggingSheetVisible(true);
             } else {
-                startActivity(activityName, 'voice',transcription )
+                try {
+                    startActivity(activityName, 'voice',transcription )
+                } catch(error){
+                    Alert.alert('Stop current activity before starting a new one');
+                }
+                
             }
-            
-        } catch(err) {
-            alert('Stop current activity before starting a new one');
-        }
-
     };
+
+    const handleThoughtTagged = (intensity:Intensity, energyState:EnergyState) =>{
+        if(!pendingThought) return;
+        addThought(pendingThought,intensity,energyState,'voice',pendingThought);
+
+        setPendingThought(null);
+        setTaggingSheetVisible(false);
+        setCaptureMode('task');
+    };
+
+    const handleThoughtCancelled= () => {
+        setPendingThought(null);
+        setTaggingSheetVisible(false);
+    }
 
     //Handle tagging
     const handleTag = (id:string, energyState: EnergyState): void => {
