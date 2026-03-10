@@ -234,7 +234,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
 
             }
 
-            <Text style={[styles.label, styles.labelDisabled]}>
+            <Text style={[styles.label]}>
                 {!isReady
                 ?`Loading Model ${Math.round(downloadProgress * 100)}%`
                 : isTranscribing
