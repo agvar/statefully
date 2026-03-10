@@ -3,7 +3,7 @@ import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 
 import VoiceButton from '@/components/VoiceButton';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { EnergyState, Intensity } from '@/types/index';
 import { useState } from 'react';
@@ -132,13 +132,17 @@ export default function NowScreen(){
                     style= {[styles.modeButton, captureMode === 'task' && styles.modeButtonActive]}
                     onPress ={() => setCaptureMode('task')}
                 >
-                    <Text>📋 Task</Text>
+                    <Text style={captureMode === 'task' ? styles.modeButtonTextActive : styles.modeButtonText}>
+                        📋 Task
+                    </Text>
                 </TouchableOpacity>
                                 <TouchableOpacity
                     style= {[styles.modeButton, captureMode === 'thought' && styles.modeButtonActive]}
                     onPress ={() => setCaptureMode('thought')}
                 >
-                    <Text>💭 Thought</Text>
+                    <Text style={captureMode === 'thought' ? styles.modeButtonTextActive : styles.modeButtonText}>
+                        💭 Thought
+                    </Text>
                 </TouchableOpacity>
             </View>
         )
@@ -219,9 +223,24 @@ const styles = StyleSheet.create({
         padding: Spacing.sm
     },
     modeButton:{
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.xs,
+        borderRadius:BorderRadius.md,
+        marginHorizontal:Spacing.md,
+        borderWidth:1,
+        borderColor:Colors.border.dark,
 
     },
     modeButtonActive:{
+        backgroundColor: Colors.flow,
+        borderColor:Colors.flow
+
+    },
+    modeButtonText:{
+        color:Colors.drain
+    },
+    modeButtonTextActive:{
+        color:Colors.flow
 
     }
 });
