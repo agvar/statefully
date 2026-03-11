@@ -1,6 +1,7 @@
 import ActiveActivityCard from '@/components/cards/ActiveActivityCard';
 import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
+import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
@@ -155,7 +156,17 @@ export default function NowScreen(){
                 captureMode= {captureMode}
             />
         </View>
+        <View>
+            <ThoughtTaggingSheet 
+                visible= {taggingSheetVisible}
+                transcription={pendingThought}
+                onConfirm={handleThoughtTagged}
+                onCancel={handleThoughtCancelled}
+            />
         </View>
+        </View>
+
+
     );
 }
 
