@@ -32,75 +32,78 @@ export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onC
         >
         <TouchableOpacity style={styles.overlay} onPress={onCancel} activeOpacity={1}>
             <TouchableOpacity style={styles.sheet} activeOpacity={1} onPress={() => {}}>
-                <View style= {styles.overlay}>
-                    <View style={styles.sheet}>
-                        <Text style={styles.transcriptionLabel}> You said:</Text>
-                        <Text style={styles.transcriptionLabel}> {transcription}</Text>
+                <Text style={styles.transcriptionLabel}> You said:</Text>
+                <Text style={styles.transcriptionText}> {transcription}</Text>
 
-                        {/*intensity pills */}
-                        {( INTENSITY_ARRAY.map( intensity => (
-                            <TouchableOpacity
-                                key= {intensity}
-                                style={[styles.pill ,selectedIntensity === intensity && styles.pillActive ]}
-                                onPress = {()=> {setSelectedIntensity(intensity)}}
-                            >
-                                <Text>{intensity}</Text>
-                            </TouchableOpacity>
-                        ))
-                        )}
+                {/*intensity pills */}
+                <Text style={styles.sectionLabel}>
+                    how overwhelming is this thought?
+                </Text>
+                <View style={styles.pillRow}>
+                    {( INTENSITY_ARRAY.map( intensity => (
+                        <TouchableOpacity
+                            key= {intensity}
+                            style={[styles.pill ,selectedIntensity === intensity && styles.pillActive ]}
+                            onPress = {()=> {setSelectedIntensity(intensity)}}
+                        >
+                            <Text style={[styles.pillText,selectedIntensity === intensity && styles.pillTextActive]}>
+                                {intensity}
+                            </Text>
+                        </TouchableOpacity>
+                    ))
+                    )}
+                </View>
 
-                            {/*Energy state buttons */}
-                        <View style={styles.EnergyPickerSection}>
-                            <Text style={styles.energyPrompt}>How did that feel?</Text>
-                            <View style={styles.energyButtonRow}>
+                {/*Energy state buttons */}
+                <View style={styles.EnergyPickerSection}>
+                    <Text style={styles.energyPrompt}>How did that feel?</Text>
+                    <View style={styles.energyButtonRow}>
 
-                                {/*Flow button */}
-                                <TouchableOpacity
-                                    style={[styles.energyButton, selectedEnergyState === 'flow' && styles.energyFlowButton]}
-                                    onPress={() => setSelectedEnergyState('flow')}
-                                    activeOpacity={0.8}
-                                >
-                                    <Text style={styles.energyButtonEmoji}>✨</Text>
-                                    <Text style={styles.energyButtonText}>Flow</Text>
-                                </TouchableOpacity>
+                        {/*Flow button */}
+                        <TouchableOpacity
+                            style={[styles.energyButton, selectedEnergyState === 'flow' && styles.energyFlowButton]}
+                            onPress={() => setSelectedEnergyState('flow')}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={styles.energyButtonEmoji}>✨</Text>
+                            <Text style={styles.energyButtonText}>Flow</Text>
+                        </TouchableOpacity>
 
-                                {/*Drain button */}
-                                <TouchableOpacity
-                                    style={[styles.energyButton, selectedEnergyState === 'drain' && styles.energyDrainButton]}
-                                    onPress={() => setSelectedEnergyState('drain')}
-                                    activeOpacity={0.8}
-                                >
-                                    <Text style={styles.energyButtonEmoji}>😰</Text>
-                                    <Text style={styles.energyButtonText}>Drain</Text>
-                                </TouchableOpacity>
+                        {/*Drain button */}
+                        <TouchableOpacity
+                            style={[styles.energyButton, selectedEnergyState === 'drain' && styles.energyDrainButton]}
+                            onPress={() => setSelectedEnergyState('drain')}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={styles.energyButtonEmoji}>😰</Text>
+                            <Text style={styles.energyButtonText}>Drain</Text>
+                        </TouchableOpacity>
 
-                            </View>
-
-                        </View>
-
-                        {/*Confirm /cancel  */}
-                        <View>
-                            <View>
-                                <TouchableOpacity
-                                onPress={() => onConfirm(selectedIntensity!, selectedEnergyState!)}
-                                disabled={selectedIntensity === null || selectedEnergyState === null}
-                                >
-                                    <Text>Confirm</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View>
-                                <TouchableOpacity
-                                onPress={() => onCancel()}
-                                >
-                                    <Text>Cancel</Text>
-                                </TouchableOpacity>
-                            </View>
-                            
-                        </View>
-                        
                     </View>
 
                 </View>
+
+                {/*Confirm /cancel  */}
+                <View>
+                    <TouchableOpacity
+                    style={[styles.confirmButton,
+                        (selectedIntensity === null || selectedEnergyState === null) && 
+                        styles.confirmButtonDisabled
+                    ]}
+                    onPress={() => onConfirm(selectedIntensity!, selectedEnergyState!)}
+                    disabled={selectedIntensity === null || selectedEnergyState === null}
+                    >
+                        <Text style={styles.confirmButtonText}>Confirm</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => onCancel()}
+                    >
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    
+                </View>
+                        
         </TouchableOpacity>
     </TouchableOpacity>
     </Modal>
@@ -120,10 +123,57 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 24,
         padding : Spacing.lg,
     },
-    pill:{},
-    pillActive:{},
+    sectionLabel: {
+        fontSize: Typography.size.sm,
+        color: Colors.text.dark.secondary,
+        marginBottom: Spacing.sm,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+},
+    pillRow:{
+        flexDirection:'row',
+        flexWrap: 'wrap',
+        justifyContent:'center',
+        marginVertical: Spacing.md
+
+    },
+    pill:{
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.xs,
+        borderRadius: BorderRadius.full,      // pill shape
+        borderWidth: 1,
+        borderColor: Colors.border.dark,
+        marginHorizontal: 4,  
+        marginBottom: 4                 //gap between pills
+    },
+    pillActive:{
+        backgroundColor: Colors.primary,      // filled when selected
+        borderColor: Colors.primary,          // border matches background
+    },
+    pillText:{
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.medium,
+        color: Colors.text.dark.secondary,
+    },
+    pillTextActive:{
+        color: Colors.text.dark.primary,
+    },
+    transcriptionLabel:{
+        fontSize: Typography.size.sm,
+        color: Colors.text.dark.secondary,
+        marginBottom:Spacing.sm
+    },
+    transcriptionText: {
+        fontSize: Typography.size.lg,
+        fontWeight: Typography.weight.medium,
+        color: Colors.text.dark.primary,
+        fontStyle: 'italic',
+        marginBottom: Spacing.lg,
+},
     EnergyPickerSection: {
         alignItems: 'center',
+        color: Colors.text.dark.secondary,
+        marginBottom: Spacing.xs,
     },
     energyPrompt: {
             fontSize: Typography.size.base,
@@ -161,6 +211,30 @@ const styles = StyleSheet.create({
         fontWeight: Typography.weight.semibold,
         color: Colors.text.dark.primary,
     },
+    confirmButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    marginTop: Spacing.md,
+},
+confirmButtonDisabled: {
+    backgroundColor: Colors.text.dark.tertiary,   // dim when not ready
+},
+confirmButtonText: {
+    color: Colors.text.dark.primary,
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+},
+cancelButton: {
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+    marginTop: Spacing.sm,
+},
+cancelButtonText: {
+    color: Colors.text.dark.secondary,
+    fontSize: Typography.size.sm,
+},
 }
     
 )
