@@ -44,6 +44,7 @@ yarn-error.*
 
 #documentatition
 Design_Summary_baseline.txt
+PROMPT.md
 
 #models
 /assets/models/*
