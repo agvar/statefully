@@ -57,7 +57,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
         </View>
     )
 
-    //If onPress providedmmake it tappable
+    //If onPress provided make it tappable
     if(onPress){
         return (
             <TouchableOpacity onPress = {onPress} activeOpacity={0.7}>
