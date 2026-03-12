@@ -2,6 +2,7 @@ import ActiveActivityCard from '@/components/cards/ActiveActivityCard';
 import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
+import ThoughtCard from '@/components/cards/ThoughtCard';
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
@@ -13,15 +14,19 @@ import { useShallow } from 'zustand/react/shallow';
 
 export default function NowScreen(){
     //create test data for testing
-    const activeActivity = useStore(state => state.activeActivity);
+    const activeTask = useStore(state => state.activeTask);
     const unTaggedActivities = useStore(useShallow(state => state.getUntaggedActivities()));
-    const completedActivities = useStore(useShallow(state => state.getCompletedTasks()));
+    //const completedTasks = useStore(useShallow(state => state.getCompletedTasks()));
+    const completedThoughts = useStore(useShallow(state => state.getCompletedThoughts()));
+    const getCompletedActivities = useStore(useShallow(state => state.getCompletedActivities()));
     //const clearActivities = useStore(state => state.clearAllActivities)
 
-    const startActivity = useStore(state => state.startActivity)
-    const stopActivity = useStore(state => state.stopActivity)
-    const tagActivity = useStore(state => state.tagActivity)
+    const startTask = useStore(state => state.startTask)
+    const stopTask = useStore(state => state.stopTask)
+    const tagTask = useStore(state => state.tagTask)
     const addThought = useStore(state =>state.addThought);
+    const incrementThoughtRecurrence = useStore(state => state.incrementThoughtRecurrence);
+    
 
     const [captureMode,setCaptureMode] = useState<'task'|'thought'>('task');
     const [pendingThought, setPendingThought] = useState<string| null>(null);
@@ -34,12 +39,12 @@ export default function NowScreen(){
                 Alert.alert("No Speech Detected", "No activity was created. Please try again.");
                 return;
             } 
-            if(captureMode=='thought' || activeActivity !== null){
+            if(captureMode=='thought' || activeTask !== null){
                 setPendingThought(transcription);
                 setTaggingSheetVisible(true);
             } else {
                 try {
-                    startActivity(activityName, 'voice',transcription )
+                    startTask(activityName, 'voice',transcription )
                 } catch(error){
                     Alert.alert('Stop current activity before starting a new one');
                 }
@@ -63,7 +68,7 @@ export default function NowScreen(){
 
     //Handle tagging
     const handleTag = (id:string, energyState: EnergyState): void => {
-        tagActivity(id,energyState);
+        tagTask(id,energyState);
     };
 
 
@@ -83,10 +88,10 @@ export default function NowScreen(){
                 <>
                     {/*Active Activity section*/}
                     {
-                        activeActivity &&(
+                        activeTask &&(
                             <ActiveActivityCard
-                                activity={activeActivity}
-                                onStop={stopActivity}
+                                activity={activeTask}
+                                onStop={stopTask}
                             />
                         )
                     }
@@ -103,7 +108,7 @@ export default function NowScreen(){
                     }
                     {/*Section header for completed */}
                     {
-                        completedActivities.length >0 &&(
+                        getCompletedActivities.length >0 &&(
                             <View style={styles.sectionHeader}>
                                 <Text style={styles.sectionTitle}>Recent Activities</Text>
                             </View>
@@ -111,13 +116,15 @@ export default function NowScreen(){
                     }
                 </>
             }
-            data = {completedActivities}
-            renderItem={({ item }) => (
-                <CompletedActivityCard activity={item} />
-            )}
+            data = {getCompletedActivities}
+            renderItem={({ item }) => 
+                item.type === 'thought'
+                ? <ThoughtCard activity={item} onAgain={incrementThoughtRecurrence} />
+                : <CompletedActivityCard activity={item} />
+            }
             keyExtractor={item=> item.id}
             ListEmptyComponent={
-                !activeActivity && unTaggedActivities.length == 0 ? (
+                !activeTask && unTaggedActivities.length == 0 ? (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>
                             Tap the microphone to start tracking your first activity
@@ -127,7 +134,7 @@ export default function NowScreen(){
             }
         />
         {/* Mode toggle- only visible when no active task */}
-        { !activeActivity && (
+        { !activeTask && (
             <View style={styles.modeToggle}>
                 <TouchableOpacity
                     style= {[styles.modeButton, captureMode === 'task' && styles.modeButtonActive]}
