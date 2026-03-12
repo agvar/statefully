@@ -12,13 +12,13 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 //Define store shape
 interface StoreState{
     activities :Activity[];
-    activeActivity: Activity | null;
+    activeTask: Activity | null;
     emotionCheckIns : EmotionCheckin[];
 
-    startActivity: (name:string, source: ActivitySource, transcription?: string) => void;
-    stopActivity: () => void;
-    tagActivity:(id:string, energyState:EnergyState) => void;
-    getCurrentActiveActivity:() => Activity | null;
+    startTask: (name:string, source: ActivitySource, transcription?: string) => void;
+    stopTask: () => void;
+    tagTask:(id:string, energyState:EnergyState) => void;
+    getCurrentActiveTask:() => Activity | null;
     getActivityById:(id:string) => Activity | undefined;
     addThought: (name:string,intensity: Intensity,energyState: EnergyState,source: ActivitySource,transcription?:string) => void;
     addEmotionCheckin :(emotionState: EmotionState,note?: string) => void ;
@@ -35,6 +35,7 @@ interface StoreState{
     getTodayStats: () => { flowHours:number, drainHours: number};
     getEmotionCheckInsForDate: (date: Date) => EmotionCheckin[];
     getCompletedThoughts: () => Activity[];
+    getCompletedActivities :() => Activity[];
     getThoughtsForDate: (date: Date) => Activity[];
     getTasksForDate: (date: Date) => Activity[];
     getStatsForDate : (date:Date) => {
@@ -66,14 +67,14 @@ export const useStore = create<StoreState>()(
         
         return {
         activities :[],
-        activeActivity: null,
+        activeTask: null,
         emotionCheckIns:[],
 
        
 
-        startActivity : (name, source, transcription) => {
-            if(get().activeActivity){
-                throw new Error("Stop current activity first");
+        startTask : (name, source, transcription) => {
+            if(get().activeTask){
+                throw new Error("Stop current Task first");
             }
 
             const newActivity:Activity = {
@@ -85,12 +86,12 @@ export const useStore = create<StoreState>()(
                 transcription,
                 type:'task'
             };
-            set({ activeActivity: newActivity });
+            set({ activeTask: newActivity });
 
         },
 
-        stopActivity: () =>{
-            const active= get().activeActivity;
+        stopTask: () =>{
+            const active= get().activeTask;
             if(!active) return;
 
             const endTime= new Date();
@@ -101,12 +102,12 @@ export const useStore = create<StoreState>()(
             };
 
             set(state => ({
-                activeActivity: null,
+                activeTask: null,
                 activities: [stoppedActivity, ...state.activities]
             }));
         },
 
-        tagActivity :(id, energyState) =>{
+        tagTask :(id, energyState) =>{
             set(state =>({
                 activities: state.activities.map((activity:Activity) =>
                     activity.id == id ? {...activity, energyState}: activity
@@ -122,6 +123,11 @@ export const useStore = create<StoreState>()(
             return get().activities.filter((activity: Activity)=>
                 activity.energyState != undefined && activity.type === 'thought'
             )
+        },
+        getCompletedActivities:()=>{
+            return get().activities.filter((activity: Activity)=>
+                activity.energyState != undefined)
+            .sort((a:Activity, b:Activity) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
         },
         getUntaggedActivities: () =>{
             return get().activities.filter((activity:Activity) =>
@@ -181,13 +187,13 @@ export const useStore = create<StoreState>()(
                     activity.id !== id )
             }))
         },
-        getCurrentActiveActivity:() =>{
-            const active = get().activeActivity;
+        getCurrentActiveTask:() =>{
+            const active = get().activeTask;
             if (!active ) return null;
 
             const elapsed= (Date.now()- active.startTime.getTime())/ 1000;
             if (elapsed > 3600 * 24) {
-                console.warn('Activity running for over 24 hours');
+                console.warn('Task running for over 24 hours');
             }
             return active;
         },
@@ -199,7 +205,7 @@ export const useStore = create<StoreState>()(
         clearAllActivities: () => {
             set({
                 activities:[],
-                activeActivity : null
+                activeTask : null
             });
         },
         addEmotionCheckin:(emotionState: EmotionState,note?: string)=>{
