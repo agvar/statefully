@@ -13,12 +13,9 @@ import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react
 import { useShallow } from 'zustand/react/shallow';
 
 export default function NowScreen(){
-    //create test data for testing
     const activeTask = useStore(state => state.activeTask);
     const unTaggedActivities = useStore(useShallow(state => state.getUntaggedActivities()));
-    //const completedTasks = useStore(useShallow(state => state.getCompletedTasks()));
-    const completedThoughts = useStore(useShallow(state => state.getCompletedThoughts()));
-    const getCompletedActivities = useStore(useShallow(state => state.getCompletedActivities()));
+    const allCompleted = useStore(useShallow(state => state.getCompletedActivities()));
     //const clearActivities = useStore(state => state.clearAllActivities)
 
     const startTask = useStore(state => state.startTask)
@@ -108,7 +105,7 @@ export default function NowScreen(){
                     }
                     {/*Section header for completed */}
                     {
-                        getCompletedActivities.length >0 &&(
+                        allCompleted.length >0 &&(
                             <View style={styles.sectionHeader}>
                                 <Text style={styles.sectionTitle}>Recent Activities</Text>
                             </View>
@@ -116,7 +113,7 @@ export default function NowScreen(){
                     }
                 </>
             }
-            data = {getCompletedActivities}
+            data = {allCompleted}
             renderItem={({ item }) => 
                 item.type === 'thought'
                 ? <ThoughtCard activity={item} onAgain={incrementThoughtRecurrence} />
@@ -158,19 +155,17 @@ export default function NowScreen(){
         }
 
         {/*  Voice Button (Fixed at the Bottom) */}
-        <View style= {styles.VoiceButtonContainer}>
+        <View style= {styles.voiceButtonContainer}>
                 <VoiceButton onRecordingComplete={handleVoiceInput}
                 captureMode= {captureMode}
             />
         </View>
-        <View>
             <ThoughtTaggingSheet 
                 visible= {taggingSheetVisible}
                 transcription={pendingThought}
                 onConfirm={handleThoughtTagged}
                 onCancel={handleThoughtCancelled}
             />
-        </View>
         </View>
 
 
@@ -223,17 +218,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: Typography.size.base * 1.5,
     },
-    VoiceButtonContainer:{
+    voiceButtonContainer:{
         paddingVertical: Spacing.lg,
         paddingHorizontal:Spacing.md,
         backgroundColor:Colors.background.dark,
         borderTopWidth:1,
         borderTopColor: Colors.border.dark
-    },
-    voiceHint: {
-        marginTop: Spacing.sm,
-        fontSize: Typography.size.sm,
-        color: Colors.text.dark.secondary,
     },
     modeToggle:{
         flexDirection:'row',
@@ -255,10 +245,10 @@ const styles = StyleSheet.create({
 
     },
     modeButtonText:{
-        color:Colors.drain
+        color:Colors.text.dark.secondary
     },
     modeButtonTextActive:{
-        color:Colors.flow
+        color:Colors.text.dark.primary
 
     }
 });
