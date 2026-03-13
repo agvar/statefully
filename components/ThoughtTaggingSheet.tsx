@@ -2,6 +2,7 @@ import { Intensity,EnergyState } from "@/types";
 import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity ,Text, View, Modal} from "react-native";
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from "@/constants/theme";
+const INTENSITY_ARRAY :Intensity[] = ['mild','noticeable','strong','intense','overwhelming'];
 
 interface ThoughtTaggingSheetprops {
     visible: boolean;
@@ -13,7 +14,7 @@ interface ThoughtTaggingSheetprops {
 export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onCancel}:ThoughtTaggingSheetprops) {
     const [selectedIntensity,setSelectedIntensity] = useState<Intensity | null>(null);
     const [selectedEnergyState,setSelectedEnergyState] = useState<EnergyState | null>(null);
-    const INTENSITY_ARRAY :Intensity[] = ['mild','noticeable','strong','intense','overwhelming'];
+
 
     useEffect( ()=>{
         if(!visible) {
