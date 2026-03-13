@@ -97,8 +97,8 @@ export default function NowScreen(){
                             <TouchableOpacity
                                 key= {emotion}
                                 style={[styles.pill ,selectedEmotion === emotion as EmotionState 
-                                    && { backgroundColor: Colors.emotion[emotion as EmotionState], 
-                                        borderColor: Colors.emotion[emotion as EmotionState] }
+                                    && { backgroundColor: Colors.emotionGlow[emotion as EmotionState], 
+                                        borderColor: Colors.emotionGlow[emotion as EmotionState] }
                                  ]}
                                 onPress = {()=> {
                                     addEmotionCheckin(emotion as EmotionState);
