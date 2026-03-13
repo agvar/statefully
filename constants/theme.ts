@@ -48,8 +48,14 @@ export const Colors= {
     success: '#34C759',            //Green for success status
     warning: '#FF9500',            // Orange for warning
     error: '#FF3B30',              //Red for error
-    info: '#5AC8FA'                //Light blue for info
+    info: '#5AC8FA' ,               //Light blue for info
 
+    emotion :{
+        alive: '#30D158' ,  //(green)
+        calm:  '#64D2FF' ,  //(sky blue)
+        low:   '#8E8E93' , //(gray)
+        wired: '#FF9F0A' , //(amber)
+    }
 };
 
 //Typography scale
