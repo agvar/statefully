@@ -60,7 +60,7 @@ export default function ThoughtCard({thought,onAgain}:ThoughtCardProps) {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: Colors.background.card,
+        backgroundColor: Colors.background.cardDark,
         borderRadius: BorderRadius.md,
         padding: Spacing.md,
         marginHorizontal: Spacing.md,
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: Typography.size.base,
         fontWeight: Typography.weight.medium,
-        color: Colors.text.light.primary,
+        color: Colors.text.dark.primary,
         marginRight: Spacing.sm,
         fontStyle:'italic'
     },
@@ -100,18 +100,17 @@ const styles = StyleSheet.create({
     badgeText: {
         fontSize: Typography.size.sm,
         fontWeight: Typography.weight.medium,
-        color: Colors.text.light.primary,
     },
     intensityBadge:{
         borderWidth:1,
-        borderColor:Colors.border.light,
+        borderColor:Colors.border.dark,
         borderRadius:BorderRadius.full,
         padding:Spacing.sm
     },
     intensityBadgeText:{
         fontSize: Typography.size.sm,
         fontWeight: Typography.weight.medium,
-        color: Colors.text.light.primary
+        color: Colors.text.dark.secondary
     },
     recurrenceRow:{
         flexDirection:'row',
