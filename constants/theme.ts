@@ -9,11 +9,12 @@ export const Colors= {
 
     // Background colors
     background: {
-        dark: '#000000',            // Think Stream dark background
+        dark: '#0A0A0F',            // Think Stream dark background
         light: '#F2F2F7',           // Do Board/Pulse Background
         lightGray: '#F5F5F5',       // Subtle Background variation
         card: '#FFFFFF',            // Card Backgrounds
-        cardDark : '#2C2C2E',       // Dark card background
+        surface  : '#111111',       // Mid ground 
+        cardDark : '#1C1C1E',       // Dark card background
     },
 
     //Text Colors
@@ -33,7 +34,7 @@ export const Colors= {
     //UI element colors
     border: {
         light: '#E5E5EA',           //Light border
-        dark: '#38383A'            //Dark border
+        dark: '#2C2C2E'            //Dark border
     },
 
     //Tab bar colors
@@ -55,6 +56,12 @@ export const Colors= {
         calm:  '#64D2FF' ,  //(sky blue)
         low:   '#8E8E93' , //(gray)
         wired: '#FF9F0A' , //(amber)
+    },
+    emotionGlow: {
+        alive: '#30D15830',   // green at 19% opacity
+        calm:  '#64D2FF30',   // sky blue at 19% opacity
+        low:   '#8E8E9330',
+        wired: '#FF9F0A30',
     }
 };
 
