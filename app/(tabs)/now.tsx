@@ -7,10 +7,16 @@ import ThoughtCard from '@/components/cards/ThoughtCard';
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
-import { EnergyState, Intensity } from '@/types/index';
+import { EnergyState, Intensity, EmotionState } from '@/types/index';
 import { useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
+const EMOTION_EMOJI_ARRAY:Record<EmotionState, string> = {
+    alive: '🌊',
+    calm: '😌',
+    low: '😶',
+    wired: '😤',
+    };
 
 export default function NowScreen(){
     const activeTask = useStore(state => state.activeTask);
@@ -23,11 +29,12 @@ export default function NowScreen(){
     const tagTask = useStore(state => state.tagTask)
     const addThought = useStore(state =>state.addThought);
     const incrementThoughtRecurrence = useStore(state => state.incrementThoughtRecurrence);
-    
-
+    const addEmotionCheckin = useStore(state => state.addEmotionCheckin)
+ 
     const [captureMode,setCaptureMode] = useState<'task'|'thought'>('task');
     const [pendingThought, setPendingThought] = useState<string| null>(null);
     const [taggingSheetVisible, setTaggingSheetVisible] = useState(false);
+    const [selectedEmotion, setSelectedEmotion] = useState<EmotionState| null>(null);
 
     //Handle voice input ->start new activity
     const handleVoiceInput = (transcription: string) => {
@@ -83,6 +90,31 @@ export default function NowScreen(){
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
                 <>
+                    {/*Emotion Check in section*/}
+                    <Text style={styles.emotionLabel}> What is your inner weather now? </Text>
+                    <View style={styles.pillRow}>
+                        {( Object.entries(EMOTION_EMOJI_ARRAY).map( ([emotion, emoji ])=> (
+                            <TouchableOpacity
+                                key= {emotion}
+                                style={[styles.pill ,selectedEmotion === emotion as EmotionState 
+                                    && { backgroundColor: Colors.emotion[emotion as EmotionState], 
+                                        borderColor: Colors.emotion[emotion as EmotionState] }
+                                 ]}
+                                onPress = {()=> {
+                                    addEmotionCheckin(emotion as EmotionState);
+                                    setSelectedEmotion(emotion as EmotionState)  ;  
+                                }
+                                }
+                            >
+                                <Text style={[styles.pillText,selectedEmotion === emotion as EmotionState && styles.pillTextActive]}>
+                                    {emoji}{emotion}
+                                </Text>
+                            </TouchableOpacity>
+                        ))
+                        )}
+                    </View>
+
+
                     {/*Active Activity section*/}
                     {
                         activeTask &&(
@@ -107,7 +139,7 @@ export default function NowScreen(){
                     {
                         allCompleted.length >0 &&(
                             <View style={styles.sectionHeader}>
-                                <Text style={styles.sectionTitle}>Recent Activities</Text>
+                                <Text style={styles.sectionTitle}>Recent</Text>
                             </View>
                         )
                     }
@@ -116,7 +148,7 @@ export default function NowScreen(){
             data = {allCompleted}
             renderItem={({ item }) => 
                 item.type === 'thought'
-                ? <ThoughtCard activity={item} onAgain={incrementThoughtRecurrence} />
+                ? <ThoughtCard thought={item} onAgain={incrementThoughtRecurrence} />
                 : <CompletedActivityCard activity={item} />
             }
             keyExtractor={item=> item.id}
@@ -124,7 +156,7 @@ export default function NowScreen(){
                 !activeTask && unTaggedActivities.length == 0 ? (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>
-                            Tap the microphone to start tracking your first activity
+                            Tap the microphone to start tracking your first Thought or Task
                         </Text>
                     </View>
                 ): null
@@ -231,6 +263,8 @@ const styles = StyleSheet.create({
         padding: Spacing.sm
     },
     modeButton:{
+        flex:1,
+        alignItems:'center',
         paddingHorizontal: Spacing.md,
         paddingVertical: Spacing.xs,
         borderRadius:BorderRadius.md,
@@ -249,6 +283,37 @@ const styles = StyleSheet.create({
     },
     modeButtonTextActive:{
         color:Colors.text.dark.primary
+    },
+    pillRow:{
+        flexDirection:'row',
+        flexWrap: 'wrap',
+        justifyContent:'center',
+        marginVertical: Spacing.md
 
-    }
+    },
+    pill:{
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.xs,
+        borderRadius: BorderRadius.full,      // pill shape
+        borderWidth: 1,
+        borderColor: Colors.border.dark,
+        marginHorizontal: 4,  
+        marginBottom: 4                 //gap between pills
+    },
+    pillText:{
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.medium,
+        color: Colors.text.dark.secondary,
+    },
+    pillTextActive:{
+        color: Colors.text.dark.primary,
+    },
+    emotionLabel: {
+        fontSize: Typography.size.lg,
+        fontWeight: Typography.weight.medium,
+        color: Colors.text.dark.secondary,
+        marginBottom: Spacing.xs,
+        paddingHorizontal:Spacing.md,
+        marginTop:Spacing.sm
+},
 });
