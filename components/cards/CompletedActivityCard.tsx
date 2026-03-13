@@ -19,7 +19,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
         if (minutes>0){
             return `${minutes}m`;
         };
-        return `${seconds}s`;
+        return `${Math.floor(seconds)}s`;
     };
 
     //Get energy state display
