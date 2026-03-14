@@ -98,7 +98,7 @@ export default function NowScreen(){
                                 key= {emotion}
                                 style={[styles.pill ,selectedEmotion === emotion as EmotionState 
                                 && { backgroundColor: Colors.emotionGlow[emotion as EmotionState], 
-                                     borderColor: Colors.emotionGlow[emotion as EmotionState],
+                                     borderColor: Colors.emotion[emotion as EmotionState],
                                      shadowColor: Colors.emotion[emotion as EmotionState], // glow color
                                      shadowOpacity: 0.6,                                             // glow intensity
                                      shadowRadius: 8,                                                // glow spread
