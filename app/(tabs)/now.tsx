@@ -266,30 +266,33 @@ const styles = StyleSheet.create({
     },
     modeToggle:{
         flexDirection:'row',
-        alignItems:'center',
-        padding: Spacing.sm
+        backgroundColor: Colors.background.surface,   // #111111 subtle track
+        borderRadius: BorderRadius.full,               // full pill shape
+        padding: 3,                                    // inner padding so active pill floats
+        marginHorizontal: Spacing.md,                  // contain to screen width
+        marginBottom: Spacing.xs,
     },
     modeButton:{
         flex:1,
         alignItems:'center',
-        paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.xs,
-        borderRadius:BorderRadius.md,
-        marginHorizontal:Spacing.md,
-        borderWidth:1,
-        borderColor:Colors.border.dark,
+        paddingVertical: Spacing.sm,                   // slightly taller than before
+        borderRadius: BorderRadius.full,               // pill-shaped active state
+
 
     },
     modeButtonActive:{
         backgroundColor: Colors.flow,
-        borderColor:Colors.flow
 
     },
     modeButtonText:{
-        color:Colors.text.dark.secondary
+        color:Colors.text.dark.secondary,
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.medium,
     },
     modeButtonTextActive:{
-        color:Colors.text.dark.primary
+        color:Colors.text.dark.primary,
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.semibold,        // slightly bolder when active
     },
     pillRow:{
         flexDirection:'row',
