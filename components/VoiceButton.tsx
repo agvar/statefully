@@ -33,7 +33,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
         }
         else{
             stopPulseAnimation();
-            startHaloAnimation();
+            stopHaloAnimation();
         }
 
     },[isRecording,isReady])
@@ -203,7 +203,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
         Animated.loop(
             Animated.parallel([
                 Animated.timing(haloScaleAnim, {
-                    toValue: 1.7,
+                    toValue: 1.4,
                     duration: 1500,
                     useNativeDriver: true,
                 }),
