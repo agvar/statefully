@@ -97,8 +97,15 @@ export default function NowScreen(){
                             <TouchableOpacity
                                 key= {emotion}
                                 style={[styles.pill ,selectedEmotion === emotion as EmotionState 
-                                    && { backgroundColor: Colors.emotionGlow[emotion as EmotionState], 
-                                        borderColor: Colors.emotionGlow[emotion as EmotionState] }
+                                && { backgroundColor: Colors.emotionGlow[emotion as EmotionState], 
+                                     borderColor: Colors.emotionGlow[emotion as EmotionState],
+                                     shadowColor: Colors.emotion[emotion as EmotionState], // glow color
+                                     shadowOpacity: 0.6,                                             // glow intensity
+                                     shadowRadius: 8,                                                // glow spread
+                                     shadowOffset: { width: 0, height: 0 },                         // centered glow
+                                     elevation: 6,                                                  //Android
+                                    
+                                       }
                                  ]}
                                 onPress = {()=> {
                                     addEmotionCheckin(emotion as EmotionState);
