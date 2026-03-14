@@ -300,8 +300,8 @@ const styles = StyleSheet.create({
             alignItems : 'center'
         },
         button :{
-            width: 120,
-            height: 120,
+            width: 100,
+            height: 100,
             borderRadius: BorderRadius.full,
             backgroundColor: Colors.flow,
             justifyContent: 'center',
