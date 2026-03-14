@@ -1,6 +1,6 @@
 import { Activity } from "@/types";
 import { StyleSheet,View,TouchableOpacity ,Text} from "react-native";
-import { Colors, Spacing, BorderRadius, Typography } from "@/constants/theme";
+import { Colors, Spacing, BorderRadius, Typography , Shadows} from "@/constants/theme";
 
 interface ThoughtCardProps {
     thought: Activity;
@@ -64,7 +64,10 @@ const styles = StyleSheet.create({
         borderRadius: BorderRadius.md,
         padding: Spacing.md,
         marginHorizontal: Spacing.md,
-        marginTop: Spacing.sm
+        marginTop: Spacing.sm,
+        ...Shadows.sm,
+        borderWidth: 1,
+        borderColor: Colors.border.dark,
     },
     topRow: {
         flexDirection: 'row',
