@@ -19,6 +19,8 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
     const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
+    const haloScaleAnim = useRef(new Animated.Value(1)).current;
+    const haloOpacityAnim = useRef(new Animated.Value(0.6)).current;
     //const { isReady, error, transcribe } = useMoonshineModel();
     const {isReady,error, transcribe,downloadProgress} = useSpeechToText({
             model : WHISPER_TINY_EN_QUANTIZED
@@ -27,9 +29,11 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
     useEffect(() =>{
         if(!isRecording &&  isReady){
             startPulseAnimation();
+            startHaloAnimation();
         }
         else{
             stopPulseAnimation();
+            startHaloAnimation();
         }
 
     },[isRecording,isReady])
@@ -193,38 +197,71 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 }
             )
         ]).start();
-    }
+    };
+
+    const startHaloAnimation = () => {
+        Animated.loop(
+            Animated.parallel([
+                Animated.timing(haloScaleAnim, {
+                    toValue: 1.7,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(haloOpacityAnim, {
+                    toValue: 0,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    };
+
+    const stopHaloAnimation = () => {
+        haloScaleAnim.stopAnimation();
+        haloOpacityAnim.stopAnimation();
+        haloScaleAnim.setValue(1);
+        haloOpacityAnim.setValue(0.6);
+    };
 
     return(
         <View style={styles.container}>
-            <Pressable 
-            onPress={handlePress}
-            disabled = {isTranscribing  || !isReady}
-            style ={[styles.button, styles.buttonDisabled]}
-            >
-                {({ pressed}) => (
-                    <Animated.View style = {[
-                        styles.button,
-                        isRecording && styles.buttonRecording,
-                        isTranscribing && styles.buttonTranscribing,
-                        pressed && styles.buttonPressed,
-                        !isReady && styles.buttonLoading,
-                        {
-                            transform: [{scale: scaleAnim}],
-                            opacity: opacityAnim
+            <View style={styles.buttonWrapper}>
+                <Animated.View style={[
+                    styles.haloRing,
+                    {
+                        transform: [{ scale: haloScaleAnim }],
+                        opacity: haloOpacityAnim,
+                    }
+                        ]} />
+                <Pressable 
+                onPress={handlePress}
+                disabled = {isTranscribing  || !isReady}
+                style ={[styles.button, styles.buttonDisabled]}
+                >
+                    {({ pressed}) => (
+                        <Animated.View style = {[
+                            styles.button,
+                            isRecording && styles.buttonRecording,
+                            isTranscribing && styles.buttonTranscribing,
+                            pressed && styles.buttonPressed,
+                            !isReady && styles.buttonLoading,
+                            {
+                                transform: [{scale: scaleAnim}],
+                                opacity: opacityAnim
 
-                        }
-                    ]}>
-                        <Ionicons
-                            name = {isTranscribing? "hourglass-outline"
-                                : isRecording ? "stop-circle-outline" 
-                                : "mic-outline"}
-                            size={40}
-                            color="#ffffff"
-                        />
-                    </Animated.View>
-                )}
-            </Pressable>
+                            }
+                        ]}>
+                            <Ionicons
+                                name = {isTranscribing? "hourglass-outline"
+                                    : isRecording ? "stop-circle-outline" 
+                                    : "mic-outline"}
+                                size={40}
+                                color="#ffffff"
+                            />
+                        </Animated.View>
+                    )}
+                </Pressable>
+            </View>
             
             {!isReady && downloadProgress > 0 && (
                 <View style = {styles.progressContainer}>
@@ -315,7 +352,22 @@ const styles = StyleSheet.create({
             height: '100%',
             backgroundColor: Colors.flow,
             borderRadius: BorderRadius.full,
-        }
+        },
+        buttonWrapper: {
+            width: 120,
+            height: 120,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        haloRing: {
+            position: 'absolute',
+            width: 120,
+            height: 120,
+            borderRadius: BorderRadius.full,
+            borderWidth: 2,
+            borderColor: Colors.flow,
+            backgroundColor: 'transparent',
+        },
 
     
 })
