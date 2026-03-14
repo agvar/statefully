@@ -1,4 +1,4 @@
-import { BorderRadius, Colors, Spacing, Typography } from "@/constants/theme";
+import { BorderRadius, Colors, Spacing, Typography, Shadows } from "@/constants/theme";
 import { Activity } from "@/types/index";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -72,10 +72,10 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: Colors.background.cardDark,
         borderRadius: BorderRadius.md,
+        ...Shadows.sm,
         padding: Spacing.md,
         marginHorizontal: Spacing.md,
         marginTop: Spacing.sm,
-        
         borderWidth: 1,
         borderColor: Colors.border.dark,
     },
