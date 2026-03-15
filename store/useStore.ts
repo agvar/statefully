@@ -45,7 +45,10 @@ interface StoreState{
         thoughtCount: number;
         drainThoughtCount: number;
         dominantEmotion: EmotionState | null;
-    }
+    };
+    getTasksForDateRange :(start:Date,end:Date) => Activity[];
+    getThoughtsForDateRange: (start:Date,end:Date) => Activity[];
+    getEmotionCheckInsForDateRange:(start:Date,end:Date) => EmotionCheckin[];
 
     //Utility actions
     clearAllActivities: () => void;
@@ -162,6 +165,28 @@ export const useStore = create<StoreState>()(
                 drainHours : drainSeconds /3600
             };
         },
+        getTasksForDateRange:(start:Date,end:Date) =>{
+            return get().activities.filter( (activity:Activity) =>
+                activity.type === 'task' &&
+                new Date(activity.startTime) >= start &&
+                new Date(activity.startTime) <= end
+            )
+        },
+        getThoughtsForDateRange:(start:Date,end:Date) =>{
+            return get().activities.filter( (activity:Activity) =>
+                activity.type === 'task' &&
+                new Date(activity.startTime) >= start &&
+                new Date(activity.startTime) <= end
+            )
+        },
+        getEmotionCheckInsForDateRange:(start:Date,end:Date) =>{
+            return get().emotionCheckIns.filter( (emotion:Activity) =>
+                emotion.type === 'task' &&
+                new Date(emotion.startTime) >= start &&
+                new Date(emotion.startTime) <= end
+            )
+        },
+
         addManualActivity:(activity) =>{
             const newActivity:Activity = {
                 ...activity,
