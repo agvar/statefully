@@ -42,13 +42,14 @@ export default function NowScreen(){
     const checkPromptLLM = ():string =>{
         const store = useStore.getState();
         const today = new Date();
-        const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+        const startOfToday = new Date(today);
+        startOfToday.setHours(0,0,0,0);
         if (selectedEmotion) {
             const ctx: ReflectionContext = {
             currentEmotion: selectedEmotion,
-            tasks: store.getTasksForDateRange(startOfToday, new Date()),
-            thoughts: store.getThoughtsForDateRange(startOfToday, new Date()),
-            emotions: store.getEmotionCheckInsForDateRange(startOfToday, new Date()),
+            tasks: store.getTasksForDateRange(startOfToday, today),
+            thoughts: store.getThoughtsForDateRange(startOfToday, today),
+            emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
             windowLabel: 'today',
             };
             const prompt = buildReflectionPrompt(ctx);
