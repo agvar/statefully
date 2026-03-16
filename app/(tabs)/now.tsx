@@ -3,6 +3,8 @@ import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
 import ThoughtCard from '@/components/cards/ThoughtCard';
+import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt'
+
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
@@ -36,6 +38,26 @@ export default function NowScreen(){
     const [taggingSheetVisible, setTaggingSheetVisible] = useState(false);
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState| null>(null);
 
+    //check prompt for LLM start
+    const checkPromptLLM = ():string =>{
+        const store = useStore.getState();
+        const today = new Date();
+        const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+        if (selectedEmotion) {
+            const ctx: ReflectionContext = {
+            currentEmotion: selectedEmotion,
+            tasks: store.getTasksForDateRange(startOfToday, new Date()),
+            thoughts: store.getThoughtsForDateRange(startOfToday, new Date()),
+            emotions: store.getEmotionCheckInsForDateRange(startOfToday, new Date()),
+            windowLabel: 'today',
+            };
+            const prompt = buildReflectionPrompt(ctx);
+            return prompt
+        } else {
+            return ''
+        }
+    }
+
     //Handle voice input ->start new activity
     const handleVoiceInput = (transcription: string) => {
             const activityName = transcription;
@@ -49,6 +71,10 @@ export default function NowScreen(){
             } else {
                 try {
                     startTask(activityName, 'voice',transcription )
+                    // prompt check
+                     const prompt = checkPromptLLM();
+                     console.log(`LLM prompt:${prompt}`)
+
                 } catch(error){
                     Alert.alert('Stop current activity before starting a new one');
                 }
