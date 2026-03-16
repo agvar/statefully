@@ -174,16 +174,15 @@ export const useStore = create<StoreState>()(
         },
         getThoughtsForDateRange:(start:Date,end:Date) =>{
             return get().activities.filter( (activity:Activity) =>
-                activity.type === 'task' &&
+                activity.type === 'thought' &&
                 new Date(activity.startTime) >= start &&
                 new Date(activity.startTime) <= end
             )
         },
         getEmotionCheckInsForDateRange:(start:Date,end:Date) =>{
-            return get().emotionCheckIns.filter( (emotion:Activity) =>
-                emotion.type === 'task' &&
-                new Date(emotion.startTime) >= start &&
-                new Date(emotion.startTime) <= end
+            return get().emotionCheckIns.filter( (emotion:EmotionCheckin) =>
+                new Date(emotion.timestamp) >= start &&
+                new Date(emotion.timestamp) <= end
             )
         },
 
