@@ -36,7 +36,7 @@ export function buildReflectionPrompt({currentEmotion,tasks,thoughts,emotions,wi
 
         //Thoughts
         lines.push(`=== THOUGHTS (${windowLabel}) ===`);
-        if (tasks.length === 0){
+        if (thoughts.length === 0){
             lines.push('No thoughts logged yet.');
         } else {
             const sorted = [...thoughts].sort((a,b) =>(b.recurrenceCount ?? 0) - (a.recurrenceCount ?? 0));
@@ -61,8 +61,7 @@ export function buildReflectionPrompt({currentEmotion,tasks,thoughts,emotions,wi
 
     }
     
-    const SYSTEM_PROMPT = `You are a private, thoughtful companion for someone tracking 
-    their cognitive energy throughout the day.You have been given a summary of their recent activities, 
+    const SYSTEM_PROMPT = `You are a private, thoughtful companion for someone tracking their cognitive energy throughout the day.You have been given a summary of their recent activities, 
     thoughts, and emotional check-ins — all captured privately on their device.
 
         Your role:
