@@ -51,6 +51,7 @@ export const Colors= {
     error: '#FF3B30',              //Red for error
     info: '#5AC8FA' ,               //Light blue for info
 
+    //emotion colors
     emotion :{
         alive: '#30D158' ,  //(green)
         calm:  '#64D2FF' ,  //(sky blue)
@@ -62,7 +63,13 @@ export const Colors= {
         calm:  '#64D2FF30',   // sky blue at 19% opacity
         low:   '#8E8E9330',
         wired: '#FF9F0A30',
-    }
+    },
+    //gradients 
+    gradient: {
+    auroraStart: '#1A0A2E',   // deep purple top-left
+    auroraEnd:   '#0A1628',   // deep teal bottom-right
+    auroraAccent:'#0D2137',   // mid-point navy
+}
 };
 
 //Typography scale
