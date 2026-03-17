@@ -3,7 +3,8 @@ import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
 import ThoughtCard from '@/components/cards/ThoughtCard';
-import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt'
+import { LinearGradient } from 'expo-linear-gradient';
+import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt';
 
 
 import VoiceButton from '@/components/VoiceButton';
@@ -105,6 +106,10 @@ export default function NowScreen(){
 
     return(
         <View style = {styles.container}>
+            <LinearGradient 
+                colors={[Colors.gradient.auroraStart,Colors.background.dark,Colors.gradient.auroraEnd]}
+                style={StyleSheet.absoluteFill}
+            />
             {/* Header */}
             <View style = {styles.header}>
                 <Text style = {styles.title}>Now ⚡</Text>
@@ -241,13 +246,13 @@ export default function NowScreen(){
 const styles = StyleSheet.create({
     container : {
         flex : 1,
-        backgroundColor : Colors.background.dark,
+        //backgroundColor : Colors.background.dark,
     },
     header:{
         paddingTop: Spacing['2xl'] + 20, // Safe area + spacing
         paddingHorizontal: Spacing.md,
         paddingBottom: Spacing.md,
-        backgroundColor: Colors.background.dark
+        //backgroundColor: Colors.background.dark
     },
     title :{
         fontSize: Typography.size['4xl'],
@@ -287,7 +292,7 @@ const styles = StyleSheet.create({
     voiceButtonContainer:{
         paddingVertical: Spacing.lg,
         paddingHorizontal:Spacing.md,
-        backgroundColor:Colors.background.dark,
+        //backgroundColor:Colors.background.dark,
         borderTopWidth:1,
         borderTopColor: Colors.border.dark
     },
