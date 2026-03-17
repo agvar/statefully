@@ -6,7 +6,19 @@ export interface ReflectionContext {
     thoughts: Activity[];
     emotions : EmotionCheckin[];
     windowLabel : string;
-}
+};
+const SYSTEM_PROMPT = `You are a private, thoughtful companion for someone tracking their cognitive energy throughout the day. You have been given a summary of their recent activities, thoughts, and emotional check-ins — all captured privately on their device.
+
+Your role:
+- Observe patterns honestly, without sugarcoating
+- Be brief — one or two insights, not a list
+- Sound like a perceptive friend, not a productivity coach
+- Ask one genuine question at most
+- Never give generic advice like "try meditation" or "block focus time"
+- Never repeat back what they already know as if it's insight
+- If the data is thin or there's nothing notable, say so honestly
+- Speak in second person, conversational tone
+- Never mention that you are an AI`;
 
 export function buildReflectionPrompt({currentEmotion,tasks,thoughts,emotions,windowLabel}: ReflectionContext):string {
     const serializeContext = () =>{
@@ -60,20 +72,6 @@ export function buildReflectionPrompt({currentEmotion,tasks,thoughts,emotions,wi
         return lines.join('\n');
 
     }
-    
-    const SYSTEM_PROMPT = `You are a private, thoughtful companion for someone tracking their cognitive energy throughout the day.You have been given a summary of their recent activities, 
-    thoughts, and emotional check-ins — all captured privately on their device.
-
-        Your role:
-        - Observe patterns honestly, without sugarcoating
-        - Be brief — one or two insights, not a list
-        - Sound like a perceptive friend, not a productivity coach
-        - Ask one genuine question at most
-        - Never give generic advice like "try meditation" or "block focus time"
-        - Never repeat back what they already know as if it's insight
-        - If the data is thin or there's nothing notable, say so honestly
-        - Speak in second person, conversational tone
-        - Never mention that you are an AI`;
     const context = serializeContext();
     const request = `Based on the above, share what you genuinely notice. Be honest. Be brief. Ask me one thing if something stands out.`;
     return `${SYSTEM_PROMPT}\n\n${context}\n\n${request}`;
