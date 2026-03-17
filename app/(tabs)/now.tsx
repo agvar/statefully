@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContentContainer: {
-        paddingBottom: Spacing.xl,
+        paddingBottom: Spacing['4xl'],
     },
     sectionHeader: {
         paddingHorizontal: Spacing.md,
