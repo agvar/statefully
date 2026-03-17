@@ -1,20 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { BlurView } from 'expo-blur';
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/theme';
 
 export default function TabLayout(){
     return(
         <Tabs
         screenOptions={{
-            tabBarActiveTintColor: '#007AFF',
-            tabBarInactiveTintColor: '#8E8E93',
+            tabBarActiveTintColor: Colors.flow,
+            tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
             tabBarStyle:{
-                backgroundColor: '#F2F2F7',
+                backgroundColor: 'transparent',
+                position:'absolute',
                 borderTopWidth: 0,
                 elevation: 0,
                 height: 88,
                 paddingBottom: 34,
                 paddingTop: 8,
             },
+            tabBarBackground: () => (
+                <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />
+            ),
             headerShown: false,
         }}
         >
