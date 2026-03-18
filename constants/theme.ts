@@ -112,7 +112,6 @@ export const  Spacing ={
     xl: 32,
     '2xl': 48,
     '3xl': 64,
-    '4xl':88
 };
 
 //Border radius
@@ -163,7 +162,7 @@ export const Layout= {
     cardPadding: Spacing.md,
 
     // Tab bar height(included safe area
-    tabBarHeight: 88,
+    tabBarHeight: 72,
 
     // Header height
     headerHeight: 44,
@@ -171,5 +170,6 @@ export const Layout= {
     //Common dimensions
     buttonHeight: 48,
     inputHeight: 44,
-    iconSize: 24
+    iconSize: 24,
+    
 };
