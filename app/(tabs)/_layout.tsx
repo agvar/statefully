@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
-import { Colors } from '@/constants/theme';
+import { Colors, Layout, Spacing } from '@/constants/theme';
 
 export default function TabLayout(){
     return(
@@ -15,7 +15,7 @@ export default function TabLayout(){
                 position:'absolute',
                 borderTopWidth: 0,
                 elevation: 0,
-                height: 88,
+                height: Layout.tabBarHeight,
                 paddingBottom: 34,
                 paddingTop: 8,
             },
