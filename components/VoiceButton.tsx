@@ -333,9 +333,9 @@ const styles = StyleSheet.create({
             opacity: 0.8,
         },
         label:{
-            marginTop: Spacing.md,
-            fontSize: Typography.size.lg,
-            color: Colors.text.dark.primary
+            marginTop: Spacing.sm,
+            fontSize: Typography.size.base,
+            color: 'rgba(255, 255, 255, 0.6)',
         },
         labelDisabled: {
             color: Colors.text.dark.tertiary,  
