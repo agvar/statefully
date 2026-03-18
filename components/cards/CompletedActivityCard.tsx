@@ -34,7 +34,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
     const energy = getEnergyDisplay();
 
     const CardContent = (
-        <View style={styles.container}>
+        <View style={[styles.container,{backgroundColor:energy.color + '0F', borderLeftColor: energy.color}]}>
             {/* Top Row: Name and Duration*/}
             <View style={styles.topRow}>
                 <Text style={styles.activityName} numberOfLines={1}>
@@ -47,7 +47,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
             
             {/* Bottom Row: Energy state and Badge */}
             <View style={styles.bottomRow}>
-                <View style={[styles.badge,{ backgroundColor: energy.color + '20'}]}>
+                <View style={[styles.badge,{ backgroundColor: energy.color + '0F'}]}>
                     <Text style={styles.badgeEmoji}>{energy.emoji}</Text>
                     <Text style={[styles.badgeText, {color: energy.color}]}>
                         {energy.text}
@@ -76,8 +76,8 @@ const styles = StyleSheet.create({
         padding: Spacing.md,
         marginHorizontal: Spacing.md,
         marginTop: Spacing.sm,
-        borderWidth: 1,
-        borderColor: Colors.border.dark,
+        borderLeftWidth: 3,
+        overflow: 'hidden',       // clips left border inside border radius
     },
     topRow: {
         flexDirection: 'row',
