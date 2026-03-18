@@ -8,7 +8,7 @@ import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflection
 
 
 import VoiceButton from '@/components/VoiceButton';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
+import { BorderRadius, Colors, Layout, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { EnergyState, Intensity, EmotionState } from '@/types/index';
 import { useState } from 'react';
@@ -109,7 +109,7 @@ export default function NowScreen(){
             <LinearGradient 
                 colors={[Colors.gradient.auroraStart,Colors.background.dark,Colors.gradient.auroraEnd]}
                 start={{ x:0, y:0 }}
-                end={{ x:1, y:1 }} 
+                end={{ x:1, y:0.7 }} 
                 style={StyleSheet.absoluteFill}
             />
             {/* Header */}
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContentContainer: {
-        paddingBottom: Spacing['4xl'],
+        paddingBottom: Layout.tabBarHeight,
     },
     sectionHeader: {
         paddingHorizontal: Spacing.md,
@@ -292,11 +292,11 @@ const styles = StyleSheet.create({
         lineHeight: Typography.size.base * 1.5,
     },
     voiceButtonContainer:{
-        paddingVertical: Spacing.lg,
+        paddingVertical: Spacing.xl,
         paddingHorizontal:Spacing.md,
-        //backgroundColor:Colors.background.dark,
+        paddingBottom:Layout.tabBarHeight,
         borderTopWidth:1,
-        borderTopColor: Colors.border.dark
+        borderTopColor: 'rgba(255,255,255,0.06)',
     },
     modeToggle:{
         flexDirection:'row',
