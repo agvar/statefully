@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     },
     totalText: {
         fontSize: Typography.size.base,
-        color: Colors.text.light.secondary,
+        color: Colors.text.dark.secondary,
         marginBottom: Spacing.xs,
     },
     statsRow: {
