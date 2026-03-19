@@ -1,7 +1,7 @@
 import ActivityLogCard from '@/components/cards/ActivityLogCard';
 import ManualActivityForm from '@/components/forms/ManualActivityForm';
 import DateSectionHeader from '@/components/sections/DateSectionHeader';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Layout, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { Activity } from '@/types';
 import { useState } from 'react';
@@ -134,13 +134,13 @@ const groupActivitiesByDate = (activities: Activity[]) =>{
     const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.background.light,
+        backgroundColor: Colors.background.dark,
     },
     addButton: {
         marginTop: Spacing['2xl'] + 20, // Safe area + spacing
         marginHorizontal: Spacing.md,
         padding: Spacing.md,
-        backgroundColor: Colors.primary,
+        backgroundColor: Colors.flow,
         borderRadius: 12,
         alignItems: 'center',
     },
@@ -150,7 +150,7 @@ const groupActivitiesByDate = (activities: Activity[]) =>{
         color: '#FFFFFF',
     },
     listContent: {
-        paddingBottom: Spacing.xl,
+        paddingBottom: Layout.tabBarHeight,
     },
     emptyState: {
         padding: Spacing.xl,
@@ -160,7 +160,7 @@ const groupActivitiesByDate = (activities: Activity[]) =>{
     },
     emptyText: {
         fontSize: Typography.size.base,
-        color: Colors.text.light.secondary,
+        color: Colors.text.dark.secondary,
         textAlign: 'center',
     },
 });
