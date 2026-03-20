@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View, Alert} from 'react-native';
 import { AudioRecorder, AudioManager } from 'react-native-audio-api';
 import { useSpeechToText, WHISPER_TINY_EN_QUANTIZED} from 'react-native-executorch';
 //import { useMoonshineModel } from '@/utils/moonshineTranscription';
@@ -64,9 +64,8 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
             if(isStreamActiveRef.current){
                 streamInsertRef.current(buffer.getChannelData(0));
             }
-
         }
-    );
+        );
     recorderRef.current= recorder;
     return () =>{
         recorder.clearOnAudioReady();
@@ -98,9 +97,8 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                     return;
                 }
                 console.log("Microphone audio session activated");
-
                 recorder.start();
-                await stream();
+                stream().catch(err => Alert.alert('Streaming error',err));
                 isStreamActiveRef.current=true;
                 setIsRecording(true);
             }
