@@ -1,6 +1,6 @@
 import MetricCircle from '@/components/MetricCircle';
 import TimelineChart from '@/components/TimeLineChart';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Layout, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { Activity } from '@/types';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -27,7 +27,7 @@ export default function PulseScreen(){
     const flowScore = totalHours > 0 ? (flowHours / totalHours) *100 :0 ;
 
     return (
-        <SafeAreaView style={styles.content}>
+        <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>Pulse ⚡</Text>
@@ -105,7 +105,7 @@ function calculateSentiment(activities: Activity[]):{
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.light,
+    backgroundColor: Colors.background.dark,
   },
   header: {
     paddingTop: Spacing.md,
@@ -115,15 +115,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: Typography.size['4xl'],
     fontWeight: Typography.weight.bold,
-    color: Colors.text.light.primary,
+    color: Colors.text.dark.primary,
     marginBottom: Spacing.xs,
   },
   subtitle: {
     fontSize: Typography.size.base,
-    color: Colors.text.light.secondary,
+    color: Colors.text.dark.secondary,
   },
   content: {
-    paddingBottom: Spacing.xl,
+    paddingBottom: Layout.tabBarHeight
   },
   metricsContainer: {
     marginTop: Spacing.lg,
@@ -132,13 +132,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.size.lg,
     fontWeight: Typography.weight.semibold,
-    color: Colors.text.light.primary,
+    color: Colors.text.dark.primary,
     marginBottom: Spacing.md,
   },
   metricsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.cardDark,
     borderRadius: 12,
     padding: Spacing.lg,
   },
