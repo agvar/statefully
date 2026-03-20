@@ -58,11 +58,11 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
             bufferLength:1600
         },
         ({buffer})=>{
-            //const chunk = buffer.getChannelData(0);
-            //const chunkCopy = new Float32Array(chunk);
+            const chunk = buffer.getChannelData(0);
+            const chunkCopy = new Float32Array(chunk);
             //audioChunksRef.current.push(chunkCopy);
             if(isStreamActiveRef.current){
-                streamInsertRef.current(buffer.getChannelData(0));
+                streamInsertRef.current(chunkCopy);
             }
         }
         );
