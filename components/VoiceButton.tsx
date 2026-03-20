@@ -15,16 +15,27 @@ interface VoiceButtonProps {
 export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceButtonProps ) {
     const [ isTranscribing, setIsTranscribing ] = useState(false)
     const [ isRecording, setIsRecording ] = useState(false);
-    const audioChunksRef = useRef<Float32Array[]>([]);
+    //const audioChunksRef = useRef<Float32Array[]>([]);
     const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
     const haloScaleAnim = useRef(new Animated.Value(1)).current;
     const haloOpacityAnim = useRef(new Animated.Value(0.6)).current;
-    //const { isReady, error, transcribe } = useMoonshineModel();
-    const {isReady,error, transcribe,downloadProgress} = useSpeechToText({
+    const isStreamActiveRef = useRef(false);
+    //const {isReady,error, transcribe,downloadProgress} = useSpeechToText({
+    //      model : WHISPER_TINY_EN_QUANTIZED
+    //});
+    const {isReady,error, stream,streamInsert,streamStop,
+        committedTranscription,nonCommittedTranscription,
+            downloadProgress} = useSpeechToText({
             model : WHISPER_TINY_EN_QUANTIZED
     });
+    const streamInsertRef = useRef(streamInsert);
+
+    useEffect(()=>{
+        streamInsertRef.current = streamInsert;
+    },[streamInsert]
+    );
 
     useEffect(() =>{
         if(!isRecording &&  isReady){
@@ -46,10 +57,13 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
             channelCount: 1,
             bufferLength:1600
         },
-        ({buffer,numFrames,when})=>{
-            const chunk = buffer.getChannelData(0);
-            const chunkCopy = new Float32Array(chunk);
-            audioChunksRef.current.push(chunkCopy);
+        ({buffer})=>{
+            //const chunk = buffer.getChannelData(0);
+            //const chunkCopy = new Float32Array(chunk);
+            //audioChunksRef.current.push(chunkCopy);
+            if(isStreamActiveRef.current){
+                streamInsertRef.current(buffer.getChannelData(0));
+            }
 
         }
     );
@@ -85,16 +99,17 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 }
                 console.log("Microphone audio session activated");
 
-                const result = recorder.start();
-                console.log(`recorder status: ${result.status}`);
-                if(result.status === 'error'){
-                    console.error(result.message);
-                    return;
-                }
+                recorder.start();
+                await stream();
+                isStreamActiveRef.current=true;
                 setIsRecording(true);
             }
             else {
                 await recorder.stop();
+                isStreamActiveRef.current=false;
+                streamStop();
+                const committedText = committedTranscription;
+
                 console.log("Stopping recording")
                 if (!isReady || error){
                     console.error ('Models not loaded yet');
@@ -104,7 +119,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 setIsRecording(false)
 
                 //process audio chunks
-                const chunks = audioChunksRef.current;
+                /*const chunks = audioChunksRef.current;
 
                 const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
                 const combinedAudio= new Float32Array(totalLength);
@@ -118,13 +133,13 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
 
                 //transcribe
                 setIsTranscribing(true);
-
+                */
                 try {
                     if(!isReady || error) {
                         throw new Error('Model is not loaded yet');
                     }
-                    const text = await transcribe(combinedAudio);
-                    const cleanedtext = cleanTranscription(text);
+                    //const text = await transcribe(combinedAudio);
+                    const cleanedtext = cleanTranscription(committedText);
                     onRecordingComplete(cleanedtext);
                 }catch(err){
                     console.error('Transcription error',err);
@@ -263,6 +278,15 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 </Pressable>
             </View>
             
+            {
+                isRecording && (
+                    <Text style={styles.partialText} numberOfLines={3}>
+                        {committedTranscription}{nonCommittedTranscription}
+                    </Text>
+                )
+            }
+
+
             {!isReady && downloadProgress > 0 && (
                 <View style = {styles.progressContainer}>
                     <View style={[styles.progressFill, { width : downloadProgress * 120 }]} />
@@ -368,6 +392,13 @@ const styles = StyleSheet.create({
             borderColor: Colors.flow,
             backgroundColor: 'transparent',
         },
+        partialText: {
+            marginTop: Spacing.sm,
+            fontSize: Typography.size.sm,
+            color: 'rgba(255,255,255,0.6)',
+            textAlign: 'center',
+            paddingHorizontal: Spacing.lg,
+},
 
     
 })
