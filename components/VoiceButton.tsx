@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View, Alert} from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AudioRecorder, AudioManager } from 'react-native-audio-api';
 import { useSpeechToText, WHISPER_TINY_EN_QUANTIZED} from 'react-native-executorch';
 //import { useMoonshineModel } from '@/utils/moonshineTranscription';
@@ -15,27 +15,21 @@ interface VoiceButtonProps {
 export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceButtonProps ) {
     const [ isTranscribing, setIsTranscribing ] = useState(false)
     const [ isRecording, setIsRecording ] = useState(false);
-    //const audioChunksRef = useRef<Float32Array[]>([]);
+    const audioChunksRef = useRef<Float32Array[]>([]);
     const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
     const haloScaleAnim = useRef(new Animated.Value(1)).current;
     const haloOpacityAnim = useRef(new Animated.Value(0.6)).current;
-    const isStreamActiveRef = useRef(false);
-    //const {isReady,error, transcribe,downloadProgress} = useSpeechToText({
-    //      model : WHISPER_TINY_EN_QUANTIZED
-    //});
-    const {isReady,error, stream,streamInsert,streamStop,
-        committedTranscription,nonCommittedTranscription,
-            downloadProgress} = useSpeechToText({
-            model : WHISPER_TINY_EN_QUANTIZED
+    const {isReady, error, transcribe, downloadProgress} = useSpeechToText({
+        model: WHISPER_TINY_EN_QUANTIZED
     });
-    const streamInsertRef = useRef(streamInsert);
-
-    useEffect(()=>{
-        streamInsertRef.current = streamInsert;
-    },[streamInsert]
-    );
+    // TODO(future): Re-enable streaming transcription once the react-native-executorch
+    // OnlineASR data-race bug is fixed. In OnlineASR::process(), audioCopy is created
+    // correctly under mutex lock but then audioBuffer_ (not audioCopy) is passed to
+    // asr_->transcribe(), causing a SIGSEGV when concurrent insertAudioChunk() calls
+    // trigger a vector reallocation. Tracked in: https://github.com/software-mansion/react-native-executorch
+    // To test a fix: git checkout -b test/streaming-fix && npm install react-native-executorch@<new-version>
 
     useEffect(() =>{
         if(!isRecording &&  isReady){
@@ -60,10 +54,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
         ({buffer})=>{
             const chunk = buffer.getChannelData(0);
             const chunkCopy = new Float32Array(chunk);
-            //audioChunksRef.current.push(chunkCopy);
-            if(isStreamActiveRef.current){
-                streamInsertRef.current(chunkCopy);
-            }
+            audioChunksRef.current.push(chunkCopy);
         }
         );
     recorderRef.current= recorder;
@@ -98,50 +89,36 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 }
                 console.log("Microphone audio session activated");
                 recorder.start();
-                stream().catch(err => Alert.alert('Streaming error',err));
-                isStreamActiveRef.current=true;
                 setIsRecording(true);
             }
             else {
                 await recorder.stop();
-                isStreamActiveRef.current=false;
-                streamStop();
-                const committedText = committedTranscription;
 
-                console.log("Stopping recording")
-                if (!isReady || error){
-                    console.error ('Models not loaded yet');
-                }
+                console.log("Stopping recording");
                 await AudioManager.setAudioSessionActivity(false);
-                setIsTranscribing(true)
-                setIsRecording(false)
+                setIsTranscribing(true);
+                setIsRecording(false);
 
-                //process audio chunks
-                /*const chunks = audioChunksRef.current;
-
-                const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
-                const combinedAudio= new Float32Array(totalLength);
+                const chunks = audioChunksRef.current;
+                const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+                const combinedAudio = new Float32Array(totalLength);
                 let offset = 0;
                 for (const chunk of chunks) {
-                    combinedAudio.set(chunk,offset);
+                    combinedAudio.set(chunk, offset);
                     offset += chunk.length;
                 }
-                //clear for next recording
                 audioChunksRef.current = [];
 
-                //transcribe
-                setIsTranscribing(true);
-                */
                 try {
-                    if(!isReady || error) {
+                    if (!isReady || error) {
                         throw new Error('Model is not loaded yet');
                     }
-                    //const text = await transcribe(combinedAudio);
-                    const cleanedtext = cleanTranscription(committedText);
+                    const result = await transcribe(combinedAudio);
+                    const cleanedtext = cleanTranscription(result);
                     onRecordingComplete(cleanedtext);
-                }catch(err){
-                    console.error('Transcription error',err);
-                }finally {
+                } catch(err) {
+                    console.error('Transcription error', err);
+                } finally {
                     setIsTranscribing(false);
                 }
             }
@@ -276,13 +253,6 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 </Pressable>
             </View>
             
-            {
-                isRecording && (
-                    <Text style={styles.partialText} numberOfLines={3}>
-                        {committedTranscription}{nonCommittedTranscription}
-                    </Text>
-                )
-            }
 
 
             {!isReady && downloadProgress > 0 && (
