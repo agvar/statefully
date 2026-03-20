@@ -53,14 +53,14 @@ interface TimelineChartProps {
                       y={0}
                       width ={1}
                       height = {chartHeight}
-                      fill = "#E5E5EA"
+                      fill = {Colors.border.dark}
                     />
                     {/* Time Label*/}
                     <SvgText
                       x={(chartWidth/24) * hour}
                       y={chartHeight-5}
                       fontSize="10"
-                      fill = {Colors.text.light.tertiary}
+                      fill = {Colors.text.dark.tertiary}
                       textAnchor="middle"
                     >
                       {hour}
@@ -77,7 +77,7 @@ interface TimelineChartProps {
                     ? Colors.flow
                     :activity.energyState == 'drain'
                     ? Colors.drain
-                    : '#CCCCCC';
+                    : Colors.border.dark;
                     return(
                       <Rect 
                         key = {activity.id}
@@ -122,7 +122,7 @@ interface TimelineChartProps {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.cardDark,
     borderRadius: 12,
     padding: Spacing.md,
     marginHorizontal: Spacing.md,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: Typography.size.base,
     fontWeight: Typography.weight.semibold,
-    color: Colors.text.light.primary,
+    color: Colors.text.dark.primary,
     marginBottom: Spacing.sm,
   },
   legend: {
@@ -152,10 +152,10 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: Typography.size.sm,
-    color: Colors.text.light.secondary,
+    color: Colors.text.dark.secondary,
   },
   emptyContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.cardDark,
     borderRadius: 12,
     padding: Spacing.xl,
     marginHorizontal: Spacing.md,
@@ -164,6 +164,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: Typography.size.base,
-    color: Colors.text.light.secondary,
+    color: Colors.text.dark.secondary,
   },
 });
