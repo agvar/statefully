@@ -18,7 +18,7 @@ export default function MetricCircle({percentage, label, value,color}: MetricCir
                 width={12}
                 fill={percentage}
                 tintColor={color}
-                backgroundColor={Colors.border.light}
+                backgroundColor={Colors.border.dark}
                 rotation={0}
                 duration={1000}
             >
@@ -45,11 +45,11 @@ const styles = StyleSheet.create({
   value: {
     fontSize: Typography.size.xl,
     fontWeight: Typography.weight.bold,
-    color: Colors.text.light.primary,
+    color: Colors.text.dark.primary,
   },
   label: {
     fontSize: Typography.size.sm,
-    color: Colors.text.light.secondary,
+    color: Colors.text.dark.secondary,
     textAlign: 'center',
   },
 });
