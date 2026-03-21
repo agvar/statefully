@@ -6,10 +6,46 @@ import { Activity } from '@/types';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
+import { buildReflectionPrompt , ReflectionContext} from '@/utils/buildReflectionPrompt';
+import { useLLM,SMOLLM2_1_135M_QUANTIZED } from 'react-native-executorch';
+import { useState } from 'react';
 
 export default function PulseScreen(){
+    const [shouldLoad, setShouldLoad] = useState(false);
     const activities = useStore( state => state.activities);
     const { flowHours, drainHours } = useStore(useShallow(state => state.getTodayStats()));
+    const {isReady,downloadProgress,error,generate} = useLLM({model: SMOLLM2_1_135M_QUANTIZED,
+        preventLoad: !shouldLoad
+    });
+
+    const checkPromptLLM = ():string =>{
+        const store = useStore.getState();
+        const today = new Date();
+        const startOfToday = new Date(today);
+        startOfToday.setHours(0,0,0,0);
+        const selectedEmotion = store.getEmotionCheckInsForDate(today);
+        if (selectedEmotion) {
+            const ctx: ReflectionContext = {
+            currentEmotion: selectedEmotion,
+            tasks: store.getTasksForDateRange(startOfToday, today),
+            thoughts: store.getThoughtsForDateRange(startOfToday, today),
+            emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
+            windowLabel: 'today',
+            };
+            const prompt = buildReflectionPrompt(ctx);
+            return prompt
+        } else {
+            return ''
+        }
+    }
+
+    const handleReflect = () =>{
+        setShouldLoad(true);
+        if (isReady){
+            //const prompt = buildReflectionPrompt()
+            console.log("model is ready")
+        }
+    }
 
     const todayActivities = activities.filter( activity =>
         {   const today = new Date();
