@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
 import { buildReflectionPrompt , ReflectionContext} from '@/utils/buildReflectionPrompt';
 import { useLLM,SMOLLM2_1_135M_QUANTIZED ,Message} from 'react-native-executorch';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function PulseScreen(){
     const [shouldLoad, setShouldLoad] = useState(false);
@@ -17,6 +17,17 @@ export default function PulseScreen(){
     const {isReady,downloadProgress,error,isGenerating,generate,response} = useLLM({model: SMOLLM2_1_135M_QUANTIZED,
         preventLoad: !shouldLoad
     });
+    const [pendingPrompt,setPendingPrompt] = useState<string|null>(null);
+
+    useEffect(()=>{
+        if(isReady && pendingPrompt){
+            const messages:Message[] =[
+                {role:'user',content:pendingPrompt}
+            ]
+            generate(messages);
+            setPendingPrompt(null);
+        };
+    },[isReady,pendingPrompt])
 
     const createLLMPromptValues = ():string =>{
         const store = useStore.getState();
@@ -34,17 +45,11 @@ export default function PulseScreen(){
     };
 
     const handleReflect = () =>{
+        const prompt = createLLMPromptValues();
+        setPendingPrompt(prompt);
         setShouldLoad(true);
-        if (isReady){
-            //const prompt = buildReflectionPrompt()
-            console.log("model is ready")
-            const prompt = createLLMPromptValues();
-            const messages:Message[] =[
-                {role:'user',content:prompt}
-            ]
-            const LLMgenerate = generate(messages)
-        }
-    }
+    };
+    
 
     const todayActivities = activities.filter( activity =>
         {   const today = new Date();
@@ -106,16 +111,18 @@ export default function PulseScreen(){
                 <View style={styles.reflectButtonWrapper}>
                     <Pressable 
                     onPress={handleReflect}
-                    disabled = {!isReady || !isGenerating || !response }
+                    disabled = {isGenerating }
                     style ={[styles.reflectButton, styles.reflectButtonDisabled]}
                     >
+                        <Text style={styles.reflectButtonLabel}>
+                            {isGenerating? 'Reflecting ...': 'Rflect'}</Text>
                     </Pressable>
                 </View>
-                <Text>Reflect</Text>
+                
                 {/* streaming response */}
-                {isGenerating ||(!isGenerating && response) && (
+                {(isGenerating ||(!isGenerating && response)) && (
                     <View style = {styles.responseContainer}>
-                        <Text>response</Text>
+                        <Text>{response}</Text>
                     </View>
                 )
                 }
@@ -124,8 +131,6 @@ export default function PulseScreen(){
             </ScrollView>
         </SafeAreaView>
     )
-
-
 }
 //Helper function
 
@@ -204,6 +209,7 @@ const styles = StyleSheet.create({
   progressContainer:{
               width:120,
               height: 4,
+              alignSelf: 'center',
               backgroundColor : 'rgba(255,255,255,0.2)',
               borderRadius: BorderRadius.full,
               marginTop: Spacing.sm,
@@ -224,7 +230,7 @@ const styles = StyleSheet.create({
 
   },
   responseContainer:{
-    
+
   }
 
 });
