@@ -142,9 +142,9 @@ export const useStore = create<StoreState>()(
         getThoughtsForDate: (date) =>{
            return getActivitiesForDate(get().activities, new Date(date),'thought')
         },
-         getEmotionCheckinsForDate:(date)  =>{
-            return get().emotionCheckIns.filter(item => isSameDay(new Date(item.timestamp),date))
-        };
+         getEmotionCheckInsForDate:(date:Date)  =>{
+            return get().emotionCheckIns.filter((emotion:EmotionCheckin)=> isSameDay(new Date(emotion.timestamp),date))
+        },
 
         getTodayStats: () =>{
             const today = new Date()
