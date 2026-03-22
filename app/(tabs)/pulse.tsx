@@ -1,32 +1,29 @@
 import MetricCircle from '@/components/MetricCircle';
 import TimelineChart from '@/components/TimeLineChart';
-import { Colors, Layout, Spacing, Typography } from '@/constants/theme';
+import { Colors, Layout, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { Activity } from '@/types';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View,Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
 import { buildReflectionPrompt , ReflectionContext} from '@/utils/buildReflectionPrompt';
-import { useLLM,SMOLLM2_1_135M_QUANTIZED } from 'react-native-executorch';
+import { useLLM,SMOLLM2_1_135M_QUANTIZED ,Message} from 'react-native-executorch';
 import { useState } from 'react';
 
 export default function PulseScreen(){
     const [shouldLoad, setShouldLoad] = useState(false);
     const activities = useStore( state => state.activities);
     const { flowHours, drainHours } = useStore(useShallow(state => state.getTodayStats()));
-    const {isReady,downloadProgress,error,generate} = useLLM({model: SMOLLM2_1_135M_QUANTIZED,
+    const {isReady,downloadProgress,error,isGenerating,generate,response} = useLLM({model: SMOLLM2_1_135M_QUANTIZED,
         preventLoad: !shouldLoad
     });
 
-    const checkPromptLLM = ():string =>{
+    const createLLMPromptValues = ():string =>{
         const store = useStore.getState();
         const today = new Date();
         const startOfToday = new Date(today);
         startOfToday.setHours(0,0,0,0);
-        const selectedEmotion = store.getEmotionCheckInsForDate(today);
-        if (selectedEmotion) {
             const ctx: ReflectionContext = {
-            currentEmotion: selectedEmotion,
             tasks: store.getTasksForDateRange(startOfToday, today),
             thoughts: store.getThoughtsForDateRange(startOfToday, today),
             emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
@@ -34,16 +31,18 @@ export default function PulseScreen(){
             };
             const prompt = buildReflectionPrompt(ctx);
             return prompt
-        } else {
-            return ''
-        }
-    }
+    };
 
     const handleReflect = () =>{
         setShouldLoad(true);
         if (isReady){
             //const prompt = buildReflectionPrompt()
             console.log("model is ready")
+            const prompt = createLLMPromptValues();
+            const messages:Message[] =[
+                {role:'user',content:prompt}
+            ]
+            const LLMgenerate = generate(messages)
         }
     }
 
@@ -95,8 +94,32 @@ export default function PulseScreen(){
                         />
 
                     </View>
-
+                {/*Download progress bar */}
                 </View>
+                {!isReady && downloadProgress > 0 && (
+                    <View style = {styles.progressContainer}>
+                        <View style={[styles.progressFill, { width : downloadProgress * 120 }]} />
+                    </View>
+                )
+                }
+                {/*Reflect Button */}
+                <View style={styles.reflectButtonWrapper}>
+                    <Pressable 
+                    onPress={handleReflect}
+                    disabled = {!isReady || !isGenerating || !response }
+                    style ={[styles.reflectButton, styles.reflectButtonDisabled]}
+                    >
+                    </Pressable>
+                </View>
+                <Text>Reflect</Text>
+                {/* streaming response */}
+                {isGenerating ||(!isGenerating && response) && (
+                    <View style = {styles.responseContainer}>
+                        <Text>response</Text>
+                    </View>
+                )
+                }
+
 
             </ScrollView>
         </SafeAreaView>
@@ -178,4 +201,30 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: Spacing.lg,
   },
+  progressContainer:{
+              width:120,
+              height: 4,
+              backgroundColor : 'rgba(255,255,255,0.2)',
+              borderRadius: BorderRadius.full,
+              marginTop: Spacing.sm,
+              overflow: 'hidden',
+          },
+  progressFill:{
+              height: '100%',
+              backgroundColor: Colors.flow,
+              borderRadius: BorderRadius.full,
+          },
+  reflectButtonWrapper:{
+
+  },
+  reflectButton:{
+
+  },
+  reflectButtonDisabled:{
+
+  },
+  responseContainer:{
+    
+  }
+
 });
