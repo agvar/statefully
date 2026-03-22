@@ -1,7 +1,6 @@
 import { EmotionCheckin,Activity,EmotionState } from "@/types"
 
 export interface ReflectionContext {
-    currentEmotion : EmotionState;
     tasks : Activity[];
     thoughts: Activity[];
     emotions : EmotionCheckin[];
@@ -20,14 +19,9 @@ Your role:
 - Speak in second person, conversational tone
 - Never mention that you are an AI`;
 
-export function buildReflectionPrompt({currentEmotion,tasks,thoughts,emotions,windowLabel}: ReflectionContext):string {
+export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: ReflectionContext):string {
     const serializeContext = () =>{
         const lines: string[] = [];
-
-        //current emotion
-        lines.push(`=== CURRENT STATE ===`);
-        lines.push(`Emotion right now : ${currentEmotion ?? 'not checked in '}`);
-        lines.push('');
 
         //Today's tasks
         lines.push(`=== TASKS (${windowLabel}) ===`);
