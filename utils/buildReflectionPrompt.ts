@@ -6,7 +6,7 @@ export interface ReflectionContext {
     emotions : EmotionCheckin[];
     windowLabel : string;
 };
-const SYSTEM_PROMPT = `You are a private, thoughtful companion for someone tracking their cognitive energy throughout the day. You have been given a summary of their recent activities, thoughts, and emotional check-ins — all captured privately on their device.
+export const SYSTEM_PROMPT = `You are a private, thoughtful companion for someone tracking their cognitive energy throughout the day. You have been given a summary of their recent activities, thoughts, and emotional check-ins — all captured privately on their device.
 
 Your role:
 - Observe patterns honestly, without sugarcoating
@@ -68,5 +68,6 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
     }
     const context = serializeContext();
     const request = `Based on the above, share what you genuinely notice. Be honest. Be brief. Ask me one thing if something stands out.`;
-    return `${SYSTEM_PROMPT}\n\n${context}\n\n${request}`;
+    //return `${SYSTEM_PROMPT}\n\n${context}\n\n${request}`;
+    return `${context}\n\n${request}`;
 }
