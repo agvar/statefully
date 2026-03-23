@@ -27,7 +27,7 @@ export default function PulseScreen(){
             generate(messages);
             setPendingPrompt(null);
         };
-    },[isReady,pendingPrompt])
+    },[isReady,pendingPrompt,generate])
 
     const createLLMPromptValues = ():string =>{
         const store = useStore.getState();
@@ -112,17 +112,28 @@ export default function PulseScreen(){
                     <Pressable 
                     onPress={handleReflect}
                     disabled = {isGenerating }
-                    style ={[styles.reflectButton, styles.reflectButtonDisabled]}
+                    style ={[styles.reflectButton, isGenerating && styles.reflectButtonDisabled]}
                     >
                         <Text style={styles.reflectButtonLabel}>
-                            {isGenerating? 'Reflecting ...': 'Rflect'}</Text>
+                            {isGenerating? 'Reflecting ...': 'Reflect'}</Text>
                     </Pressable>
                 </View>
-                
+
+                <Text style={styles.reflectStatusLabel}>
+                    {!shouldLoad
+                        ? 'Tap to load & reflect'
+                        : !isReady
+                        ? `Loading model ${Math.round(downloadProgress * 100)}%`
+                        : isGenerating
+                        ? 'Thinking...'
+                        : response
+                        ? 'Tap to reflect again'
+                        : 'Model ready'}
+                </Text>
                 {/* streaming response */}
                 {(isGenerating ||(!isGenerating && response)) && (
                     <View style = {styles.responseContainer}>
-                        <Text>{response}</Text>
+                        <Text style={styles.responseText}>{response}</Text>
                     </View>
                 )
                 }
@@ -207,30 +218,64 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
   },
   progressContainer:{
-              width:120,
-              height: 4,
-              alignSelf: 'center',
-              backgroundColor : 'rgba(255,255,255,0.2)',
-              borderRadius: BorderRadius.full,
-              marginTop: Spacing.sm,
-              overflow: 'hidden',
+    width:120,
+    height: 4,
+    alignSelf: 'center',
+    backgroundColor : 'rgba(255,255,255,0.2)',
+    borderRadius: BorderRadius.full,
+    marginTop: Spacing.sm,
+    overflow: 'hidden',
           },
   progressFill:{
-              height: '100%',
-              backgroundColor: Colors.flow,
-              borderRadius: BorderRadius.full,
+    height: '100%',
+    backgroundColor: Colors.flow,
+    borderRadius: BorderRadius.full,
           },
-  reflectButtonWrapper:{
-
-  },
-  reflectButton:{
-
-  },
+ reflectButtonWrapper: {
+    marginTop: Spacing.xl,
+    paddingHorizontal: Spacing.md,
+    alignItems: 'center',
+},
+reflectButton: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.flow,
+    backgroundColor: Colors.flow + '30',   // 19% opacity fill
+    shadowColor: Colors.flow,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+},
   reflectButtonDisabled:{
-
+    opacity: 0.4,
   },
-  responseContainer:{
-
-  }
+  reflectButtonLabel: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.dark.primary,
+},
+responseContainer: {
+    marginTop: Spacing.lg,
+    marginHorizontal: Spacing.md,
+    backgroundColor: Colors.background.cardDark,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.lg,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.flow,
+    overflow: 'hidden',
+},
+responseText: {
+    fontSize: Typography.size.base,
+    color: Colors.text.dark.primary,
+    lineHeight: 22,
+},
+reflectStatusLabel: {
+    marginTop: Spacing.sm,
+    fontSize: Typography.size.sm,
+    color: Colors.text.dark.secondary,
+},
 
 });
