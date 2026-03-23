@@ -6,7 +6,7 @@ import { Activity } from '@/types';
 import { ScrollView, StyleSheet, Text, View,Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
-import { buildReflectionPrompt , ReflectionContext} from '@/utils/buildReflectionPrompt';
+import { buildReflectionPrompt , ReflectionContext,SYSTEM_PROMPT} from '@/utils/buildReflectionPrompt';
 import { useLLM,SMOLLM2_1_135M_QUANTIZED ,Message} from 'react-native-executorch';
 import { useEffect, useState } from 'react';
 
@@ -14,13 +14,19 @@ export default function PulseScreen(){
     const [shouldLoad, setShouldLoad] = useState(false);
     const activities = useStore( state => state.activities);
     const { flowHours, drainHours } = useStore(useShallow(state => state.getTodayStats()));
-    const {isReady,downloadProgress,error,isGenerating,generate,response} = useLLM({model: SMOLLM2_1_135M_QUANTIZED,
+    const {isReady,downloadProgress,error,isGenerating,configure,
+        generate,response} = useLLM({model: SMOLLM2_1_135M_QUANTIZED,
         preventLoad: !shouldLoad
     });
     const [pendingPrompt,setPendingPrompt] = useState<string|null>(null);
 
     useEffect(()=>{
         if(isReady && pendingPrompt){
+            configure({
+                chatConfig:{
+                    systemPrompt:SYSTEM_PROMPT
+                }
+            });
             const messages:Message[] =[
                 {role:'user',content:pendingPrompt}
             ]
