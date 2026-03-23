@@ -7,7 +7,7 @@ import { ScrollView, StyleSheet, Text, View,Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
 import { buildReflectionPrompt , ReflectionContext,SYSTEM_PROMPT} from '@/utils/buildReflectionPrompt';
-import { useLLM,SMOLLM2_1_135M_QUANTIZED ,Message} from 'react-native-executorch';
+import { useLLM,LLAMA3_2_1B_SPINQUANT ,Message} from 'react-native-executorch';
 import { useEffect, useState } from 'react';
 
 export default function PulseScreen(){
@@ -15,19 +15,15 @@ export default function PulseScreen(){
     const activities = useStore( state => state.activities);
     const { flowHours, drainHours } = useStore(useShallow(state => state.getTodayStats()));
     const {isReady,downloadProgress,error,isGenerating,configure,
-        generate,response} = useLLM({model: SMOLLM2_1_135M_QUANTIZED,
+        generate,response} = useLLM({model: LLAMA3_2_1B_SPINQUANT,
         preventLoad: !shouldLoad
     });
     const [pendingPrompt,setPendingPrompt] = useState<string|null>(null);
 
     useEffect(()=>{
         if(isReady && pendingPrompt){
-            configure({
-                chatConfig:{
-                    systemPrompt:SYSTEM_PROMPT
-                }
-            });
             const messages:Message[] =[
+                { role: 'system', content: SYSTEM_PROMPT },
                 {role:'user',content:pendingPrompt}
             ]
             generate(messages);
