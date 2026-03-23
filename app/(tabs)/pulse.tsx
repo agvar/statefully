@@ -276,6 +276,7 @@ reflectStatusLabel: {
     marginTop: Spacing.sm,
     fontSize: Typography.size.sm,
     color: Colors.text.dark.secondary,
+    alignSelf: 'center',
 },
 
 });
