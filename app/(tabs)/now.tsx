@@ -47,7 +47,6 @@ export default function NowScreen(){
         startOfToday.setHours(0,0,0,0);
         if (selectedEmotion) {
             const ctx: ReflectionContext = {
-            currentEmotion: selectedEmotion,
             tasks: store.getTasksForDateRange(startOfToday, today),
             thoughts: store.getThoughtsForDateRange(startOfToday, today),
             emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
