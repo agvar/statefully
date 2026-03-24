@@ -4,6 +4,10 @@
 
 export type EnergyState = 'flow' | 'drain';
 export type ActivitySource = 'voice' | 'manual';
+export type EmotionState = 'alive' | 'calm' | 'low' | 'wired';
+export type ActivityType = 'task' | 'thought';
+export type Intensity = 'mild' | 'noticeable' | 'strong' | 'intense' | 'overwhelming';
+
 
 // Activity Type
 
@@ -16,41 +20,15 @@ export interface Activity {
     energyState?: EnergyState;
     source: ActivitySource;
     transcription?: string;
+    type: ActivityType;
+    intensity ?: Intensity ;
+    recurrenceCount?: number;
 
 }
-/*
 
-//Sentiment Types
-
-export type Sentiment = 'positive'| 'negative' | 'neutral';
-
-//Thought object
-
-export interface Thought {
-    id: string;                 //Unique id
-    text: string;               // Thought content
-    timestamp: Date;            // when the thought was captured
-    sentiment: Sentiment;       // Sentiment (emotional tone)
-    audioUri?: string;           //Optional: audio file path
-}
-
-//Task object
-
-export interface Task {
+export interface EmotionCheckin {
     id: string;
-    title: string;
-    description?: string;
-    duration: number;           //second spend
-    energyLevel: 'high' | 'medium' | 'low';
-    startTime?: Date;
-    endTime?: Date;
-    completed:boolean;
-    sourceThoughtId?: string;
-}
-
-//Filter and sort types of thoughts
-
-export type ThoughtFilter = 'all' | 'positive' | 'negative' | 'neutral';
-export type ThoughtSort = 'recent' | 'oldest';
-
-*/
+    timestamp : Date;
+    state : EmotionState;
+    note?: string;
+};

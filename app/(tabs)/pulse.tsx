@@ -1,15 +1,57 @@
 import MetricCircle from '@/components/MetricCircle';
 import TimelineChart from '@/components/TimeLineChart';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Layout, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { Activity } from '@/types';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View,Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
+import { buildReflectionPrompt , ReflectionContext,SYSTEM_PROMPT} from '@/utils/buildReflectionPrompt';
+import { useLLM,LLAMA3_2_1B_SPINQUANT ,Message} from 'react-native-executorch';
+import { useEffect, useState } from 'react';
 
 export default function PulseScreen(){
+    const [shouldLoad, setShouldLoad] = useState(false);
     const activities = useStore( state => state.activities);
     const { flowHours, drainHours } = useStore(useShallow(state => state.getTodayStats()));
+    const {isReady,downloadProgress,error,isGenerating,configure,
+        generate,response} = useLLM({model: LLAMA3_2_1B_SPINQUANT,
+        preventLoad: !shouldLoad
+    });
+    const [pendingPrompt,setPendingPrompt] = useState<string|null>(null);
+
+    useEffect(()=>{
+        if(isReady && pendingPrompt){
+            const messages:Message[] =[
+                { role: 'system', content: SYSTEM_PROMPT },
+                {role:'user',content:pendingPrompt}
+            ]
+            generate(messages);
+            setPendingPrompt(null);
+        };
+    },[isReady,pendingPrompt,generate])
+
+    const createLLMPromptValues = ():string =>{
+        const store = useStore.getState();
+        const today = new Date();
+        const startOfToday = new Date(today);
+        startOfToday.setHours(0,0,0,0);
+            const ctx: ReflectionContext = {
+            tasks: store.getTasksForDateRange(startOfToday, today),
+            thoughts: store.getThoughtsForDateRange(startOfToday, today),
+            emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
+            windowLabel: 'today',
+            };
+            const prompt = buildReflectionPrompt(ctx);
+            return prompt
+    };
+
+    const handleReflect = () =>{
+        const prompt = createLLMPromptValues();
+        setPendingPrompt(prompt);
+        setShouldLoad(true);
+    };
+    
 
     const todayActivities = activities.filter( activity =>
         {   const today = new Date();
@@ -27,7 +69,7 @@ export default function PulseScreen(){
     const flowScore = totalHours > 0 ? (flowHours / totalHours) *100 :0 ;
 
     return (
-        <SafeAreaView style={styles.content}>
+        <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>Pulse ⚡</Text>
@@ -59,14 +101,49 @@ export default function PulseScreen(){
                         />
 
                     </View>
-
+                {/*Download progress bar */}
                 </View>
+                {!isReady && downloadProgress > 0 && (
+                    <View style = {styles.progressContainer}>
+                        <View style={[styles.progressFill, { width : downloadProgress * 120 }]} />
+                    </View>
+                )
+                }
+                {/*Reflect Button */}
+                <View style={styles.reflectButtonWrapper}>
+                    <Pressable 
+                    onPress={handleReflect}
+                    disabled = {isGenerating }
+                    style ={[styles.reflectButton, isGenerating && styles.reflectButtonDisabled]}
+                    >
+                        <Text style={styles.reflectButtonLabel}>
+                            {isGenerating? 'Reflecting ...': 'Reflect'}</Text>
+                    </Pressable>
+                </View>
+
+                <Text style={styles.reflectStatusLabel}>
+                    {!shouldLoad
+                        ? 'Tap to load & reflect'
+                        : !isReady
+                        ? `Loading model ${Math.round(downloadProgress * 100)}%`
+                        : isGenerating
+                        ? 'Thinking...'
+                        : response
+                        ? 'Tap to reflect again'
+                        : 'Model ready'}
+                </Text>
+                {/* streaming response */}
+                {(isGenerating ||(!isGenerating && response)) && (
+                    <View style = {styles.responseContainer}>
+                        <Text style={styles.responseText}>{response}</Text>
+                    </View>
+                )
+                }
+
 
             </ScrollView>
         </SafeAreaView>
     )
-
-
 }
 //Helper function
 
@@ -105,7 +182,7 @@ function calculateSentiment(activities: Activity[]):{
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.light,
+    backgroundColor: Colors.background.dark,
   },
   header: {
     paddingTop: Spacing.md,
@@ -115,15 +192,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: Typography.size['4xl'],
     fontWeight: Typography.weight.bold,
-    color: Colors.text.light.primary,
+    color: Colors.text.dark.primary,
     marginBottom: Spacing.xs,
   },
   subtitle: {
     fontSize: Typography.size.base,
-    color: Colors.text.light.secondary,
+    color: Colors.text.dark.secondary,
   },
   content: {
-    paddingBottom: Spacing.xl,
+    paddingBottom: Layout.tabBarHeight
   },
   metricsContainer: {
     marginTop: Spacing.lg,
@@ -132,14 +209,76 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.size.lg,
     fontWeight: Typography.weight.semibold,
-    color: Colors.text.light.primary,
+    color: Colors.text.dark.primary,
     marginBottom: Spacing.md,
   },
   metricsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.cardDark,
     borderRadius: 12,
     padding: Spacing.lg,
   },
+  progressContainer:{
+    width:120,
+    height: 4,
+    alignSelf: 'center',
+    backgroundColor : 'rgba(255,255,255,0.2)',
+    borderRadius: BorderRadius.full,
+    marginTop: Spacing.sm,
+    overflow: 'hidden',
+          },
+  progressFill:{
+    height: '100%',
+    backgroundColor: Colors.flow,
+    borderRadius: BorderRadius.full,
+          },
+ reflectButtonWrapper: {
+    marginTop: Spacing.xl,
+    paddingHorizontal: Spacing.md,
+    alignItems: 'center',
+},
+reflectButton: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.flow,
+    backgroundColor: Colors.flow + '30',   // 19% opacity fill
+    shadowColor: Colors.flow,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+},
+  reflectButtonDisabled:{
+    opacity: 0.4,
+  },
+  reflectButtonLabel: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.dark.primary,
+},
+responseContainer: {
+    marginTop: Spacing.lg,
+    marginHorizontal: Spacing.md,
+    backgroundColor: Colors.background.cardDark,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.lg,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.flow,
+    overflow: 'hidden',
+},
+responseText: {
+    fontSize: Typography.size.base,
+    color: Colors.text.dark.primary,
+    lineHeight: 22,
+},
+reflectStatusLabel: {
+    marginTop: Spacing.sm,
+    fontSize: Typography.size.sm,
+    color: Colors.text.dark.secondary,
+    alignSelf: 'center',
+},
+
 });

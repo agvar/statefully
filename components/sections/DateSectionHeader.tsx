@@ -98,17 +98,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.md,
         paddingTop: Spacing.xl,
         paddingBottom: Spacing.sm,
-        backgroundColor: Colors.background.light,
+        backgroundColor: Colors.background.dark,
     },
     dateText: {
         fontSize: Typography.size.xl,
         fontWeight: Typography.weight.bold,
-        color: Colors.text.light.primary,
+        color: Colors.text.dark.primary,
         marginBottom: Spacing.xs,
     },
     totalText: {
         fontSize: Typography.size.base,
-        color: Colors.text.light.secondary,
+        color: Colors.text.dark.secondary,
         marginBottom: Spacing.xs,
     },
     statsRow: {
@@ -127,6 +127,6 @@ const styles = StyleSheet.create({
     },
     separator: {
         fontSize: Typography.size.sm,
-        color: Colors.text.light.tertiary,
+        color: Colors.text.dark.tertiary,
     },
 });

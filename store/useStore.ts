@@ -1,4 +1,4 @@
-import { Activity, ActivitySource, EnergyState } from '@/types';
+import { Activity, ActivitySource, EnergyState, EmotionCheckin, EmotionState, Intensity, ActivityType} from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -12,14 +12,17 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 //Define store shape
 interface StoreState{
     activities :Activity[];
-    activeActivity: Activity | null;
+    activeTask: Activity | null;
+    emotionCheckIns : EmotionCheckin[];
 
-    startActivity: (name:string, source: ActivitySource, transcription?: string) => void;
-    stopActivity: () => void;
-    tagActivity:(id:string, energyState:EnergyState) => void;
-    getCurrentActiveActivity:() => Activity | null;
+    startTask: (name:string, source: ActivitySource, transcription?: string) => void;
+    stopTask: () => void;
+    tagTask:(id:string, energyState:EnergyState) => void;
+    getCurrentActiveTask:() => Activity | null;
     getActivityById:(id:string) => Activity | undefined;
-
+    addThought: (name:string,intensity: Intensity,energyState: EnergyState,source: ActivitySource,transcription?:string) => void;
+    addEmotionCheckin :(emotionState: EmotionState,note?: string) => void ;
+    incrementThoughtRecurrence: (id: string) => void;
 
     //Manual CRUD
     addManualActivity:(Activity:Omit<Activity,'id'>) => void;
@@ -27,9 +30,25 @@ interface StoreState{
     deleteActivity: (id:string) => void;
 
     //Computed/helper
-    getCompletedActivities: () => Activity[];
+    getCompletedTasks: () => Activity[];
     getUntaggedActivities: () =>Activity[];
     getTodayStats: () => { flowHours:number, drainHours: number};
+    getEmotionCheckInsForDate: (date: Date) => EmotionCheckin[];
+    getCompletedThoughts: () => Activity[];
+    getCompletedActivities :() => Activity[];
+    getThoughtsForDate: (date: Date) => Activity[];
+    getTasksForDate: (date: Date) => Activity[];
+    getStatsForDate : (date:Date) => {
+        flowHours: number;
+        drainHours: number;
+        flowScore: number;
+        thoughtCount: number;
+        drainThoughtCount: number;
+        dominantEmotion: EmotionState | null;
+    };
+    getTasksForDateRange :(start:Date,end:Date) => Activity[];
+    getThoughtsForDateRange: (start:Date,end:Date) => Activity[];
+    getEmotionCheckInsForDateRange:(start:Date,end:Date) => EmotionCheckin[];
 
     //Utility actions
     clearAllActivities: () => void;
@@ -37,15 +56,26 @@ interface StoreState{
 
 //Create the store
 
-export const useStore = create<StoreState>()(
+export const useStore = create<StoreState>()( 
     persist(
-    (set,get) =>({
-        activities :[],
-        activeActivity: null,
+    (set,get) =>{ 
+        const isSameDay = (a:Date , b: Date) => new Date(a).setHours(0,0,0,0) === new Date(b).setHours(0,0,0,0);
 
-        startActivity : (name, source, transcription) => {
-            if(get().activeActivity){
-                throw new Error("Stop current activity first");
+        const getActivitiesForDate = (items:Activity[], date: Date,type: ActivityType) =>{
+            return items.filter(item => item.type == type && isSameDay(new Date(item.startTime),date))
+        };
+
+        
+        return {
+        activities :[],
+        activeTask: null,
+        emotionCheckIns:[],
+
+       
+
+        startTask : (name, source, transcription) => {
+            if(get().activeTask){
+                throw new Error("Stop current Task first");
             }
 
             const newActivity:Activity = {
@@ -54,14 +84,15 @@ export const useStore = create<StoreState>()(
                 startTime: new Date(),
                 duration: 0,
                 source,
-                transcription
+                transcription,
+                type:'task'
             };
-            set({ activeActivity: newActivity });
+            set({ activeTask: newActivity });
 
         },
 
-        stopActivity: () =>{
-            const active= get().activeActivity;
+        stopTask: () =>{
+            const active= get().activeTask;
             if(!active) return;
 
             const endTime= new Date();
@@ -72,34 +103,52 @@ export const useStore = create<StoreState>()(
             };
 
             set(state => ({
-                activeActivity: null,
+                activeTask: null,
                 activities: [stoppedActivity, ...state.activities]
             }));
         },
 
-        tagActivity :(id, energyState) =>{
+        tagTask :(id, energyState) =>{
             set(state =>({
                 activities: state.activities.map((activity:Activity) =>
                     activity.id == id ? {...activity, energyState}: activity
                 )
             }));
         },
-        getCompletedActivities: () =>{
+        getCompletedTasks: () =>{
             return get().activities.filter((activity: Activity)=>
-                activity.energyState != undefined
+                activity.energyState != undefined && activity.type === 'task'
             )
+        },
+        getCompletedThoughts: () =>{
+            return get().activities.filter((activity: Activity)=>
+                activity.energyState != undefined && activity.type === 'thought'
+            )
+        },
+        getCompletedActivities:()=>{
+            return get().activities.filter((activity: Activity)=>
+                activity.energyState != undefined)
+            .sort((a:Activity, b:Activity) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
         },
         getUntaggedActivities: () =>{
             return get().activities.filter((activity:Activity) =>
                 activity.energyState == undefined && activity.endTime != undefined
         )
         },
+        
+        getTasksForDate: (date) =>{
+           return getActivitiesForDate(get().activities, new Date(date),'task')
+        },
+        getThoughtsForDate: (date) =>{
+           return getActivitiesForDate(get().activities, new Date(date),'thought')
+        },
+         getEmotionCheckInsForDate:(date:Date)  =>{
+            return get().emotionCheckIns.filter((emotion:EmotionCheckin)=> isSameDay(new Date(emotion.timestamp),date))
+        },
+
         getTodayStats: () =>{
-            const today = new Date().setHours(0,0,0,0);
-            const todayActivities = get().activities.filter((activity:Activity) => {
-                const activityDate = new Date(activity.startTime).setHours(0,0,0,0);
-                return activityDate === today;
-            });
+            const today = new Date()
+            const todayActivities = get().getTasksForDate(today) 
 
             const flowSeconds = todayActivities
                 .filter((activity:Activity) => activity.energyState === 'flow')
@@ -114,6 +163,27 @@ export const useStore = create<StoreState>()(
                 drainHours : drainSeconds /3600
             };
         },
+        getTasksForDateRange:(start:Date,end:Date) =>{
+            return get().activities.filter( (activity:Activity) =>
+                activity.type === 'task' &&
+                new Date(activity.startTime) >= start &&
+                new Date(activity.startTime) <= end
+            )
+        },
+        getThoughtsForDateRange:(start:Date,end:Date) =>{
+            return get().activities.filter( (activity:Activity) =>
+                activity.type === 'thought' &&
+                new Date(activity.startTime) >= start &&
+                new Date(activity.startTime) <= end
+            )
+        },
+        getEmotionCheckInsForDateRange:(start:Date,end:Date) =>{
+            return get().emotionCheckIns.filter( (emotion:EmotionCheckin) =>
+                new Date(emotion.timestamp) >= start &&
+                new Date(emotion.timestamp) <= end
+            )
+        },
+
         addManualActivity:(activity) =>{
             const newActivity:Activity = {
                 ...activity,
@@ -139,13 +209,13 @@ export const useStore = create<StoreState>()(
                     activity.id !== id )
             }))
         },
-        getCurrentActiveActivity:() =>{
-            const active = get().activeActivity;
+        getCurrentActiveTask:() =>{
+            const active = get().activeTask;
             if (!active ) return null;
 
             const elapsed= (Date.now()- active.startTime.getTime())/ 1000;
             if (elapsed > 3600 * 24) {
-                console.warn('Activity running for over 24 hours');
+                console.warn('Task running for over 24 hours');
             }
             return active;
         },
@@ -157,15 +227,100 @@ export const useStore = create<StoreState>()(
         clearAllActivities: () => {
             set({
                 activities:[],
-                activeActivity : null
+                activeTask : null
             });
-        }
-    }),
+        },
+        addEmotionCheckin:(emotionState: EmotionState,note?: string)=>{
+            const newEmotion: EmotionCheckin = {
+                    id: Date.now().toString(),
+                    timestamp : new Date(),
+                    state : emotionState,
+                    note: note,
+            };
+            set(state => ({
+                 emotionCheckIns: [newEmotion, ...state.emotionCheckIns]
+             }));
+        },
+        incrementThoughtRecurrence :(id) =>{
+            set(state =>({
+                activities: state.activities.map((activity:Activity) =>
+                    activity.id == id ? 
+                        {...activity, 
+                            recurrenceCount:(activity.recurrenceCount ?? 0) + 1,
+                            startTime: new Date()
+                        }
+                        : activity
+                )
+            }));
+        },
+        addThought : (name, intensity, energyState, source, transcription) => {
+            const now = new Date();
+            const newThought:Activity = {
+                id: Date.now().toString(),
+                name,
+                startTime: now,
+                endTime:now,
+                energyState,
+                duration: 0,
+                source,
+                transcription,
+                type:'thought',
+                intensity,
+                recurrenceCount:0
+            };
+            set(state => ({
+                activities: [newThought, ...state.activities]
+            }));
+
+        },
+        getStatsForDate: (date) =>{
+            const statsDate = new Date(date);
+            const dateTasks = get().getTasksForDate(statsDate) ;
+            const dateThoughts = get().getThoughtsForDate(statsDate) ;
+            const dateEmotions = get().getEmotionCheckInsForDate(statsDate)
+
+            const flowSeconds = dateTasks
+                .filter((activity:Activity) => activity.energyState === 'flow')
+                .reduce((sum:number,activity:Activity) => sum + activity.duration,0);
+
+            const drainSeconds = dateTasks
+                .filter((activity:Activity) => activity.energyState === 'drain')
+                .reduce((sum:number,activity:Activity) => sum + activity.duration,0);
+
+            const flowHours= flowSeconds/ 3600;
+            const drainHours= drainSeconds/ 3600;
+            const flowScore = (flowHours + drainHours) === 0 
+                ? 0 
+                :flowHours / (flowHours + drainHours);
+
+            const thoughtCount = dateThoughts.length;
+            const drainThoughtCount = dateThoughts
+                .filter((thought:Activity) => thought.energyState === 'drain')
+                .length;
+            
+            const emotionCounts = { alive:0, calm:0, low:0, wired:0};
+            dateEmotions.forEach(emotion => emotionCounts[emotion.state]++);
+            const dominantEmotion: EmotionState | null = dateEmotions.length === 0
+                ? null
+                : Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0][0] as EmotionState;
+
+            return {
+                flowHours,
+                drainHours,
+                flowScore,
+                thoughtCount,
+                drainThoughtCount,
+                dominantEmotion
+            }
+
+        },
+    }},
 {
     name: 'statefully-storage', //unique name for storage key
     storage: createJSONStorage(() => AsyncStorage),
     partialize: (state) =>({
        activities : state.activities,
+       emotionCheckIns : state.emotionCheckIns
     }),
 
     //custom merge function to handle dates
@@ -177,7 +332,13 @@ export const useStore = create<StoreState>()(
                     endTime: activity.endTime? new Date(activity.endTime): undefined
             })
                 );
-            return {...current, activities}
+            const emotionCheckIns = (persisted.emotionCheckIns || []).map(
+            (emotion:EmotionCheckin) => ({
+                    ...emotion,
+                    timestamp: new Date(emotion.timestamp)
+            })
+                );
+            return {...current, activities,emotionCheckIns}
                 }
     })
 );

@@ -9,11 +9,12 @@ export const Colors= {
 
     // Background colors
     background: {
-        dark: '#000000',            // Think Stream dark background
+        dark: '#0A0A0F',            // Think Stream dark background
         light: '#F2F2F7',           // Do Board/Pulse Background
         lightGray: '#F5F5F5',       // Subtle Background variation
         card: '#FFFFFF',            // Card Backgrounds
-        cardDark : '#2C2C2E',       // Dark card background
+        surface  : '#111111',       // Mid ground 
+        cardDark : '#1C1C1E',       // Dark card background
     },
 
     //Text Colors
@@ -33,7 +34,7 @@ export const Colors= {
     //UI element colors
     border: {
         light: '#E5E5EA',           //Light border
-        dark: '#38383A'            //Dark border
+        dark: '#2C2C2E'            //Dark border
     },
 
     //Tab bar colors
@@ -48,8 +49,27 @@ export const Colors= {
     success: '#34C759',            //Green for success status
     warning: '#FF9500',            // Orange for warning
     error: '#FF3B30',              //Red for error
-    info: '#5AC8FA'                //Light blue for info
+    info: '#5AC8FA' ,               //Light blue for info
 
+    //emotion colors
+    emotion :{
+        alive: '#30D158' ,  //(green)
+        calm:  '#64D2FF' ,  //(sky blue)
+        low:   '#8E8E93' , //(gray)
+        wired: '#FF9F0A' , //(amber)
+    },
+    emotionGlow: {
+        alive: '#30D15830',   // green at 19% opacity
+        calm:  '#64D2FF30',   // sky blue at 19% opacity
+        low:   '#8E8E9330',
+        wired: '#FF9F0A30',
+    },
+    //gradients 
+    gradient: {
+    auroraStart: '#1A0A2E',   // deep purple top-left
+    auroraEnd:   '#0A1628',   // deep teal bottom-right
+    auroraAccent:'#0D2137',   // mid-point navy
+}
 };
 
 //Typography scale
@@ -142,7 +162,7 @@ export const Layout= {
     cardPadding: Spacing.md,
 
     // Tab bar height(included safe area
-    tabBarHeight: 88,
+    tabBarHeight: 72,
 
     // Header height
     headerHeight: 44,
@@ -150,5 +170,6 @@ export const Layout= {
     //Common dimensions
     buttonHeight: 48,
     inputHeight: 44,
-    iconSize: 24
+    iconSize: 24,
+    
 };

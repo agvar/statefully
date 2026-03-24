@@ -38,7 +38,7 @@ export default function ActivityLogCard({activity, onEdit, onDelete}:ActivityLog
         //Energy badge
         const getEnergyDisplay = () =>{
             if(!activity.energyState){
-                return {emoji :'⏳', text: ' Untagged', color:Colors.text.light.tertiary};
+                return {emoji :'⏳', text: ' Untagged', color:Colors.text.dark.secondary};
             }
             if(activity.energyState === 'flow'){
                 return {emoji :'✨', text: ' Flow', color:Colors.flow};
@@ -51,7 +51,7 @@ export default function ActivityLogCard({activity, onEdit, onDelete}:ActivityLog
         const energy = getEnergyDisplay();
 
         return (
-            <View style={styles.container}>
+            <View style={[styles.container, {backgroundColor:energy.color + '0F',borderLeftColor:energy.color}]}>
                 {/*Activity Name */}
                 <Text style ={styles.activityName} numberOfLines={2}>
                     {activity.name}
@@ -66,7 +66,7 @@ export default function ActivityLogCard({activity, onEdit, onDelete}:ActivityLog
                 {/* Bottom Row: Badge and Actions */}
                 <View style ={styles.bottomRow}>
                     {/* Energy Badge */}
-                    <View style={[styles.badge,{backgroundColor: energy.color + '20' }]}>
+                    <View style={[styles.badge,{backgroundColor: energy.color + '0F' }]}>
                         <Text style={styles.badgeEmoji}>{energy.emoji}</Text>
                         <Text style={[styles.badgeText, { color: energy.color}]}>
                             {energy.text}
@@ -98,22 +98,24 @@ export default function ActivityLogCard({activity, onEdit, onDelete}:ActivityLog
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: Colors.background.card,  // White for light theme
+        //backgroundColor: Colors.background.card,  // White for light theme
         borderRadius: BorderRadius.lg,
         padding: Spacing.lg,
         marginHorizontal: Spacing.md,
         marginTop: Spacing.sm,
         ...Shadows.md,
+        borderLeftWidth:3,
+        overflow:'hidden'
     },
     activityName: {
         fontSize: Typography.size.lg,
         fontWeight: Typography.weight.semibold,
-        color: Colors.text.light.primary,  // Black text on white
+        color: Colors.text.dark.primary,  // white text on dark
         marginBottom: Spacing.xs,
     },
     timeInfo: {
         fontSize: Typography.size.sm,
-        color: Colors.text.light.secondary,
+        color: Colors.text.dark.secondary,
         marginBottom: Spacing.md,
     },
     bottomRow: {
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.xs,
         paddingHorizontal: Spacing.md,
         borderRadius: BorderRadius.sm,
-        backgroundColor: Colors.background.lightGray,
+        backgroundColor: Colors.background.surface,
     },
     deleteButton: {
         backgroundColor: Colors.error + '10',  // Light red tint
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
     actionText: {
         fontSize: Typography.size.sm,
         fontWeight: Typography.weight.medium,
-        color: Colors.text.light.primary,
+        color: Colors.text.dark.secondary,
     },
     deleteText: {
         color: Colors.error,

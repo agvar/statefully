@@ -6,7 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)
 
-## 📖 About
+## 📖 About 
 
 Statefully is a productivity app designed to help you manage not just your tasks, but your mental and emotional states. By tracking the time you spend in creative ("Flow") vs overwhelmed ("Drained") states, Statefully helps you understand your patterns and work more mindfully.
 

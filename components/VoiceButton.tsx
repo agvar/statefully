@@ -9,30 +9,39 @@ import { useSpeechToText, WHISPER_TINY_EN_QUANTIZED} from 'react-native-executor
 
 interface VoiceButtonProps {
     onRecordingComplete : (text: string) => void;
-    disabled?: boolean;
+    captureMode:'task'| 'thought';
 }
 
-export default function VoiceButton({ onRecordingComplete, disabled = false }: VoiceButtonProps ) {
+export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceButtonProps ) {
     const [ isTranscribing, setIsTranscribing ] = useState(false)
     const [ isRecording, setIsRecording ] = useState(false);
     const audioChunksRef = useRef<Float32Array[]>([]);
     const recorderRef = useRef<AudioRecorder|null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
-    //const { isReady, error, transcribe } = useMoonshineModel();
-    const {isReady,error, transcribe,downloadProgress} = useSpeechToText({
-            model : WHISPER_TINY_EN_QUANTIZED
+    const haloScaleAnim = useRef(new Animated.Value(1)).current;
+    const haloOpacityAnim = useRef(new Animated.Value(0.6)).current;
+    const {isReady, error, transcribe, downloadProgress} = useSpeechToText({
+        model: WHISPER_TINY_EN_QUANTIZED
     });
+    // TODO(future): Re-enable streaming transcription once the react-native-executorch
+    // OnlineASR data-race bug is fixed. In OnlineASR::process(), audioCopy is created
+    // correctly under mutex lock but then audioBuffer_ (not audioCopy) is passed to
+    // asr_->transcribe(), causing a SIGSEGV when concurrent insertAudioChunk() calls
+    // trigger a vector reallocation. Tracked in: https://github.com/software-mansion/react-native-executorch
+    // To test a fix: git checkout -b test/streaming-fix && npm install react-native-executorch@<new-version>
 
     useEffect(() =>{
-        if(!isRecording && !disabled && isReady){
+        if(!isRecording &&  isReady){
             startPulseAnimation();
+            startHaloAnimation();
         }
         else{
             stopPulseAnimation();
+            stopHaloAnimation();
         }
 
-    },[isRecording,disabled,isReady])
+    },[isRecording,isReady])
     
     useEffect(()=>{
         const recorder = new AudioRecorder();
@@ -42,13 +51,12 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
             channelCount: 1,
             bufferLength:1600
         },
-        ({buffer,numFrames,when})=>{
+        ({buffer})=>{
             const chunk = buffer.getChannelData(0);
             const chunkCopy = new Float32Array(chunk);
             audioChunksRef.current.push(chunkCopy);
-
         }
-    );
+        );
     recorderRef.current= recorder;
     return () =>{
         recorder.clearOnAudioReady();
@@ -58,7 +66,7 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
 
     const handlePress= async() => {
         const recorder = recorderRef.current;
-        if(disabled || !recorder) return ;
+        if(!recorder) return ;
         try {
             if (!isRecording){
                 console.log("Log: begin recording module");
@@ -80,51 +88,37 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                     return;
                 }
                 console.log("Microphone audio session activated");
-
-                const result = recorder.start();
-                console.log(`recorder status: ${result.status}`);
-                if(result.status === 'error'){
-                    console.error(result.message);
-                    return;
-                }
+                recorder.start();
                 setIsRecording(true);
             }
             else {
                 await recorder.stop();
-                console.log("Stopping recording")
-                if (!isReady || error){
-                    console.error ('Models not loaded yet');
-                }
+
+                console.log("Stopping recording");
                 await AudioManager.setAudioSessionActivity(false);
-                setIsTranscribing(true)
-                setIsRecording(false)
+                setIsTranscribing(true);
+                setIsRecording(false);
 
-                //process audio chunks
                 const chunks = audioChunksRef.current;
-
-                const totalLength = chunks.reduce((sum,chunk)=> sum + chunk.length,0);
-                const combinedAudio= new Float32Array(totalLength);
+                const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+                const combinedAudio = new Float32Array(totalLength);
                 let offset = 0;
                 for (const chunk of chunks) {
-                    combinedAudio.set(chunk,offset);
+                    combinedAudio.set(chunk, offset);
                     offset += chunk.length;
                 }
-                //clear for next recording
                 audioChunksRef.current = [];
 
-                //transcribe
-                setIsTranscribing(true);
-
                 try {
-                    if(!isReady || error) {
+                    if (!isReady || error) {
                         throw new Error('Model is not loaded yet');
                     }
-                    const text = await transcribe(combinedAudio);
-                    const cleanedtext = cleanTranscription(text);
+                    const result = await transcribe(combinedAudio);
+                    const cleanedtext = cleanTranscription(result);
                     onRecordingComplete(cleanedtext);
-                }catch(err){
-                    console.error('Transcription error',err);
-                }finally {
+                } catch(err) {
+                    console.error('Transcription error', err);
+                } finally {
                     setIsTranscribing(false);
                 }
             }
@@ -193,39 +187,74 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
                 }
             )
         ]).start();
-    }
+    };
+
+    const startHaloAnimation = () => {
+        Animated.loop(
+            Animated.parallel([
+                Animated.timing(haloScaleAnim, {
+                    toValue: 1.4,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(haloOpacityAnim, {
+                    toValue: 0,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    };
+
+    const stopHaloAnimation = () => {
+        haloScaleAnim.stopAnimation();
+        haloOpacityAnim.stopAnimation();
+        haloScaleAnim.setValue(1);
+        haloOpacityAnim.setValue(0.6);
+    };
 
     return(
         <View style={styles.container}>
-            <Pressable 
-            onPress={handlePress}
-            disabled = {isTranscribing || disabled || !isReady}
-            style ={[styles.button, disabled && styles.buttonDisabled]}
-            >
-                {({ pressed}) => (
-                    <Animated.View style = {[
-                        styles.button,
-                        isRecording && styles.buttonRecording,
-                        isTranscribing && styles.buttonTranscribing,
-                        pressed && styles.buttonPressed,
-                        !isReady && styles.buttonLoading,
-                        {
-                            transform: [{scale: scaleAnim}],
-                            opacity: opacityAnim
+            <View style={styles.buttonWrapper}>
+                <Animated.View style={[
+                    styles.haloRing,
+                    {
+                        transform: [{ scale: haloScaleAnim }],
+                        opacity: haloOpacityAnim,
+                    }
+                        ]} />
+                <Pressable 
+                onPress={handlePress}
+                disabled = {isTranscribing  || !isReady}
+                style ={[styles.button, styles.buttonDisabled]}
+                >
+                    {({ pressed}) => (
+                        <Animated.View style = {[
+                            styles.button,
+                            isRecording && styles.buttonRecording,
+                            isTranscribing && styles.buttonTranscribing,
+                            pressed && styles.buttonPressed,
+                            !isReady && styles.buttonLoading,
+                            {
+                                transform: [{scale: scaleAnim}],
+                                opacity: opacityAnim
 
-                        }
-                    ]}>
-                        <Ionicons
-                            name = {isTranscribing? "hourglass-outline"
-                                : isRecording ? "stop-circle-outline" 
-                                : "mic-outline"}
-                            size={40}
-                            color="#ffffff"
-                        />
-                    </Animated.View>
-                )}
-            </Pressable>
+                            }
+                        ]}>
+                            <Ionicons
+                                name = {isTranscribing? "hourglass-outline"
+                                    : isRecording ? "stop-circle-outline" 
+                                    : "mic-outline"}
+                                size={40}
+                                color="#ffffff"
+                            />
+                        </Animated.View>
+                    )}
+                </Pressable>
+            </View>
             
+
+
             {!isReady && downloadProgress > 0 && (
                 <View style = {styles.progressContainer}>
                     <View style={[styles.progressFill, { width : downloadProgress * 120 }]} />
@@ -234,16 +263,15 @@ export default function VoiceButton({ onRecordingComplete, disabled = false }: V
 
             }
 
-            <Text style={[styles.label,disabled && styles.labelDisabled]}>
+            <Text style={[styles.label]}>
                 {!isReady
                 ?`Loading Model ${Math.round(downloadProgress * 100)}%`
                 : isTranscribing
                 ? "Processing..."
                 :isRecording
-                ? "Recording Activity..." 
-                :disabled
-                ?"Activity in progress"
-                : "What are you doing right now?"}
+                ? captureMode === 'thought' ? "Recording Thought..." : "Recording Task..." 
+                : captureMode === 'thought' ?  "Speak your thought"
+                : "What are you doing ?"}
 
             </Text>
         </View>
@@ -264,8 +292,8 @@ const styles = StyleSheet.create({
             alignItems : 'center'
         },
         button :{
-            width: 120,
-            height: 120,
+            width: 100,
+            height: 100,
             borderRadius: BorderRadius.full,
             backgroundColor: Colors.flow,
             justifyContent: 'center',
@@ -297,9 +325,9 @@ const styles = StyleSheet.create({
             opacity: 0.8,
         },
         label:{
-            marginTop: Spacing.md,
-            fontSize: Typography.size.lg,
-            color: Colors.text.dark.primary
+            marginTop: Spacing.sm,
+            fontSize: Typography.size.base,
+            color: 'rgba(255, 255, 255, 0.6)',
         },
         labelDisabled: {
             color: Colors.text.dark.tertiary,  
@@ -316,7 +344,29 @@ const styles = StyleSheet.create({
             height: '100%',
             backgroundColor: Colors.flow,
             borderRadius: BorderRadius.full,
-        }
+        },
+        buttonWrapper: {
+            width: 120,
+            height: 120,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        haloRing: {
+            position: 'absolute',
+            width: 120,
+            height: 120,
+            borderRadius: BorderRadius.full,
+            borderWidth: 2,
+            borderColor: Colors.flow,
+            backgroundColor: 'transparent',
+        },
+        partialText: {
+            marginTop: Spacing.sm,
+            fontSize: Typography.size.sm,
+            color: 'rgba(255,255,255,0.6)',
+            textAlign: 'center',
+            paddingHorizontal: Spacing.lg,
+},
 
     
 })
