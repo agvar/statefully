@@ -34,7 +34,7 @@ The command center. Start activities, tag your energy state, and check in with h
 |---|---|---|
 | ![Now screen — voice button](docs/screenshots/now_voice.png) | ![Now screen — emotion check-in](docs/screenshots/now_emotion.png) | ![Now screen — active activity](docs/screenshots/now_active.png) |
 
-> 📸 *Screenshots coming soon — add your own to `docs/screenshots/`*
+> 📸 *Screenshots coming soon `*
 
 ---
 
@@ -46,7 +46,7 @@ A chronological record of every thought, task, and emotion check-in. Activities 
 |---|---|
 | ![Log screen — activity list](docs/screenshots/log_activities.png) | ![Log screen — thoughts](docs/screenshots/log_thoughts.png) |
 
-> 📸 *Screenshots coming soon — add your own to `docs/screenshots/`*
+> 📸 *Screenshots coming soon `*
 
 ---
 
@@ -58,7 +58,7 @@ Analytics, rendered beautifully. Flow vs Drain breakdown for the day, time distr
 |---|---|
 | ![Pulse screen — metrics](docs/screenshots/pulse_metrics.png) | ![Pulse screen — LLM reflection](docs/screenshots/pulse_reflect.png) |
 
-> 📸 *Screenshots coming soon — add your own to `docs/screenshots/`*
+> 📸 *Screenshots coming soon `*
 
 ---
 
@@ -193,14 +193,6 @@ npx expo run:ios
 # Android
 npx expo run:android
 ```
-
-### Environment (optional — only needed for Deepgram dev fallback)
-
-```bash
-# Create .env in the project root
-DEEPGRAM_API_KEY=your_key_here
-```
-
 ---
 
 ## Permissions
