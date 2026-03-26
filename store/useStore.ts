@@ -14,7 +14,9 @@ interface StoreState{
     activities :Activity[];
     activeTask: Activity | null;
     emotionCheckIns : EmotionCheckin[];
+    onboardingComplete: boolean;
 
+    setOnboardingComplete :() =>void;
     startTask: (name:string, source: ActivitySource, transcription?: string) => void;
     stopTask: () => void;
     tagTask:(id:string, energyState:EnergyState) => void;
@@ -70,6 +72,7 @@ export const useStore = create<StoreState>()(
         activities :[],
         activeTask: null,
         emotionCheckIns:[],
+        onboardingComplete:false,
 
        
 
@@ -241,6 +244,8 @@ export const useStore = create<StoreState>()(
                  emotionCheckIns: [newEmotion, ...state.emotionCheckIns]
              }));
         },
+        setOnboardingComplete:()=>set( { onboardingComplete:true}),
+
         incrementThoughtRecurrence :(id) =>{
             set(state =>({
                 activities: state.activities.map((activity:Activity) =>
