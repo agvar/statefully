@@ -31,7 +31,7 @@ export default function NowScreen(){
     const stopTask = useStore(state => state.stopTask)
     const tagTask = useStore(state => state.tagTask)
     const addThought = useStore(state =>state.addThought);
-    const incrementThoughtRecurrence = useStore(state => state.incrementThoughtRecurrence);
+    const resurfaceThought = useStore(state => state.resurfaceThought);
     const addEmotionCheckin = useStore(state => state.addEmotionCheckin)
  
     const [captureMode,setCaptureMode] = useState<'task'|'thought'>('task');
@@ -188,7 +188,7 @@ export default function NowScreen(){
             data = {allCompleted}
             renderItem={({ item }) => 
                 item.type === 'thought'
-                ? <ThoughtCard thought={item} onAgain={incrementThoughtRecurrence} />
+                ? <ThoughtCard thought={item} onAgain={resurfaceThought} />
                 : <CompletedActivityCard activity={item} />
             }
             keyExtractor={item=> item.id}
