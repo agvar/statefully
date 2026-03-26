@@ -24,7 +24,7 @@ export interface Activity {
     intensity ?: Intensity ;
     recurrenceCount?: number;
     recurrenceOf?: string ;
-    emotionCapture?: EmotionState;
+    emotionAtCapture?: EmotionState;
 
 }
 
