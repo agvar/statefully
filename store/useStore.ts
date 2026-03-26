@@ -17,14 +17,16 @@ interface StoreState{
     onboardingComplete: boolean;
 
     setOnboardingComplete :() =>void;
-    startTask: (name:string, source: ActivitySource, transcription?: string) => void;
+    startTask: (name:string, source: ActivitySource, transcription?: string, 
+        emotionAtCapture?:EmotionState) => void;
     stopTask: () => void;
     tagTask:(id:string, energyState:EnergyState) => void;
     getCurrentActiveTask:() => Activity | null;
     getActivityById:(id:string) => Activity | undefined;
-    addThought: (name:string,intensity: Intensity,energyState: EnergyState,source: ActivitySource,transcription?:string) => void;
+    addThought: (name:string,intensity: Intensity,energyState: EnergyState,source: ActivitySource,
+        transcription?:string,emotionAtCapture?:EmotionState) => void;
     addEmotionCheckin :(emotionState: EmotionState,note?: string) => void ;
-    incrementThoughtRecurrence: (id: string) => void;
+    resurfaceThought: (id: string) => void;
 
     //Manual CRUD
     addManualActivity:(Activity:Omit<Activity,'id'>) => void;
@@ -51,6 +53,7 @@ interface StoreState{
     getTasksForDateRange :(start:Date,end:Date) => Activity[];
     getThoughtsForDateRange: (start:Date,end:Date) => Activity[];
     getEmotionCheckInsForDateRange:(start:Date,end:Date) => EmotionCheckin[];
+    getRecentEmotion : () => EmotionState | undefined;
 
     //Utility actions
     clearAllActivities: () => void;
@@ -76,7 +79,7 @@ export const useStore = create<StoreState>()(
 
        
 
-        startTask : (name, source, transcription) => {
+        startTask : (name, source, transcription,emotionAtCapture) => {
             if(get().activeTask){
                 throw new Error("Stop current Task first");
             }
@@ -88,7 +91,8 @@ export const useStore = create<StoreState>()(
                 duration: 0,
                 source,
                 transcription,
-                type:'task'
+                type:'task',
+                emotionAtCapture
             };
             set({ activeTask: newActivity });
 
@@ -246,19 +250,32 @@ export const useStore = create<StoreState>()(
         },
         setOnboardingComplete:()=>set( { onboardingComplete:true}),
 
-        incrementThoughtRecurrence :(id) =>{
-            set(state =>({
-                activities: state.activities.map((activity:Activity) =>
-                    activity.id == id ? 
-                        {...activity, 
-                            recurrenceCount:(activity.recurrenceCount ?? 0) + 1,
-                            startTime: new Date()
-                        }
-                        : activity
-                )
-            }));
+        resurfaceThought :(id) =>{
+            const original = get().activities.find((activity:Activity) => 
+                activity.id === id 
+                && activity.type === 'thought'
+            );
+                if(!original) return;
+
+                const resurfaced: Activity={
+                    ...original,
+                    id: Date.now().toString(),
+                    startTime: new Date,
+                    endTime: new Date,
+                    recurrenceCount: 0,
+                    recurrenceOf:id,
+                }
+
+                const updateActivities= get().activities.map((activity:Activity ) =>
+                    activity.id === id
+                    ? { ...activity, recurrenceCount: (activity.recurrenceCount ?? 0) + 1}
+                    : activity
+                );
+
+                set({ activities: [resurfaced, ...updateActivities] });
+
         },
-        addThought : (name, intensity, energyState, source, transcription) => {
+        addThought : (name, intensity, energyState, source, transcription,emotionAtCapture) => {
             const now = new Date();
             const newThought:Activity = {
                 id: Date.now().toString(),
@@ -271,13 +288,22 @@ export const useStore = create<StoreState>()(
                 transcription,
                 type:'thought',
                 intensity,
-                recurrenceCount:0
+                recurrenceCount:0,
+                emotionAtCapture
             };
             set(state => ({
                 activities: [newThought, ...state.activities]
             }));
 
         },
+
+        getRecentEmotion:() => {
+            const recent = get().emotionCheckIns[0];
+            if (!recent) return undefined;
+            const ageMinutes = (Date.now() - new Date(recent.timestamp).getTime())/ 60000;
+            return ageMinutes <= 30 ? recent.state : undefined;
+        },
+
         getStatsForDate: (date) =>{
             const statsDate = new Date(date);
             const dateTasks = get().getTasksForDate(statsDate) ;
@@ -325,7 +351,9 @@ export const useStore = create<StoreState>()(
     storage: createJSONStorage(() => AsyncStorage),
     partialize: (state) =>({
        activities : state.activities,
-       emotionCheckIns : state.emotionCheckIns
+       emotionCheckIns : state.emotionCheckIns,
+       onboardingComplete: state.onboardingComplete,
+       
     }),
 
     //custom merge function to handle dates
