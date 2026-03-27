@@ -1,6 +1,8 @@
 import { BorderRadius, Colors, Spacing, Typography, Shadows } from "@/constants/theme";
 import { Activity } from "@/types/index";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { formatTime } from "@/utils/formatTime";
+import { act } from "react";
 
 
 interface CompletedActivityCardProps {
@@ -40,9 +42,10 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
                 <Text style={styles.activityName} numberOfLines={1}>
                     {activity.name}
                 </Text>
-                <Text style={styles.duration}>
-                    ⏱ {formatDuration(activity.duration)}
-                </Text>
+                <View style={styles.topRight}>
+                    <Text style={styles.timeLabel}>⏱ {formatTime(activity.startTime)}</Text>
+                    <Text style={styles.duration}>⏱ {formatDuration(activity.duration)}</Text>
+                </View>
             </View>
             
             {/* Bottom Row: Energy state and Badge */}
@@ -54,6 +57,11 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
                     </Text>
                 </View>
             </View>
+            {
+                activity.emotionAtCapture && (
+                    <Text style={styles.emotionCapture}>feeling {activity.emotionAtCapture}</Text>
+                )
+            }
         </View>
     )
 
@@ -114,5 +122,18 @@ const styles = StyleSheet.create({
     badgeText: {
         fontSize: Typography.size.sm,
         fontWeight: Typography.weight.medium,
+    },
+    topRight: {
+        alignItems: 'flex-end',
+        gap: 2,
+    },
+    timeLabel: {
+        fontSize: Typography.size.xs,        // smaller than body — supporting info
+        color: Colors.text.dark.tertiary,    // dimmest text tier — it's timestamp, not primary
+    },
+    emotionCapture: {
+        fontSize: Typography.size.xs,
+        color: Colors.text.dark.tertiary,
+        fontStyle: 'italic',
     },
 });
