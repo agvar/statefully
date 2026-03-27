@@ -1,6 +1,7 @@
 import { Activity } from "@/types";
 import { StyleSheet,View,TouchableOpacity ,Text} from "react-native";
 import { Colors, Spacing, BorderRadius, Typography , Shadows} from "@/constants/theme";
+import { formatTime } from "@/utils/formatTime";
 
 interface ThoughtCardProps {
     thought: Activity;
@@ -21,9 +22,8 @@ export default function ThoughtCard({thought,onAgain}:ThoughtCardProps) {
             <View style={[styles.container, { backgroundColor: energy.color + '0F', borderLeftColor: energy.color }]}>
                 {/* Top Row: Name and Duration*/}
                 <View style={styles.topRow}>
-                    <Text style={styles.activityName} numberOfLines={1}>
-                        💭 {thought.name}
-                    </Text>
+                    <Text style={styles.activityName} numberOfLines={1}>💭 {thought.name}</Text>
+                    <Text style={styles.timeLabel}>{formatTime(thought.startTime)}</Text>
                     <View style={[styles.badge,{ backgroundColor: energy.color + '0F'}]}>
                         <Text style={styles.badgeEmoji}>{energy.emoji}</Text>
                         <Text style={[styles.badgeText, {color: energy.color}]}>
@@ -39,20 +39,27 @@ export default function ThoughtCard({thought,onAgain}:ThoughtCardProps) {
                         <Text style={styles.intensityBadgeText}>
                             {thought.intensity}
                         </Text>
+                        {
+                            thought.emotionAtCapture && (
+                                <Text style={styles.emotionCapture}>feeling {thought.emotionAtCapture}</Text>
+                            )
+                        }
                     </View>
-                    {
-                        (thought.recurrenceCount?? 0) > 0 && (
-                        <View style= {styles.recurrenceRow}>
-                            <Text style={styles.recurrenceText}>↩ ×{thought.recurrenceCount}</Text>
-                        <TouchableOpacity
-                        style={styles.recurrenceButton}
-                        onPress = {() => onAgain?.(thought.id)}
-                        > 
-                        <Text style={styles.againText}>↩ Again</Text>
-                        </TouchableOpacity>
-                        </View>
-                        )
-                    }
+                    
+                        
+                <View style= {styles.recurrenceRow}>
+                    {(thought.recurrenceCount ?? 0) > 0 && (
+                        <Text style={styles.recurrenceText}>↩ ×{thought.recurrenceCount}</Text>
+                    )}
+                <TouchableOpacity
+                style={styles.recurrenceButton}
+                onPress = {() => onAgain?.(thought.id)}
+                > 
+                <Text style={styles.againText}>↩ Again</Text>
+                </TouchableOpacity>
+                </View>
+                        
+                    
                 </View>
             </View>
         )
@@ -129,5 +136,14 @@ const styles = StyleSheet.create({
     },
     againText:{
         color:Colors.warning
-    }
+    },
+    timeLabel: {
+        fontSize: Typography.size.xs,        // smaller than body — supporting info
+        color: Colors.text.dark.tertiary,    // dimmest text tier — it's timestamp, not primary
+    },
+    emotionCapture: {
+        fontSize: Typography.size.xs,
+        color: Colors.text.dark.tertiary,
+        fontStyle: 'italic',
+    },
 });
