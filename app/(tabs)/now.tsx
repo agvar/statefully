@@ -11,7 +11,7 @@ import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Layout, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { EnergyState, Intensity, EmotionState } from '@/types/index';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 const EMOTION_EMOJI_ARRAY:Record<EmotionState, string> = {
@@ -38,6 +38,16 @@ export default function NowScreen(){
     const [pendingThought, setPendingThought] = useState<string| null>(null);
     const [taggingSheetVisible, setTaggingSheetVisible] = useState(false);
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState| null>(null);
+    const [emotionConfirmed, setEmotionConfirmed] = useState(false);
+
+    useEffect(()=>{
+        const recent = useStore.getState().emotionCheckIns[0];
+        if (recent) setSelectedEmotion(recent.state);
+    },[]);
+
+    useEffect(() => {
+        if(activeTask) setCaptureMode('thought');
+    },[activeTask]);
 
     //check prompt for LLM start
     const checkPromptLLM = ():string =>{
@@ -143,6 +153,8 @@ export default function NowScreen(){
                                 onPress = {()=> {
                                     addEmotionCheckin(emotion as EmotionState);
                                     setSelectedEmotion(emotion as EmotionState)  ;  
+                                    setEmotionConfirmed(true);
+                                    setTimeout(() => setEmotionConfirmed(false),2000);
                                 }
                                 }
                             >
@@ -154,7 +166,9 @@ export default function NowScreen(){
                         )}
                     </View>
 
-
+                    {emotionConfirmed && (
+                        <Text style={styles.emotionConfirm}>✓ Logged</Text>
+                    )}
                     {/*Active Activity section*/}
                     {
                         activeTask &&(
@@ -203,17 +217,20 @@ export default function NowScreen(){
             }
         />
         {/* Mode toggle- only visible when no active task */}
-        { !activeTask && (
             <View style={styles.modeToggle}>
                 <TouchableOpacity
-                    style= {[styles.modeButton, captureMode === 'task' && styles.modeButtonActive]}
-                    onPress ={() => setCaptureMode('task')}
+                    style= {[styles.modeButton, captureMode === 'task' && styles.modeButtonActive,
+                        !!activeTask && styles.modeButtonDisabled,
+                    ]}
+                    onPress ={() => !activeTask && setCaptureMode('task')}
+                    disabled={!!activeTask}
                 >
-                    <Text style={captureMode === 'task' ? styles.modeButtonTextActive : styles.modeButtonText}>
+                    <Text style={captureMode === 'task' ? 
+                        styles.modeButtonTextActive : styles.modeButtonText}>
                         📋 Task
                     </Text>
                 </TouchableOpacity>
-                                <TouchableOpacity
+                <TouchableOpacity
                     style= {[styles.modeButton, captureMode === 'thought' && styles.modeButtonActive]}
                     onPress ={() => setCaptureMode('thought')}
                 >
@@ -222,9 +239,6 @@ export default function NowScreen(){
                     </Text>
                 </TouchableOpacity>
             </View>
-        )
-
-        }
 
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.voiceButtonContainer}>
@@ -327,6 +341,9 @@ const styles = StyleSheet.create({
         fontSize: Typography.size.sm,
         fontWeight: Typography.weight.semibold,        // slightly bolder when active
     },
+    modeButtonDisabled: {
+        opacity: 0.35,                      // visually communicates "unavailable" without removing it
+    },
     pillRow:{
         flexDirection:'row',
         flexWrap: 'wrap',
@@ -358,5 +375,12 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.xs,
         paddingHorizontal:Spacing.md,
         marginTop:Spacing.sm
+    },
+    emotionConfirm: {
+    textAlign: 'center',
+    fontSize: Typography.size.sm,
+    color: Colors.text.dark.secondary,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.xs,
 },
 });
