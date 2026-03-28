@@ -5,7 +5,7 @@ import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
 import ThoughtCard from '@/components/cards/ThoughtCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt';
-
+import { EMOTION_EMOJI } from '@/types/index';
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Layout, Spacing, Typography } from '@/constants/theme';
@@ -14,12 +14,7 @@ import { EnergyState, Intensity, EmotionState } from '@/types/index';
 import { useEffect, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
-const EMOTION_EMOJI_ARRAY:Record<EmotionState, string> = {
-    alive: '🌊',
-    calm: '😌',
-    low: '😶',
-    wired: '😤',
-    };
+
 
 export default function NowScreen(){
     const activeTask = useStore(state => state.activeTask);
@@ -136,7 +131,7 @@ export default function NowScreen(){
                     {/*Emotion Check in section*/}
                     <Text style={styles.emotionLabel}> What is your inner weather now? </Text>
                     <View style={styles.pillRow}>
-                        {( Object.entries(EMOTION_EMOJI_ARRAY).map( ([emotion, emoji ])=> (
+                        {( Object.entries(EMOTION_EMOJI).map( ([emotion, emoji ])=> (
                             <TouchableOpacity
                                 key= {emotion}
                                 style={[styles.pill ,selectedEmotion === emotion as EmotionState 
