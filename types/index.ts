@@ -7,6 +7,12 @@ export type ActivitySource = 'voice' | 'manual';
 export type EmotionState = 'alive' | 'calm' | 'low' | 'wired';
 export type ActivityType = 'task' | 'thought';
 export type Intensity = 'mild' | 'noticeable' | 'strong' | 'intense' | 'overwhelming';
+export const EMOTION_EMOJI:Record<EmotionState, string> = {
+    alive: '🌊',
+    calm: '😌',
+    low: '😶',
+    wired: '😤',
+    };
 
 
 // Activity Type
