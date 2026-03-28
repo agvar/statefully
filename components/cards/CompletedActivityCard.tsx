@@ -2,8 +2,6 @@ import { BorderRadius, Colors, Spacing, Typography, Shadows } from "@/constants/
 import { Activity } from "@/types/index";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { formatTime } from "@/utils/formatTime";
-import { act } from "react";
-
 
 interface CompletedActivityCardProps {
     activity: Activity;
@@ -43,7 +41,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
                     {activity.name}
                 </Text>
                 <View style={styles.topRight}>
-                    <Text style={styles.timeLabel}>⏱ {formatTime(activity.startTime)}</Text>
+                    <Text style={styles.timeLabel}>{formatTime(activity.startTime)}</Text>
                     <Text style={styles.duration}>⏱ {formatDuration(activity.duration)}</Text>
                 </View>
             </View>
