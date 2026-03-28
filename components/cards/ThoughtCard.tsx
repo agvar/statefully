@@ -39,12 +39,13 @@ export default function ThoughtCard({thought,onAgain}:ThoughtCardProps) {
                         <Text style={styles.intensityBadgeText}>
                             {thought.intensity}
                         </Text>
+                    </View>
                         {
                             thought.emotionAtCapture && (
                                 <Text style={styles.emotionCapture}>feeling {thought.emotionAtCapture}</Text>
                             )
                         }
-                    </View>
+                    
                     
                         
                 <View style= {styles.recurrenceRow}>
