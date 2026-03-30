@@ -21,6 +21,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
     const opacityAnim = useRef(new Animated.Value(1)).current;
     const haloScaleAnim = useRef(new Animated.Value(1)).current;
     const haloOpacityAnim = useRef(new Animated.Value(0.6)).current;
+    const recordingScaleAnim = useRef(new Animated.Value(1)).current;
     const {isReady, error, transcribe, downloadProgress} = useSpeechToText({
         model: WHISPER_TINY_EN_QUANTIZED
     });
@@ -32,13 +33,20 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
     // To test a fix: git checkout -b test/streaming-fix && npm install react-native-executorch@<new-version>
 
     useEffect(() =>{
-        if(!isRecording &&  isReady){
+        if(!isRecording ){
+            startPulseAnimation();
+            startHaloAnimation();
+            startRecordingAnimation();
+        } else if(!isRecording && isReady){
+            stopRecordingAnimation();
             startPulseAnimation();
             startHaloAnimation();
         }
+
         else{
             stopPulseAnimation();
             stopHaloAnimation();
+            stopRecordingAnimation();
         }
 
     },[isRecording,isReady])
@@ -213,6 +221,42 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
         haloOpacityAnim.setValue(0.6);
     };
 
+    const startRecordingAnimation = () => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(recordingScaleAnim, {
+                    toValue: 1.08,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(recordingScaleAnim, {
+                    toValue: 1,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    };
+
+    const stopRecordingAnimation = () => {
+        recordingScaleAnim.stopAnimation();
+        Animated.timing(recordingScaleAnim, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const getMicLabel = () =>{
+    if (!isReady && downloadProgress === 0) return 'Tap to activate mic';
+    if (!isReady && downloadProgress > 0)   return `Loading model ${Math.round(downloadProgress * 100)}%`;
+    if (isTranscribing)                     return 'Processing...';
+    if (isRecording)                        return 'Listening...Tap again when done';  
+    return captureMode === 'thought' ? 'Tap to record a thought' : 'Tap to record a task';
+};
+
+    
+
     return(
         <View style={styles.container}>
             <View style={styles.buttonWrapper}>
@@ -226,7 +270,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 <Pressable 
                 onPress={handlePress}
                 disabled = {isTranscribing  || !isReady}
-                style ={[styles.button, styles.buttonDisabled]}
+                style ={[styles.button, (isTranscribing  || !isReady) && styles.buttonDisabled]}
                 >
                     {({ pressed}) => (
                         <Animated.View style = {[
@@ -236,14 +280,14 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                             pressed && styles.buttonPressed,
                             !isReady && styles.buttonLoading,
                             {
-                                transform: [{scale: scaleAnim}],
+                                transform: [{scale: isRecording? recordingScaleAnim: scaleAnim}],
                                 opacity: opacityAnim
 
                             }
                         ]}>
                             <Ionicons
                                 name = {isTranscribing? "hourglass-outline"
-                                    : isRecording ? "stop-circle-outline" 
+                                    : isRecording ? "mic-off-outline" 
                                     : "mic-outline"}
                                 size={40}
                                 color="#ffffff"
@@ -263,17 +307,7 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
 
             }
 
-            <Text style={[styles.label]}>
-                {!isReady
-                ?`Loading Model ${Math.round(downloadProgress * 100)}%`
-                : isTranscribing
-                ? "Processing..."
-                :isRecording
-                ? captureMode === 'thought' ? "Recording Thought..." : "Recording Task..." 
-                : captureMode === 'thought' ?  "Tap to speak your thought"
-                : "Tap to speak what you are doing "}
-
-            </Text>
+            <Text style={[styles.label]}>{getMicLabel()}</Text>
         </View>
     );
 
@@ -314,8 +348,8 @@ const styles = StyleSheet.create({
             backgroundColor: Colors.text.dark.tertiary, 
         },
         buttonRecording:{
-            backgroundColor : Colors.background.light,
-            shadowColor: Colors.background.light,
+            backgroundColor : '#FF3B30',
+            shadowColor: '#FF3B30',
         },
         buttonTranscribing:{
             backgroundColor : Colors.drain,
