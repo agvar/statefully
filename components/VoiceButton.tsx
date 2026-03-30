@@ -33,16 +33,15 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
     // To test a fix: git checkout -b test/streaming-fix && npm install react-native-executorch@<new-version>
 
     useEffect(() =>{
-        if(!isRecording ){
-            startPulseAnimation();
-            startHaloAnimation();
+        if(isRecording ){
+            stopPulseAnimation();
+            stopHaloAnimation();
             startRecordingAnimation();
-        } else if(!isRecording && isReady){
+        } else if(isReady){
             stopRecordingAnimation();
             startPulseAnimation();
             startHaloAnimation();
         }
-
         else{
             stopPulseAnimation();
             stopHaloAnimation();
@@ -278,7 +277,6 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                             isRecording && styles.buttonRecording,
                             isTranscribing && styles.buttonTranscribing,
                             pressed && styles.buttonPressed,
-                            !isReady && styles.buttonLoading,
                             {
                                 transform: [{scale: isRecording? recordingScaleAnim: scaleAnim}],
                                 opacity: opacityAnim
