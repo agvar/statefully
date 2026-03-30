@@ -270,8 +270,8 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
                 ? "Processing..."
                 :isRecording
                 ? captureMode === 'thought' ? "Recording Thought..." : "Recording Task..." 
-                : captureMode === 'thought' ?  "Speak your thought"
-                : "What are you doing ?"}
+                : captureMode === 'thought' ?  "Tap to speak your thought"
+                : "Tap to speak what you are doing "}
 
             </Text>
         </View>
