@@ -5,21 +5,27 @@ import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
 import ThoughtCard from '@/components/cards/ThoughtCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt';
-import { EMOTION_EMOJI } from '@/types/index';
+import { EMOTION_EMOJI,Activity,EmotionCheckin } from '@/types/index';
+import EmotionPillRow from '@/components/cards/EmotionPillRow';
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Layout, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 import { EnergyState, Intensity, EmotionState } from '@/types/index';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo} from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
+import EmotionCheckinCard from '@/components/cards/EmotionCheckinCard';
 
+type RecentItem =
+    | {kind:'activity',item: Activity,timestamp:Date}
+    | {kind:'emotion',item: EmotionCheckin,timestamp:Date}
 
 export default function NowScreen(){
     const activeTask = useStore(state => state.activeTask);
     const unTaggedActivities = useStore(useShallow(state => state.getUntaggedActivities()));
-    const allCompleted = useStore(useShallow(state => state.getCompletedActivities()));
+    const completedActivities = useStore(useShallow(state => state.getCompletedActivities()));
+    const todayEmotions = useStore(useShallow(state => state.getEmotionCheckInsForDate(new Date())));
     //const clearActivities = useStore(state => state.clearAllActivities)
 
     const startTask = useStore(state => state.startTask)
@@ -44,24 +50,36 @@ export default function NowScreen(){
         if(activeTask) setCaptureMode('thought');
     },[activeTask]);
 
+    const recentItems = useMemo<RecentItem[]>(() =>{
+        const activityItems = completedActivities.map((activity:Activity)=>({
+            kind: 'activity' as const,
+            item: activity,
+            timestamp: new Date(activity.startTime)
+        }));
+        const emotionItems = todayEmotions.map((emotion:EmotionCheckin)=>({
+            kind: 'emotion' as const,
+            item: emotion,
+            timestamp: new Date(emotion.timestamp)
+        }));
+        return [...activityItems,...emotionItems]
+            .sort((a,b) => b.timestamp.getTime() - a.timestamp.getTime());
+    },[completedActivities,todayEmotions])
+
     //check prompt for LLM start
     const checkPromptLLM = ():string =>{
         const store = useStore.getState();
         const today = new Date();
         const startOfToday = new Date(today);
         startOfToday.setHours(0,0,0,0);
-        if (selectedEmotion) {
-            const ctx: ReflectionContext = {
-            tasks: store.getTasksForDateRange(startOfToday, today),
-            thoughts: store.getThoughtsForDateRange(startOfToday, today),
-            emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
-            windowLabel: 'today',
-            };
-            const prompt = buildReflectionPrompt(ctx);
-            return prompt
-        } else {
-            return ''
-        }
+        const ctx: ReflectionContext = {
+        tasks: store.getTasksForDateRange(startOfToday, today),
+        thoughts: store.getThoughtsForDateRange(startOfToday, today),
+        emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
+        windowLabel: 'today',
+        };
+        const prompt = buildReflectionPrompt(ctx);
+        return prompt
+
     }
 
     //Handle voice input ->start new activity
@@ -130,36 +148,16 @@ export default function NowScreen(){
                 <>
                     {/*Emotion Check in section*/}
                     <Text style={styles.emotionLabel}> What is your inner weather now? </Text>
-                    <View style={styles.pillRow}>
-                        {( Object.entries(EMOTION_EMOJI).map( ([emotion, emoji ])=> (
-                            <TouchableOpacity
-                                key= {emotion}
-                                style={[styles.pill ,selectedEmotion === emotion as EmotionState 
-                                && { backgroundColor: Colors.emotionGlow[emotion as EmotionState], 
-                                     borderColor: Colors.emotion[emotion as EmotionState],
-                                     shadowColor: Colors.emotion[emotion as EmotionState], // glow color
-                                     shadowOpacity: 0.6,                                             // glow intensity
-                                     shadowRadius: 8,                                                // glow spread
-                                     shadowOffset: { width: 0, height: 0 },                         // centered glow
-                                     elevation: 6,                                                  //Android
-                                    
-                                       }
-                                 ]}
-                                onPress = {()=> {
-                                    addEmotionCheckin(emotion as EmotionState);
-                                    setSelectedEmotion(emotion as EmotionState)  ;  
-                                    setEmotionConfirmed(true);
-                                    setTimeout(() => setEmotionConfirmed(false),2000);
-                                }
-                                }
-                            >
-                                <Text style={[styles.pillText,selectedEmotion === emotion as EmotionState && styles.pillTextActive]}>
-                                    {emoji}{emotion}
-                                </Text>
-                            </TouchableOpacity>
-                        ))
-                        )}
-                    </View>
+                    <EmotionPillRow
+                        selected={selectedEmotion}
+                        onSelect={(emotion) => {
+                            addEmotionCheckin(emotion);
+                            setSelectedEmotion(emotion);
+                            setEmotionConfirmed(true);
+                            setTimeout(()=> setEmotionConfirmed(false),2000);
+                        }}
+                    
+                    />
 
                     {emotionConfirmed && (
                         <Text style={styles.emotionConfirm}>✓ Logged</Text>
@@ -186,7 +184,7 @@ export default function NowScreen(){
                     }
                     {/*Section header for completed */}
                     {
-                        allCompleted.length >0 &&(
+                        recentItems.length >0 &&(
                             <View style={styles.sectionHeader}>
                                 <Text style={styles.sectionTitle}>Recent</Text>
                             </View>
@@ -194,15 +192,21 @@ export default function NowScreen(){
                     }
                 </>
             }
-            data = {allCompleted}
-            renderItem={({ item }) => 
-                item.type === 'thought'
-                ? <ThoughtCard thought={item} onAgain={resurfaceThought} />
-                : <CompletedActivityCard activity={item} />
+            data = {recentItems}
+            keyExtractor={row=> `${row.kind}-${row.item.id}`}
+            renderItem={({ item:row }) => {
+                if (row.kind === 'emotion'){
+                    return <EmotionCheckinCard checkin={row.item} />;
+                }
+                if(row.item.type === 'thought') {
+                    return <ThoughtCard thought={row.item} onAgain={resurfaceThought} />
+                }
+                return <CompletedActivityCard activity={row.item} />;
+
             }
-            keyExtractor={item=> item.id}
+            }
             ListEmptyComponent={
-                !activeTask && unTaggedActivities.length == 0 ? (
+                !activeTask && unTaggedActivities.length == 0 && recentItems.length === 0 ? (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>
                             Tap the microphone to start tracking your first Thought or Task
@@ -215,7 +219,7 @@ export default function NowScreen(){
             <View style={styles.modeToggle}>
                 <TouchableOpacity
                     style= {[styles.modeButton, captureMode === 'task' && styles.modeButtonActive,
-                        !!activeTask && styles.modeButtonDisabled,
+                        !!activeTask && styles.modeButtonDisabled
                     ]}
                     onPress ={() => !activeTask && setCaptureMode('task')}
                     disabled={!!activeTask}
@@ -338,30 +342,6 @@ const styles = StyleSheet.create({
     },
     modeButtonDisabled: {
         opacity: 0.35,                      // visually communicates "unavailable" without removing it
-    },
-    pillRow:{
-        flexDirection:'row',
-        flexWrap: 'wrap',
-        justifyContent:'center',
-        marginVertical: Spacing.md
-
-    },
-    pill:{
-        paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.xs,
-        borderRadius: BorderRadius.full,      // pill shape
-        borderWidth: 1,
-        borderColor: Colors.border.dark,
-        marginHorizontal: 4,  
-        marginBottom: 4                 //gap between pills
-    },
-    pillText:{
-        fontSize: Typography.size.sm,
-        fontWeight: Typography.weight.medium,
-        color: Colors.text.dark.secondary,
-    },
-    pillTextActive:{
-        color: Colors.text.dark.primary,
     },
     emotionLabel: {
         fontSize: Typography.size.lg,
