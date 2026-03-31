@@ -46,7 +46,6 @@ export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onC
                     setSelectedEmotion(emotion);
                 }}
                 size="sm"
-                                
             />
 
                 {/*intensity pills */}
