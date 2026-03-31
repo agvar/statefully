@@ -89,12 +89,14 @@ export default function NowScreen(){
                 Alert.alert("No Speech Detected", "No activity was created. Please try again.");
                 return;
             } 
+            const emotionAtCapture = useStore.getState().getRecentEmotion();
+
             if(captureMode=='thought' || activeTask !== null){
                 setPendingThought(transcription);
                 setTaggingSheetVisible(true);
             } else {
                 try {
-                    startTask(activityName, 'voice',transcription )
+                    startTask(activityName, 'voice',transcription,emotionAtCapture )
                     // prompt check
                      const prompt = checkPromptLLM();
                      console.log(`LLM prompt:${prompt}`)
