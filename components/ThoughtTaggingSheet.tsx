@@ -2,17 +2,20 @@ import { Intensity,EnergyState } from "@/types";
 import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity ,Text, View, Modal} from "react-native";
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from "@/constants/theme";
+import { EmotionState } from "@/types";
+import EmotionPillRow from "./cards/EmotionPillRow";
 const INTENSITY_ARRAY :Intensity[] = ['mild','noticeable','strong','intense','overwhelming'];
 
 interface ThoughtTaggingSheetprops {
     visible: boolean;
     transcription: string| null;
-    onConfirm:(intensity: Intensity, energyState:EnergyState) => void;
+    onConfirm:(intensity: Intensity, energyState:EnergyState, emotionAtCapture?:EmotionState) => void;
     onCancel:()=>void;
 }
 
 export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onCancel}:ThoughtTaggingSheetprops) {
     const [selectedIntensity,setSelectedIntensity] = useState<Intensity | null>(null);
+    const [selectedEmotion, setSelectedEmotion] = useState<EmotionState | null>(null);
     const [selectedEnergyState,setSelectedEnergyState] = useState<EnergyState | null>(null);
 
 
@@ -20,6 +23,7 @@ export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onC
         if(!visible) {
             setSelectedIntensity(null);
             setSelectedEnergyState(null);
+            setSelectedEmotion(null);
         }
     },[visible]
 
@@ -35,6 +39,15 @@ export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onC
             <TouchableOpacity style={styles.sheet} activeOpacity={1} onPress={() => {}}>
                 <Text style={styles.transcriptionLabel}> You said:</Text>
                 <Text style={styles.transcriptionText}> {transcription}</Text>
+
+            <EmotionPillRow
+                selected={selectedEmotion}
+                onSelect={(emotion) => {
+                    setSelectedEmotion(emotion);
+                }}
+                size="sm"
+                                
+            />
 
                 {/*intensity pills */}
                 <Text style={styles.sectionLabel}>
@@ -91,7 +104,8 @@ export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onC
                         (selectedIntensity === null || selectedEnergyState === null) && 
                         styles.confirmButtonDisabled
                     ]}
-                    onPress={() => onConfirm(selectedIntensity!, selectedEnergyState!)}
+                    onPress={() => onConfirm(selectedIntensity!, selectedEnergyState!, 
+                        selectedEmotion ?? undefined)}
                     disabled={selectedIntensity === null || selectedEnergyState === null}
                     >
                         <Text style={styles.confirmButtonText}>Confirm</Text>
