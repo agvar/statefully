@@ -106,9 +106,9 @@ export default function NowScreen(){
             }
     };
 
-    const handleThoughtTagged = (intensity:Intensity, energyState:EnergyState) =>{
+    const handleThoughtTagged = (intensity:Intensity, energyState:EnergyState,emotionAtCapture?:EmotionState) =>{
         if(!pendingThought) return;
-        addThought(pendingThought,intensity,energyState,'voice',pendingThought);
+        addThought(pendingThought,intensity,energyState,'voice',pendingThought,emotionAtCapture);
 
         setPendingThought(null);
         setTaggingSheetVisible(false);
