@@ -1,9 +1,10 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
-import { Activity, EnergyState } from '@/types/index';
+import { Activity, EnergyState, EmotionState} from '@/types/index';
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import EmotionPillRow from '../cards/EmotionPillRow';
 
 
 interface ManualActivityProps {
@@ -38,6 +39,11 @@ export default function ManualActivityForm({
     const [energyState, setEnergyState] = useState<EnergyState | undefined>(
         initialActivity?.energyState
     );
+    const [emotionAtCapture,setEmotionAtCapture] = useState<EmotionState | undefined>(
+        initialActivity?.emotionAtCapture
+    );
+
+
 
     //Picker visibilty for iOS only
     const [showStartPicker,setShowStartPicker] = useState(false);
@@ -91,7 +97,8 @@ export default function ManualActivityForm({
                         duration: durationSeconds,
                         energyState: energyState!,
                     }
-                )
+                );
+                setEmotionAtCapture(initialActivity.emotionAtCapture);
             }
         else
             {const newActivity: Omit<Activity, 'id'> = {
@@ -103,6 +110,7 @@ export default function ManualActivityForm({
                 source: 'manual',
                 transcription: undefined,
             };
+            setEmotionAtCapture(undefined);
             onSave(newActivity);
             }
         resetForm();
@@ -331,6 +339,17 @@ export default function ManualActivityForm({
                                 </TouchableOpacity>
                             </View>
                         </View>
+
+                        {/*Emotion Check in section*/}
+                        <Text style={styles.emotionLabel}> How were you feeling? </Text>
+                        <EmotionPillRow
+                            selected={emotionAtCapture}
+                            onSelect={(emotion) => {
+                                setEmotionAtCapture(emotion);
+                            }}
+                            size="sm"
+                        />
+
                         {/* Duration display */}
                         <View style={styles.durationDisplay}>
                             <Text style={styles.durationLabel}>Duration:</Text>

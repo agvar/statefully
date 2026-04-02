@@ -12,35 +12,35 @@ interface emotionPillRowProps {
 export default function EmotionPillRow({selected,onSelect,size='md'}:emotionPillRowProps) {
     const isSmall = size === 'sm';
     return(
-                            <View style={styles.pillRow}>
-                                {( Object.entries(EMOTION_EMOJI) as [EmotionState,string][]).
-                                    map( ([emotion, emoji ])=> (
-                                    <TouchableOpacity
-                                        key= {emotion}
-                                        style={[styles.pill ,
-                                            isSmall && styles.pillSm,
-                                            selected === emotion 
-                                        && { backgroundColor: Colors.emotionGlow[emotion], 
-                                             borderColor: Colors.emotion[emotion],
-                                             shadowColor: Colors.emotion[emotion], // glow color
-                                             shadowOpacity: 0.6,                                             // glow intensity
-                                             shadowRadius: 8,                                                // glow spread
-                                             shadowOffset: { width: 0, height: 0 },                         // centered glow
-                                             elevation: 6,                                                  //Android
-                                               }
-                                         ]}
-                                        onPress = {()=> onSelect(emotion) }
-                                    >
-                                        <Text style={[
-                                            styles.pillText,
-                                            isSmall && styles.pillTextSm,
-                                            selected === emotion  && styles.pillTextActive]}>
-                                            {emoji}{emotion}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))
+            <View style={styles.pillRow}>
+                {( Object.entries(EMOTION_EMOJI) as [EmotionState,string][]).
+                    map( ([emotion, emoji ])=> (
+                    <TouchableOpacity
+                        key= {emotion}
+                        style={[styles.pill ,
+                            isSmall && styles.pillSm,
+                            selected === emotion 
+                        && { backgroundColor: Colors.emotionGlow[emotion], 
+                                borderColor: Colors.emotion[emotion],
+                                shadowColor: Colors.emotion[emotion], // glow color
+                                shadowOpacity: 0.6,                                             // glow intensity
+                                shadowRadius: 8,                                                // glow spread
+                                shadowOffset: { width: 0, height: 0 },                         // centered glow
+                                elevation: 6,                                                  //Android
                                 }
-                            </View>
+                            ]}
+                        onPress = {()=> onSelect(emotion) }
+                    >
+                        <Text style={[
+                            styles.pillText,
+                            isSmall && styles.pillTextSm,
+                            selected === emotion  && styles.pillTextActive]}>
+                            {emoji}{emotion}
+                        </Text>
+                    </TouchableOpacity>
+                ))
+                }
+            </View>
     );
 }
     const styles = StyleSheet.create({
