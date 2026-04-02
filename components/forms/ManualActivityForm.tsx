@@ -96,9 +96,9 @@ export default function ManualActivityForm({
                         endTime: endTime,
                         duration: durationSeconds,
                         energyState: energyState!,
+                        emotionAtCapture: emotionAtCapture,
                     }
                 );
-                setEmotionAtCapture(initialActivity.emotionAtCapture);
             }
         else
             {const newActivity: Omit<Activity, 'id'> = {
@@ -109,8 +109,9 @@ export default function ManualActivityForm({
                 energyState: energyState!,
                 source: 'manual',
                 transcription: undefined,
+                type: 'task',
+                emotionAtCapture: emotionAtCapture,
             };
-            setEmotionAtCapture(undefined);
             onSave(newActivity);
             }
         resetForm();
@@ -124,12 +125,14 @@ export default function ManualActivityForm({
         setStartTime(initialActivity.startTime);
         setEndTime(initialActivity.endTime || new Date());
         setEnergyState(initialActivity.energyState);
+        setEmotionAtCapture(initialActivity.emotionAtCapture);
         }
         else {
         setActivityName('');
         setStartTime(new Date());
         setEndTime(new Date());
         setEnergyState(undefined);
+        setEmotionAtCapture(undefined);
         }
     }
 
@@ -343,7 +346,7 @@ export default function ManualActivityForm({
                         {/*Emotion Check in section*/}
                         <Text style={styles.emotionLabel}> How were you feeling? </Text>
                         <EmotionPillRow
-                            selected={emotionAtCapture}
+                            selected={emotionAtCapture ?? null}
                             onSelect={(emotion) => {
                                 setEmotionAtCapture(emotion);
                             }}
