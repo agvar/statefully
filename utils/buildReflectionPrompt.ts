@@ -34,7 +34,8 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
                 const mins = Math.round(task.duration /60);
                 const time = new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const energy = task.energyState ?? 'untagged';
-                lines.push(`- "${task.name}" | ${mins}m | ${energy} | ${time}`);
+                const emotion = task.emotionAtCapture ? ` | felt: ${task.emotionAtCapture}` : '';
+                lines.push(`- "${task.name}" | ${mins}m | ${energy} | ${time}${emotion}`);
             });
             const flowMins = Math.round(tasks.filter(task => task.energyState === 'flow').reduce((sum,t) => sum + t.duration,0) /60);
             const drainMins = Math.round(tasks.filter(task => task.energyState === 'drain').reduce((sum,t) => sum + t.duration,0) /60);
@@ -50,7 +51,8 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
             const sorted = [...thoughts].sort((a,b) =>(b.recurrenceCount ?? 0) - (a.recurrenceCount ?? 0));
             sorted.forEach(thought=>{
                 const recurrence = (thought.recurrenceCount ?? 0) > 0 ? `| came by ${thought.recurrenceCount} x`:'';
-                lines.push(`- "${thought.name}" | ${thought.energyState} | ${thought.intensity}${recurrence}`);
+                const emotion = thought.emotionAtCapture ? `| felt: ${thought.emotionAtCapture}` : '';
+                lines.push(`- "${thought.name}" | ${thought.energyState} | ${thought.intensity}${emotion}${recurrence}`);
             });
         }
         lines.push('');
@@ -62,7 +64,8 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
         } else {
             emotions.forEach(emotion =>{
                 const time = new Date(emotion.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                lines.push(`- ${emotion.state} at ${time}`);
+                const note = emotion.note ? `- "${emotion.note}"` : '';
+                lines.push(`- ${emotion.state} at ${time}${note}`);
             });
         }
         return lines.join('\n');
