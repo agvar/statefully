@@ -43,8 +43,6 @@ export default function ManualActivityForm({
         initialActivity?.emotionAtCapture
     );
 
-
-
     //Picker visibilty for iOS only
     const [showStartPicker,setShowStartPicker] = useState(false);
     const [showEndPicker,setShowEndPicker] = useState(false);
@@ -496,4 +494,12 @@ const styles = StyleSheet.create({
     fontWeight: Typography.weight.semibold,
     color: Colors.text.light.primary,
   },
+  emotionLabel: {
+        fontSize: Typography.size.lg,
+        fontWeight: Typography.weight.medium,
+        color: Colors.text.dark.secondary,
+        marginBottom: Spacing.xs,
+        paddingHorizontal:Spacing.md,
+        marginTop:Spacing.sm
+    },
 });
