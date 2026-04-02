@@ -40,6 +40,7 @@ export default function NowScreen(){
     const [taggingSheetVisible, setTaggingSheetVisible] = useState(false);
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState| null>(null);
     const [emotionConfirmed, setEmotionConfirmed] = useState(false);
+    const [anchorToast,setAnchorToast] = useState<EmotionState | null>(null);
 
     useEffect(()=>{
         const recent = useStore.getState().emotionCheckIns[0];
@@ -97,9 +98,11 @@ export default function NowScreen(){
             } else {
                 try {
                     startTask(activityName, 'voice',transcription,emotionAtCapture )
-                    // prompt check
-                     const prompt = checkPromptLLM();
-                     console.log(`LLM prompt:${prompt}`)
+                    if(emotionAtCapture) {
+                        setAnchorToast(emotionAtCapture);
+                        setTimeout(()=> setAnchorToast(null), 2500);
+                    }
+                    
 
                 } catch(error){
                     Alert.alert('Stop current activity before starting a new one');
@@ -158,7 +161,6 @@ export default function NowScreen(){
                             setEmotionConfirmed(true);
                             setTimeout(()=> setEmotionConfirmed(false),2000);
                         }}
-                    
                     />
 
                     {emotionConfirmed && (
@@ -217,6 +219,16 @@ export default function NowScreen(){
                 ): null
             }
         />
+
+            {
+                anchorToast && (
+                    <Text style={styles.anchorToast}>
+                        {EMOTION_EMOJI[anchorToast] } Captured when feeling {anchorToast}
+
+                    </Text>
+                )
+            }
+
         {/* Mode toggle- only visible when no active task */}
             <View style={styles.modeToggle}>
                 <TouchableOpacity
@@ -325,8 +337,6 @@ const styles = StyleSheet.create({
         alignItems:'center',
         paddingVertical: Spacing.sm,                   // slightly taller than before
         borderRadius: BorderRadius.full,               // pill-shaped active state
-
-
     },
     modeButtonActive:{
         backgroundColor: Colors.flow,
@@ -359,5 +369,12 @@ const styles = StyleSheet.create({
     color: Colors.text.dark.secondary,
     marginTop: Spacing.xs,
     marginBottom: Spacing.xs,
-},
+    },
+    anchorToast: {
+    textAlign: 'center',
+    fontSize: Typography.size.sm,
+    color: Colors.text.dark.secondary,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.xs,
+    },
 });
