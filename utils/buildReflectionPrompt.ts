@@ -50,7 +50,7 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
         } else {
             const sorted = [...thoughts].sort((a,b) =>(b.recurrenceCount ?? 0) - (a.recurrenceCount ?? 0));
             sorted.forEach(thought=>{
-                const recurrence = (thought.recurrenceCount ?? 0) > 0 ? `| came by ${thought.recurrenceCount} x`:'';
+                const recurrence = (thought.recurrenceCount ?? 0) > 0 ? ` | came by ${thought.recurrenceCount} x`:'';
                 const emotion = thought.emotionAtCapture ? ` | felt: ${thought.emotionAtCapture}` : '';
                 lines.push(`- "${thought.name}" | ${thought.energyState} | ${thought.intensity}${emotion}${recurrence}`);
             });
