@@ -51,7 +51,7 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
             const sorted = [...thoughts].sort((a,b) =>(b.recurrenceCount ?? 0) - (a.recurrenceCount ?? 0));
             sorted.forEach(thought=>{
                 const recurrence = (thought.recurrenceCount ?? 0) > 0 ? `| came by ${thought.recurrenceCount} x`:'';
-                const emotion = thought.emotionAtCapture ? `| felt: ${thought.emotionAtCapture}` : '';
+                const emotion = thought.emotionAtCapture ? ` | felt: ${thought.emotionAtCapture}` : '';
                 lines.push(`- "${thought.name}" | ${thought.energyState} | ${thought.intensity}${emotion}${recurrence}`);
             });
         }
@@ -64,7 +64,7 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
         } else {
             emotions.forEach(emotion =>{
                 const time = new Date(emotion.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const note = emotion.note ? `- "${emotion.note}"` : '';
+                const note = emotion.note ? ` — "${emotion.note}"` : '';
                 lines.push(`- ${emotion.state} at ${time}${note}`);
             });
         }
