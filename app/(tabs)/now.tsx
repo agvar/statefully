@@ -33,7 +33,8 @@ export default function NowScreen(){
     const tagTask = useStore(state => state.tagTask)
     const addThought = useStore(state =>state.addThought);
     const resurfaceThought = useStore(state => state.resurfaceThought);
-    const addEmotionCheckin = useStore(state => state.addEmotionCheckin)
+    const addEmotionCheckin = useStore(state => state.addEmotionCheckin);
+    const deleteEmotionCheckin = useStore(state => state.deleteEmotionCheckin);
  
     const [captureMode,setCaptureMode] = useState<'task'|'thought'>('task');
     const [pendingThought, setPendingThought] = useState<string| null>(null);
@@ -200,7 +201,7 @@ export default function NowScreen(){
             keyExtractor={row=> `${row.kind}-${row.item.id}`}
             renderItem={({ item:row }) => {
                 if (row.kind === 'emotion'){
-                    return <EmotionCheckinCard checkin={row.item} />;
+                    return <EmotionCheckinCard checkin={row.item} onDelete={()=>deleteEmotionCheckin(row.item.id)} />;
                 }
                 if(row.item.type === 'thought') {
                     return <ThoughtCard thought={row.item} onAgain={resurfaceThought} />
