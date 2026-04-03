@@ -27,6 +27,7 @@ interface StoreState{
         transcription?:string,emotionAtCapture?:EmotionState) => void;
     addEmotionCheckin :(emotionState: EmotionState,note?: string) => void ;
     resurfaceThought: (id: string) => void;
+    deleteEmotionCheckin:(id:string)=> void;
 
     //Manual CRUD
     addManualActivity:(Activity:Omit<Activity,'id'>) => void;
@@ -274,6 +275,12 @@ export const useStore = create<StoreState>()(
 
                 set({ activities: [resurfaced, ...updateActivities] });
 
+        },
+        deleteEmotionCheckin:(id)=>{
+            set(state => ({
+                emotionCheckIns: state.emotionCheckIns.filter((emotion:EmotionCheckin)=>
+                    emotion.id !== id )
+            }))
         },
         addThought : (name, intensity, energyState, source, transcription,emotionAtCapture) => {
             const now = new Date();
