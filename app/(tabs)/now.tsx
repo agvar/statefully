@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt';
 import { EMOTION_EMOJI,Activity,EmotionCheckin } from '@/types/index';
 import EmotionPillRow from '@/components/cards/EmotionPillRow';
+import { Ionicons } from '@expo/vector-icons';
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Layout, Spacing, Typography } from '@/constants/theme';
@@ -16,6 +17,7 @@ import { useEffect, useState, useMemo} from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 import EmotionCheckinCard from '@/components/cards/EmotionCheckinCard';
+import TypeThoughtSheet from '@/components/TypeThoughtSheet';
 
 type RecentItem =
     | {kind:'activity',item: Activity,timestamp:Date}
@@ -42,6 +44,7 @@ export default function NowScreen(){
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState| null>(null);
     const [emotionConfirmed, setEmotionConfirmed] = useState(false);
     const [anchorToast,setAnchorToast] = useState<EmotionState | null>(null);
+    const [textThoughtVisible, setTextThoughtVisible] = useState(false);
 
     useEffect(()=>{
         const recent = useStore.getState().emotionCheckIns[0];
@@ -130,6 +133,11 @@ export default function NowScreen(){
     const handleTag = (id:string, energyState: EnergyState): void => {
         tagTask(id,energyState);
     };
+    const handleTextThought = (text: string)=>{
+        setTextThoughtVisible(false);
+        setPendingThought(text);
+        setTaggingSheetVisible(true);
+    }
 
 
     return(
@@ -256,15 +264,28 @@ export default function NowScreen(){
 
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.voiceButtonContainer}>
+            <View style={styles.captureRow}>
                 <VoiceButton onRecordingComplete={handleVoiceInput}
                 captureMode= {captureMode}
-            />
+                />
+                <TouchableOpacity
+                    style={styles.keyboardButton}
+                    onPress={()=> setTextThoughtVisible(true)}
+                >
+                    <Ionicons name="create-outline" size={24} color = {Colors.text.dark.secondary} />
+                </TouchableOpacity>
+            </View>
         </View>
             <ThoughtTaggingSheet 
                 visible= {taggingSheetVisible}
                 transcription={pendingThought}
                 onConfirm={handleThoughtTagged}
                 onCancel={handleThoughtCancelled}
+            />
+            <TypeThoughtSheet 
+                visible={textThoughtVisible}
+                onSubmit={handleTextThought}
+                onCancel={() => setTextThoughtVisible(false)}
             />
         </View>
 
@@ -365,17 +386,29 @@ const styles = StyleSheet.create({
         marginTop:Spacing.sm
     },
     emotionConfirm: {
-    textAlign: 'center',
-    fontSize: Typography.size.sm,
-    color: Colors.text.dark.secondary,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.xs,
+        textAlign: 'center',
+        fontSize: Typography.size.sm,
+        color: Colors.text.dark.secondary,
+        marginTop: Spacing.xs,
+        marginBottom: Spacing.xs,
     },
     anchorToast: {
-    textAlign: 'center',
-    fontSize: Typography.size.sm,
-    color: Colors.text.dark.secondary,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.xs,
+        textAlign: 'center',
+        fontSize: Typography.size.sm,
+        color: Colors.text.dark.secondary,
+        marginTop: Spacing.xs,
+        marginBottom: Spacing.xs,
     },
+    captureRow:{
+        flexDirection:'row',
+        alignItems:'center',
+        gap:Spacing.sm,
+
+    },
+    keyboardButton:{
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(255,255,255,0.06)',  // subtle surface, matches the app's card language
+
+    }
 });
