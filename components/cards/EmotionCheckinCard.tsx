@@ -14,7 +14,7 @@ export default function EmotionCheckinCard({checkin,onDelete}: EmotionCheckinCar
         <TouchableOpacity 
             onLongPress= { ()=>
                 Alert.alert(
-                    'Delete Activity',
+                    'Delete Emotion',
                     `Are you sure you want to delete ${checkin.state} ?`,
                     [
                         { text: 'Cancel', style :'cancel'},
