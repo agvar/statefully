@@ -17,7 +17,7 @@ import { useEffect, useState, useMemo} from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 import EmotionCheckinCard from '@/components/cards/EmotionCheckinCard';
-import TypeThoughtSheet from '@/components/TypeThoughtSheet';
+import TextCaptureSheet from '@/components/TextCaptureSheet';
 
 type RecentItem =
     | {kind:'activity',item: Activity,timestamp:Date}
@@ -133,10 +133,11 @@ export default function NowScreen(){
     const handleTag = (id:string, energyState: EnergyState): void => {
         tagTask(id,energyState);
     };
-    const handleTextThought = (text: string)=>{
-        setTextThoughtVisible(false);
-        setPendingThought(text);
-        setTaggingSheetVisible(true);
+    const handlTextCapture = (text: string)=>{
+        //setTextThoughtVisible(false);
+        //setPendingThought(text);
+        //setTaggingSheetVisible(true);
+        handleVoiceInput(text)
     }
 
 
@@ -264,17 +265,13 @@ export default function NowScreen(){
 
         {/*  Voice Button (Fixed at the Bottom) */}
         <View style= {styles.voiceButtonContainer}>
-            <View style={styles.captureRow}>
-                <VoiceButton onRecordingComplete={handleVoiceInput}
-                captureMode= {captureMode}
-                />
-                <TouchableOpacity
-                    style={styles.keyboardButton}
-                    onPress={()=> setTextThoughtVisible(true)}
-                >
-                    <Ionicons name="create-outline" size={24} color = {Colors.text.dark.secondary} />
-                </TouchableOpacity>
-            </View>
+            <VoiceButton onRecordingComplete={handleVoiceInput}captureMode= {captureMode}/>
+            <TouchableOpacity
+                style={styles.keyboardButton}
+                onPress={()=> setTextThoughtVisible(true)}
+            >
+                <Ionicons name="create-outline" size={24} color = {Colors.text.dark.secondary} />
+        </TouchableOpacity>
         </View>
             <ThoughtTaggingSheet 
                 visible= {taggingSheetVisible}
@@ -282,9 +279,10 @@ export default function NowScreen(){
                 onConfirm={handleThoughtTagged}
                 onCancel={handleThoughtCancelled}
             />
-            <TypeThoughtSheet 
+            <TextCaptureSheet 
                 visible={textThoughtVisible}
-                onSubmit={handleTextThought}
+                mode={captureMode}
+                onSubmit={handlTextCapture}
                 onCancel={() => setTextThoughtVisible(false)}
             />
         </View>
@@ -345,6 +343,15 @@ const styles = StyleSheet.create({
         paddingBottom:Layout.tabBarHeight,
         borderTopWidth:1,
         borderTopColor: 'rgba(255,255,255,0.06)',
+        position:'relative'
+    },
+    keyboardButton: {
+        position: 'absolute',
+        right: Spacing.md,
+        top: Spacing.xl,           // aligns with top of voice button circle
+        padding: Spacing.sm,
+        borderRadius: BorderRadius.md,
+        backgroundColor: 'rgba(255,255,255,0.06)',
     },
     modeToggle:{
         flexDirection:'row',
