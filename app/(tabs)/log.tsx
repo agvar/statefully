@@ -1,5 +1,5 @@
 import ActivityLogCard from '@/components/cards/ActivityLogCard';
-import ManualActivityForm from '@/components/forms/ManualActivityForm';
+import ManualActivityForm from '@/components/forms/ManualEntryForm';
 import DateSectionHeader from '@/components/sections/DateSectionHeader';
 import { Colors, Layout, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
@@ -54,7 +54,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
             onPress =  {() => setShowAddModal(true)}
             activeOpacity={0.7}
             >
-                <Text style={styles.addButtonText}>+ Add Manual Activity</Text>
+                <Text style={styles.addButtonText}>+ Add Manual Task or Thought</Text>
             </TouchableOpacity>
 
             {/* Activity List*/}
@@ -79,7 +79,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
                 ListEmptyComponent={
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>
-                            No activities yet.Start tracking in the Think Stream !
+                            No Tasks or Thoughts yet.Start tracking in the Now screen !
                         </Text>
 
                     </View>
