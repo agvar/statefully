@@ -61,10 +61,13 @@ export default function ManualEntryForm({
         const durationHrs= durationMs/(1000 * 3600)
 
         if(!activityName.trim()) {
-            return 'Please enter an activity';
+            if (entryType === 'task') {
+                return 'Please enter a task';
+            }
+            return 'Please enter a thought';
         }
 
-        if(startTime >= endTime) {
+        if(entryType === 'task' && startTime >= endTime) {
             return 'End time must be after start time';
         }
 
@@ -72,7 +75,7 @@ export default function ManualEntryForm({
             return 'Please select Flow or Drain as Energy state';
         }
 
-        if (durationHrs > 24){
+        if (entryType === 'task' && durationHrs > 24){
             return 'Activity cannot exceed 24 hours';
         }
         return null;
@@ -108,7 +111,7 @@ export default function ManualEntryForm({
                 energyState: energyState!,
                 source: 'manual',
                 transcription: undefined,
-                type: 'task',
+                type: entryType,
                 emotionAtCapture: emotionAtCapture,
             };
             onSave(newActivity);
