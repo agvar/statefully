@@ -1,5 +1,5 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
-import { Activity, EnergyState, EmotionState} from '@/types/index';
+import { Activity, EnergyState, EmotionState, ActivityType} from '@/types/index';
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -42,6 +42,7 @@ export default function ManualEntryForm({
     const [emotionAtCapture,setEmotionAtCapture] = useState<EmotionState | undefined>(
         initialActivity?.emotionAtCapture
     );
+    const [entryType, setEntryType]= useState<ActivityType>(initialActivity?.type??'task')
 
     //Picker visibilty for iOS only
     const [showStartPicker,setShowStartPicker] = useState(false);
@@ -216,6 +217,26 @@ export default function ManualEntryForm({
                         contentContainerStyle={styles.scrollContent}
                         keyboardShouldPersistTaps="handled"
                     >   
+                    <View style={styles.modeToggle}>
+                            <TouchableOpacity
+                                style= {[styles.modeButton, entryType === 'task' && styles.modeButtonActive,
+                                ]}
+                                onPress ={() => setEntryType('task')}
+                            >
+                                <Text style={entryType === 'task' ? 
+                                    styles.modeButtonTextActive : styles.modeButtonText}>
+                                    📋 Task
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style= {[styles.modeButton, entryType === 'thought' && styles.modeButtonActive]}
+                                onPress ={() => setEntryType('thought')}
+                            >
+                                <Text style={entryType === 'thought' ? styles.modeButtonTextActive : styles.modeButtonText}>
+                                    💭 Thought
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                         {/* Header */}
                         <View style={styles.header}>
                             <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
@@ -247,6 +268,7 @@ export default function ManualEntryForm({
                         </View>
 
                         {/* Start Time */}
+                        {entryType === 'task' && (
                         <View style={styles.section}>
                             <Text style={styles.label}> Start Time</Text>
                             <TouchableOpacity
@@ -269,8 +291,10 @@ export default function ManualEntryForm({
                                 )
                             }
                         </View>
+                        )}
 
                         {/* End Time */}
+                        {entryType === 'task' && (
                         <View style={styles.section}>
                             <Text style={styles.label}> End Time</Text>
                             <TouchableOpacity
@@ -293,6 +317,7 @@ export default function ManualEntryForm({
                                 )
                             }
                         </View>
+                        )}
 
                         {/* Energy state */}
                         <View style={styles.section}>
@@ -366,17 +391,44 @@ export default function ManualEntryForm({
 }
 
 const styles = StyleSheet.create({
-  container: {
+    container: {
     flex: 1,
     backgroundColor: Colors.background.light,
-  },
-  
-  scrollContent: {
+    },
+
+    scrollContent: {
     padding: Spacing.md,
     paddingBottom: Spacing.xl,
-  },
-  
-  header: {
+    },
+    modeToggle:{
+        flexDirection:'row',
+        backgroundColor: Colors.background.surface,   // #111111 subtle track
+        borderRadius: BorderRadius.full,               // full pill shape
+        padding: 3,                                    // inner padding so active pill floats
+        marginHorizontal: Spacing.md,                  // contain to screen width
+        marginBottom: Spacing.xs,
+    },
+    modeButton:{
+        flex:1,
+        alignItems:'center',
+        paddingVertical: Spacing.sm,                   // slightly taller than before
+        borderRadius: BorderRadius.full,               // pill-shaped active state
+    },
+    modeButtonActive:{
+        backgroundColor: Colors.flow,
+
+    },
+    modeButtonText:{
+        color:Colors.text.dark.secondary,
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.medium,
+    },
+    modeButtonTextActive:{
+        color:Colors.text.dark.primary,
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.semibold,        // slightly bolder when active
+    },
+    header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -384,48 +436,48 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border.light,
-  },
-   
-  cancelButton: {
+    },
+
+    cancelButton: {
     padding: Spacing.sm,
     minWidth: 60,
-  },
-  
-  cancelText: {
+    },
+
+    cancelText: {
     fontSize: Typography.size.base,
     color: Colors.primary,
-  },
-  
-  title: {
+    },
+
+    title: {
     fontSize: Typography.size.xl,
     fontWeight: Typography.weight.semibold,
     color: Colors.text.light.primary,
-  },
-  
-  saveButton: {
+    },
+
+    saveButton: {
     padding: Spacing.sm,
     minWidth: 60,
     alignItems: 'flex-end',
-  },
-  
-  saveButtonText: {
+    },
+
+    saveButtonText: {
     fontSize: Typography.size.base,
     fontWeight: Typography.weight.semibold,
     color: Colors.primary,
-  },
-  
-  section: {
+    },
+
+    section: {
     marginTop: Spacing.lg,
-  },
-  
-  label: {
+    },
+
+    label: {
     fontSize: Typography.size.sm,
     fontWeight: Typography.weight.semibold,
     color: Colors.text.light.primary,
     marginBottom: Spacing.sm,
-  },
-  
-  input: {
+    },
+
+    input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: Colors.border.light,
@@ -433,27 +485,27 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     fontSize: Typography.size.base,
     color: Colors.text.light.primary,
-  },
-  
-  dateTimeButton: {
+    },
+
+    dateTimeButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: Colors.border.light,
     borderRadius: BorderRadius.sm,
     padding: Spacing.md,
-  },
-  
-  dateTimeText: {
+    },
+
+    dateTimeText: {
     fontSize: Typography.size.base,
     color: Colors.text.light.primary,
-  },
-  
-  energySelector: {
+    },
+
+    energySelector: {
     flexDirection: 'row',
     gap: Spacing.md,  
-  },
-  
-  energyButton: {
+    },
+
+    energyButton: {
     flex: 1,
     padding: Spacing.md,
     borderWidth: 2,
@@ -462,19 +514,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 44,
     backgroundColor: '#FFFFFF',
-  },
-  
-  energyButtonSelected: {
+    },
+
+    energyButtonSelected: {
     backgroundColor: 'rgba(0, 122, 255, 0.1)',  // Light blue tint when selected
-  },
-  
-  energyButtonText: {
+    },
+
+    energyButtonText: {
     fontSize: Typography.size.base,
     fontWeight: Typography.weight.semibold,
     color: Colors.text.light.primary,
-  },
-  
-  durationDisplay: {
+    },
+
+    durationDisplay: {
     marginTop: Spacing.xl,
     padding: Spacing.md,
     backgroundColor: '#FFFFFF',
@@ -482,19 +534,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  
-  durationLabel: {
+    },
+
+    durationLabel: {
     fontSize: Typography.size.base,
     color: Colors.text.light.secondary,
-  },
-  
-  durationValue: {
+    },
+
+    durationValue: {
     fontSize: Typography.size.xl,
     fontWeight: Typography.weight.semibold,
     color: Colors.text.light.primary,
-  },
-  emotionLabel: {
+    },
+    emotionLabel: {
         fontSize: Typography.size.lg,
         fontWeight: Typography.weight.medium,
         color: Colors.text.dark.secondary,
