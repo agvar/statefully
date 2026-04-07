@@ -19,7 +19,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
     const groupedActivities = groupActivitiesByDate(activities);
     const handleDelete = (activity : Activity) =>{
         Alert.alert(
-            'Delete Activity',
+            activity.type === 'thought'? 'Delete Thought' : 'Delete Task',
             `Are you sure you want to delete ${activity.name} ?`,
             [
                 { text: 'Cancel', style :'cancel'},
