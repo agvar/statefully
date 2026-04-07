@@ -133,7 +133,7 @@ export default function NowScreen(){
     const handleTag = (id:string, energyState: EnergyState): void => {
         tagTask(id,energyState);
     };
-    const handlTextCapture = (text: string)=>{
+    const handleTextCapture = (text: string)=>{
         //setTextThoughtVisible(false);
         //setPendingThought(text);
         //setTaggingSheetVisible(true);
@@ -282,7 +282,7 @@ export default function NowScreen(){
             <TextCaptureSheet 
                 visible={textThoughtVisible}
                 mode={captureMode}
-                onSubmit={handlTextCapture}
+                onSubmit={handleTextCapture}
                 onCancel={() => setTextThoughtVisible(false)}
             />
         </View>
