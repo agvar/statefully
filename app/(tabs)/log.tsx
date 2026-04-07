@@ -1,5 +1,5 @@
 import ActivityLogCard from '@/components/cards/ActivityLogCard';
-import ManualActivityForm from '@/components/forms/ManualEntryForm';
+import ManualEntryForm from '@/components/forms/ManualEntryForm';
 import DateSectionHeader from '@/components/sections/DateSectionHeader';
 import { Colors, Layout, Spacing, Typography } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
@@ -87,14 +87,14 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
             />
 
                 {/* Add ManualActivityForm modal */}
-                <ManualActivityForm 
+                <ManualEntryForm 
                     visible={showAddModal}
                     onClose={()=>setShowAddModal(false)}
                     onSave={handleAddActivity}
                 />
 
                 {/* Edit form */}
-                <ManualActivityForm 
+                <ManualEntryForm 
                     visible={editingActivity !== null}
                     onClose={()=>setEditingActivity(null)}
                     onSave={handleAddActivity}
