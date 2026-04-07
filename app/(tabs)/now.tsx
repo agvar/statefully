@@ -44,7 +44,7 @@ export default function NowScreen(){
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState| null>(null);
     const [emotionConfirmed, setEmotionConfirmed] = useState(false);
     const [anchorToast,setAnchorToast] = useState<EmotionState | null>(null);
-    const [textThoughtVisible, setTextThoughtVisible] = useState(false);
+    const [textCaptureVisible, setTextCaptureVisible] = useState(false);
 
     useEffect(()=>{
         const recent = useStore.getState().emotionCheckIns[0];
@@ -268,7 +268,7 @@ export default function NowScreen(){
             <VoiceButton onRecordingComplete={handleVoiceInput}captureMode= {captureMode}/>
             <TouchableOpacity
                 style={styles.keyboardButton}
-                onPress={()=> setTextThoughtVisible(true)}
+                onPress={()=> setTextCaptureVisible(true)}
             >
                 <Ionicons name="create-outline" size={24} color = {Colors.text.dark.secondary} />
         </TouchableOpacity>
@@ -280,10 +280,10 @@ export default function NowScreen(){
                 onCancel={handleThoughtCancelled}
             />
             <TextCaptureSheet 
-                visible={textThoughtVisible}
+                visible={textCaptureVisible}
                 mode={captureMode}
                 onSubmit={handleTextCapture}
-                onCancel={() => setTextThoughtVisible(false)}
+                onCancel={() => setTextCaptureVisible(false)}
             />
         </View>
 
