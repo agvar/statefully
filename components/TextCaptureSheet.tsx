@@ -14,8 +14,8 @@ export default function TextCaptureSheet({visible,mode,onSubmit,onCancel}:TextTh
     const [text,setText] = useState<string>('');
 
     return(
-        <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-    <TouchableOpacity style={styles.overlay} onPress={onCancel} activeOpacity={1}>
+        <Modal visible={visible} transparent animationType="slide" onRequestClose={()=>{setText(''); onCancel();}}>
+    <TouchableOpacity style={styles.overlay} onPress={()=>{setText(''); onCancel();}} activeOpacity={1}>
         <TouchableOpacity style={styles.sheet} activeOpacity={1} onPress={() => {}}>
             <Text style={styles.label}>{mode=="thought"? "What's on your mind?": "What are you working on?"}</Text>
             <TextInput
