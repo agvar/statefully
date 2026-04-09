@@ -1,5 +1,5 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
-import { Activity, EnergyState, EmotionState, ActivityType} from '@/types/index';
+import { Activity, EnergyState, EmotionState, ActivityType, Intensity} from '@/types/index';
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -47,6 +47,7 @@ export default function ManualEntryForm({
     //Picker visibilty for iOS only
     const [showStartPicker,setShowStartPicker] = useState(false);
     const [showEndPicker,setShowEndPicker] = useState(false);
+     const [selectedIntensity,setSelectedIntensity] = useState<Intensity | null>(null);
     
     useEffect(() =>{
         if(visible){
@@ -77,6 +78,10 @@ export default function ManualEntryForm({
 
         if (entryType === 'task' && durationHrs > 24){
             return 'Activity cannot exceed 24 hours';
+        }
+
+        if(entryType === 'thought' && !selectedIntensity?.trim()){
+            return 'Please select intensity for the thought';
         }
         return null;
     };
