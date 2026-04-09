@@ -1,10 +1,10 @@
-import { Intensity,EnergyState } from "@/types";
+import { Intensity,EnergyState,INTENSITY_ARRAY } from "@/types";
 import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity ,Text, View, Modal} from "react-native";
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from "@/constants/theme";
 import { EmotionState } from "@/types";
 import EmotionPillRow from "./cards/EmotionPillRow";
-const INTENSITY_ARRAY :Intensity[] = ['mild','noticeable','strong','intense','overwhelming'];
+
 
 interface ThoughtTaggingSheetprops {
     visible: boolean;
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.sm,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
-},
+    },
     pillRow:{
         flexDirection:'row',
         flexWrap: 'wrap',
