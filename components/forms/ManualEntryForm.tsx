@@ -1,10 +1,11 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
-import { Activity, EnergyState, EmotionState, ActivityType, Intensity} from '@/types/index';
+import { Activity, EnergyState, EmotionState, ActivityType, Intensity,INTENSITY_ARRAY } from '@/types/index';
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmotionPillRow from '../cards/EmotionPillRow';
+
 
 
 interface ManualEntryFormProps {
@@ -47,7 +48,7 @@ export default function ManualEntryForm({
     //Picker visibilty for iOS only
     const [showStartPicker,setShowStartPicker] = useState(false);
     const [showEndPicker,setShowEndPicker] = useState(false);
-     const [selectedIntensity,setSelectedIntensity] = useState<Intensity | null>(null);
+     const [selectedIntensity,setSelectedIntensity] = useState<Intensity | undefined>(undefined);
     
     useEffect(() =>{
         if(visible){
@@ -104,6 +105,7 @@ export default function ManualEntryForm({
                         duration: durationSeconds,
                         energyState: energyState!,
                         emotionAtCapture: emotionAtCapture,
+                        intensity:selectedIntensity
                     }
                 );
             }
@@ -111,13 +113,14 @@ export default function ManualEntryForm({
             {const newActivity: Omit<Activity, 'id'> = {
                 name:activityName.trim(),
                 startTime: startTime,
-                endTime: endTime,
-                duration: durationSeconds,
+                endTime: entryType==='thought'? startTime : endTime,
+                duration: entryType==='thought'? 0 : durationSeconds,
                 energyState: energyState!,
                 source: 'manual',
                 transcription: undefined,
                 type: entryType,
                 emotionAtCapture: emotionAtCapture,
+                intensity:selectedIntensity
             };
             onSave(newActivity);
             }
@@ -133,6 +136,8 @@ export default function ManualEntryForm({
         setEndTime(initialActivity.endTime || new Date());
         setEnergyState(initialActivity.energyState);
         setEmotionAtCapture(initialActivity.emotionAtCapture);
+        setEntryType(initialActivity.type)
+        setSelectedIntensity(initialActivity.intensity)
         }
         else {
         setActivityName('');
@@ -140,6 +145,8 @@ export default function ManualEntryForm({
         setEndTime(new Date());
         setEnergyState(undefined);
         setEmotionAtCapture(undefined);
+        setEntryType('task');
+        setSelectedIntensity(undefined)
         }
     }
 
@@ -385,10 +392,35 @@ export default function ManualEntryForm({
                         />
 
                         {/* Duration display */}
+                        {entryType === 'task' && (
                         <View style={styles.durationDisplay}>
                             <Text style={styles.durationLabel}>Duration:</Text>
                             <Text style={styles.durationValue}>{getDuration()}</Text>
                         </View>
+                        ) }
+
+                        {/*intensity pills */}
+                        {entryType === 'thought' && (
+                            <View>
+                        <Text style={styles.sectionLabel}>
+                            how overwhelming is this thought?
+                        </Text>
+                        <View style={styles.pillRow}>
+                            {( INTENSITY_ARRAY.map( intensity => (
+                                <TouchableOpacity
+                                    key= {intensity}
+                                    style={[styles.pill ,selectedIntensity === intensity && styles.pillActive ]}
+                                    onPress = {()=> {setSelectedIntensity(intensity)}}
+                                >
+                                    <Text style={[styles.pillText,selectedIntensity === intensity && styles.pillTextActive]}>
+                                        {intensity}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))
+                            )}
+                        </View>
+                        </View>
+                        )}
                     </ScrollView>
                 </KeyboardAvoidingView>
 
@@ -561,5 +593,40 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.xs,
         paddingHorizontal:Spacing.md,
         marginTop:Spacing.sm
+    },
+    sectionLabel: {
+        fontSize: Typography.size.sm,
+        color: Colors.text.dark.secondary,
+        marginBottom: Spacing.sm,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    pillRow:{
+        flexDirection:'row',
+        flexWrap: 'wrap',
+        justifyContent:'center',
+        marginVertical: Spacing.md
+
+    },
+    pill:{
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.xs,
+        borderRadius: BorderRadius.full,      // pill shape
+        borderWidth: 1,
+        borderColor: Colors.border.dark,
+        marginHorizontal: 4,  
+        marginBottom: 4                 //gap between pills
+    },
+    pillActive:{
+        backgroundColor: Colors.primary,      // filled when selected
+        borderColor: Colors.primary,          // border matches background
+    },
+    pillText:{
+        fontSize: Typography.size.sm,
+        fontWeight: Typography.weight.medium,
+        color: Colors.text.dark.secondary,
+    },
+    pillTextActive:{
+        color: Colors.text.dark.primary,
     },
 });
