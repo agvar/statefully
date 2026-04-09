@@ -7,13 +7,6 @@ export type ActivitySource = 'voice' | 'manual';
 export type EmotionState = 'alive' | 'calm' | 'low' | 'wired';
 export type ActivityType = 'task' | 'thought';
 export type Intensity = 'mild' | 'noticeable' | 'strong' | 'intense' | 'overwhelming';
-export const EMOTION_EMOJI:Record<EmotionState, string> = {
-    alive: '🌊',
-    calm: '😌',
-    low: '😶',
-    wired: '😤',
-    };
-
 
 // Activity Type
 
@@ -40,3 +33,12 @@ export interface EmotionCheckin {
     state : EmotionState;
     note?: string;
 };
+//constants
+
+export const EMOTION_EMOJI:Record<EmotionState, string> = {
+    alive: '🌊',
+    calm: '😌',
+    low: '😶',
+    wired: '😤',
+    };
+export const INTENSITY_ARRAY :Intensity[] = ['mild','noticeable','strong','intense','overwhelming'];
