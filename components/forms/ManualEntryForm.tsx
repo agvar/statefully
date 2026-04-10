@@ -81,7 +81,7 @@ export default function ManualEntryForm({
             return 'Activity cannot exceed 24 hours';
         }
 
-        if(entryType === 'thought' && !selectedIntensity?.trim()){
+        if(entryType === 'thought' && !selectedIntensity){
             return 'Please select intensity for the thought';
         }
         return null;
@@ -259,7 +259,7 @@ export default function ManualEntryForm({
                             </TouchableOpacity>
                             
                             <Text style={styles.title}>
-                                {isEditMode? 'Edit Activity' : 'Add Activity'}
+                                {isEditMode? 'Edit' : 'Add'}
                                 </Text>
 
                             <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
