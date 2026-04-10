@@ -20,7 +20,7 @@ interface StoreState{
     startTask: (name:string, source: ActivitySource, transcription?: string, 
         emotionAtCapture?:EmotionState) => void;
     stopTask: () => void;
-    tagTask:(id:string, energyState:EnergyState) => void;
+    tagTask:(id:string, energyState:EnergyState,emotionAtCompletion?:EmotionState) => void;
     getCurrentActiveTask:() => Activity | null;
     getActivityById:(id:string) => Activity | undefined;
     addThought: (name:string,intensity: Intensity,energyState: EnergyState,source: ActivitySource,
@@ -116,10 +116,10 @@ export const useStore = create<StoreState>()(
             }));
         },
 
-        tagTask :(id, energyState) =>{
+        tagTask :(id, energyState,emotionAtCompletion) =>{
             set(state =>({
                 activities: state.activities.map((activity:Activity) =>
-                    activity.id == id ? {...activity, energyState}: activity
+                    activity.id == id ? {...activity, energyState,emotionAtCompletion}: activity
                 )
             }));
         },

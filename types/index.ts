@@ -24,6 +24,7 @@ export interface Activity {
     recurrenceCount?: number;
     recurrenceOf?: string ;
     emotionAtCapture?: EmotionState;
+    emotionAtCompletion?:EmotionState;
 
 }
 
