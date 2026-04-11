@@ -51,7 +51,7 @@ export function buildReflectionPrompt({tasks,thoughts,emotions,windowLabel}: Ref
             const sorted = [...thoughts].sort((a,b) =>(b.recurrenceCount ?? 0) - (a.recurrenceCount ?? 0));
             sorted.forEach(thought=>{
                 const recurrence = (thought.recurrenceCount ?? 0) > 0 ? ` | came by ${thought.recurrenceCount} x`:'';
-                const emotion = thought.emotionAtCapture ? ` | felt: ${thought.emotionAtCapture}` : '';
+                const emotion = thought.emotionAtCapture ? thought.emotionAtCompletion ? ` | felt: ${thought.emotionAtCapture} →${thought.emotionAtCompletion}`: ` | felt: ${thought.emotionAtCapture}` : '';
                 lines.push(`- "${thought.name}" | ${thought.energyState} | ${thought.intensity}${emotion}${recurrence}`);
             });
         }
