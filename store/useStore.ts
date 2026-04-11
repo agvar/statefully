@@ -20,7 +20,7 @@ interface StoreState{
     startTask: (name:string, source: ActivitySource, transcription?: string, 
         emotionAtCapture?:EmotionState) => void;
     stopTask: () => void;
-    tagTask:(id:string, energyState:EnergyState,emotionAtCompletion?:EmotionState) => void;
+    tagTask:(id:string, energyState:EnergyState,emotionAtCompletion?:EmotionState|null) => void;
     getCurrentActiveTask:() => Activity | null;
     getActivityById:(id:string) => Activity | undefined;
     addThought: (name:string,intensity: Intensity,energyState: EnergyState,source: ActivitySource,
