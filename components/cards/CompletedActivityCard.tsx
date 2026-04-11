@@ -58,7 +58,7 @@ export default function  CompletedActivityCard({activity,onPress}:CompletedActiv
             {
                 activity.emotionAtCapture && (
                     <Text style={styles.emotionCapture}>feeling {activity.emotionAtCapture}
-                        {activity.emotionAtCompletion ? '→' + activity.emotionAtCompletion :''}</Text>
+                        {activity.emotionAtCompletion ? ' → ' + activity.emotionAtCompletion :''}</Text>
                 )
             }
         </View>
