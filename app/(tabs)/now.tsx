@@ -130,8 +130,8 @@ export default function NowScreen(){
     }
 
     //Handle tagging
-    const handleTag = (id:string, energyState: EnergyState): void => {
-        tagTask(id,energyState);
+    const handleTag = (id:string, energyState: EnergyState,emotionAtCompletion?:EmotionState|null): void => {
+        tagTask(id,energyState,emotionAtCompletion);
     };
     const handleTextCapture = (text: string)=>{
         //setTextThoughtVisible(false);
@@ -192,7 +192,7 @@ export default function NowScreen(){
                             <UntaggedActivityCard 
                                 key={activity.id}
                                 activity={activity}
-                                onTag= {(energyState) =>{handleTag(activity.id,energyState)}}
+                                onTag= {(energyState,emotionAtCompletion) =>{handleTag(activity.id,energyState,emotionAtCompletion)}}
                             />
                         ))
                     }
