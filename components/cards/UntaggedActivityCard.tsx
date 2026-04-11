@@ -1,13 +1,17 @@
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
-import { Activity, EnergyState } from '@/types/index';
+import { Activity, EnergyState,EmotionState } from '@/types/index';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import EmotionPillRow from './EmotionPillRow';
 
 interface UntaggedActivityCardProps{
     activity: Activity ;
-    onTag: (EnergyState:EnergyState) => void;
+    onTag: (energyState:EnergyState, emotionAtCompletion?:EmotionState|null) => void;
 };
 
 export default function UntaggedActivityCard({activity, onTag}:UntaggedActivityCardProps) {
+    const [selectedEmotion, setSelectedEmotion] = useState<EmotionState | null>(null);
+
     //format seconds to readable string
     const formatDuration = (seconds:number): string =>{
         const hours = Math.floor(seconds / 3600);
@@ -34,15 +38,23 @@ export default function UntaggedActivityCard({activity, onTag}:UntaggedActivityC
                 </Text>
             </View>
 
+
             {/* Sentiment Picker*/}
             <View style={styles.pickerSection}>
                 <Text style={styles.prompt}>How did that feel?</Text>
+                {/*Emotion Check in section*/}
+                <EmotionPillRow
+                    selected={selectedEmotion}
+                    onSelect={(emotion) => {
+                        setSelectedEmotion(emotion);
+                    }}
+                />
                 <View style={styles.buttonRow}>
 
                     {/*Flow button */}
                     <TouchableOpacity
                         style={[styles.button, styles.flowButton]}
-                        onPress={() => onTag('flow')}
+                        onPress={() => onTag('flow',selectedEmotion)}
                         activeOpacity={0.8}
                     >
                         <Text style={styles.buttonEmoji}>✨</Text>
@@ -93,6 +105,14 @@ const styles = StyleSheet.create({
     duration: {
         fontSize: Typography.size.base,
         color: Colors.text.dark.secondary,
+    },
+    emotionLabel: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.dark.secondary,
+    marginBottom: Spacing.xs,
+    paddingHorizontal:Spacing.md,
+    marginTop:Spacing.sm
     },
     pickerSection: {
         alignItems: 'center',
