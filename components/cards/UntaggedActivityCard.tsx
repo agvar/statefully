@@ -64,7 +64,7 @@ export default function UntaggedActivityCard({activity, onTag}:UntaggedActivityC
                     {/*Drain button */}
                     <TouchableOpacity
                         style={[styles.button, styles.drainButton]}
-                        onPress={() => onTag('drain')}
+                        onPress={() => onTag('drain',selectedEmotion)}
                         activeOpacity={0.8}
                     >
                         <Text style={styles.buttonEmoji}>😰</Text>
