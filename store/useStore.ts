@@ -263,7 +263,7 @@ export const useStore = create<StoreState>()(
                     id: Date.now().toString(),
                     startTime: new Date,
                     endTime: new Date,
-                    recurrenceCount: 0,
+                    recurrenceCount: (original.recurrenceCount ?? 0) + 1,
                     recurrenceOf:id,
                 }
 
