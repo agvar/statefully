@@ -283,9 +283,10 @@ export default function ManualEntryForm({
                         </View>
 
                         {/* Start Time */}
-                        {entryType === 'task' && (
+                        
                         <View style={styles.section}>
-                            <Text style={styles.label}> Start Time</Text>
+                            <Text style={styles.label}> 
+                                {entryType === 'thought' ? 'When did this occur?' : 'Start Time'}</Text>
                             <TouchableOpacity
                                 style={styles.dateTimeButton}
                                 onPress={() => setShowStartPicker(true)}
@@ -306,7 +307,7 @@ export default function ManualEntryForm({
                                 )
                             }
                         </View>
-                        )}
+                        
 
                         {/* End Time */}
                         {entryType === 'task' && (
