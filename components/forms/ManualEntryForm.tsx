@@ -232,11 +232,11 @@ export default function ManualEntryForm({
                         contentContainerStyle={styles.scrollContent}
                         keyboardShouldPersistTaps="handled"
                     >   
-                    <View style={styles.modeToggle}>
+                    <View style={[styles.modeToggle,{opacity:isEditMode? 0.5 :1 }]}>
                             <TouchableOpacity
                                 style= {[styles.modeButton, entryType === 'task' && styles.modeButtonActive,
                                 ]}
-                                onPress ={() => setEntryType('task')}
+                                onPress ={() => !isEditMode && setEntryType('task')}
                             >
                                 <Text style={entryType === 'task' ? 
                                     styles.modeButtonTextActive : styles.modeButtonText}>
@@ -245,7 +245,7 @@ export default function ManualEntryForm({
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style= {[styles.modeButton, entryType === 'thought' && styles.modeButtonActive]}
-                                onPress ={() => setEntryType('thought')}
+                                onPress ={() => !isEditMode && setEntryType('thought')}
                             >
                                 <Text style={entryType === 'thought' ? styles.modeButtonTextActive : styles.modeButtonText}>
                                     💭 Thought
