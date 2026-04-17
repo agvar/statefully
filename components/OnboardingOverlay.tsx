@@ -29,7 +29,7 @@ interface OnBoardingOverlayProps{
     onComplete :() => void;
 }
 
-export  function OnBoardingOverlay({onComplete}:OnBoardingOverlayProps){ 
+export  default function OnBoardingOverlay({onComplete}:OnBoardingOverlayProps){ 
     const [step, setStep] = useState(0);
 
          return(
@@ -40,9 +40,9 @@ export  function OnBoardingOverlay({onComplete}:OnBoardingOverlayProps){
                 >
                     <View style={styles.backdrop}>
                         <View style={styles.card}>
-                            <Text>{steps[step].emoji}</Text>
-                            <Text>{steps[step].title}</Text>
-                            <Text>{steps[step].description}</Text>  
+                            <Text style={styles.emoji}>{steps[step].emoji}</Text>
+                            <Text style={styles.title}>{steps[step].title}</Text>
+                            <Text style={styles.description}>{steps[step].description}</Text> 
 
                             <View style={styles.dots}>
                                 {[0,1,2,3].map(i => (
@@ -58,7 +58,7 @@ export  function OnBoardingOverlay({onComplete}:OnBoardingOverlayProps){
                                         onComplete();
                                     }
                                 }}>
-                                <Text>{step < steps.length - 1 ? 'Next →' : 'Got it'}</Text>
+                                <Text style={styles.buttonText}>{step < steps.length - 1 ? 'Next →' : 'Got it'}</Text>
                             </TouchableOpacity>
                         </View>
                 </View>
