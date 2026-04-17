@@ -2,13 +2,13 @@ import ActiveActivityCard from '@/components/cards/ActiveActivityCard';
 import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
-import OnBoardingOverlay  from '@/components/onboardingOverlay';
 import ThoughtCard from '@/components/cards/ThoughtCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt';
 import { EMOTION_EMOJI,Activity,EmotionCheckin } from '@/types/index';
 import EmotionPillRow from '@/components/cards/EmotionPillRow';
 import { Ionicons } from '@expo/vector-icons';
+import OnBoardingOverlay from '@/components/OnboardingOverlay';
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Layout, Spacing, Typography } from '@/constants/theme';
@@ -152,7 +152,7 @@ export default function NowScreen(){
                 end={{ x:1, y:0.7 }} 
                 style={StyleSheet.absoluteFill}
             />
-            
+
             {/* Onboarding form */}
             {!onboardingComplete && (
                 <OnBoardingOverlay onComplete={setOnboardingComplete} />
