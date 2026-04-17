@@ -2,6 +2,7 @@ import ActiveActivityCard from '@/components/cards/ActiveActivityCard';
 import CompletedActivityCard from '@/components/cards/CompletedActivityCard';
 import UntaggedActivityCard from '@/components/cards/UntaggedActivityCard';
 import ThoughtTaggingSheet from '@/components/ThoughtTaggingSheet';
+import OnBoardingOverlay  from '@/components/onboardingOverlay';
 import ThoughtCard from '@/components/cards/ThoughtCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflectionPrompt';
@@ -37,6 +38,8 @@ export default function NowScreen(){
     const resurfaceThought = useStore(state => state.resurfaceThought);
     const addEmotionCheckin = useStore(state => state.addEmotionCheckin);
     const deleteEmotionCheckin = useStore(state => state.deleteEmotionCheckin);
+    const onboardingComplete = useStore(state=> state.onboardingComplete);
+    const setOnboardingComplete = useStore(state => state.setOnboardingComplete)
  
     const [captureMode,setCaptureMode] = useState<'task'|'thought'>('task');
     const [pendingThought, setPendingThought] = useState<string| null>(null);
@@ -149,6 +152,12 @@ export default function NowScreen(){
                 end={{ x:1, y:0.7 }} 
                 style={StyleSheet.absoluteFill}
             />
+            
+            {/* Onboarding form */}
+            {!onboardingComplete && (
+                <OnBoardingOverlay onComplete={setOnboardingComplete} />
+            )}
+
             {/* Header */}
             <View style = {styles.header}>
                 <Text style = {styles.title}>Now ⚡</Text>
