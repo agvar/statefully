@@ -9,7 +9,7 @@ import { useSpeechToText, WHISPER_TINY_EN_QUANTIZED} from 'react-native-executor
 
 interface VoiceButtonProps {
     onRecordingComplete : (text: string) => void;
-    captureMode:'task'| 'thought';
+    captureMode:'task'| 'thought'|'emotion';
 }
 
 export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceButtonProps ) {
@@ -251,7 +251,9 @@ export default function VoiceButton({ onRecordingComplete, captureMode }: VoiceB
     if (!isReady && downloadProgress > 0)   return `Loading model ${Math.round(downloadProgress * 100)}%`;
     if (isTranscribing)                     return 'Processing...';
     if (isRecording)                        return 'Listening...Tap again when done';  
-    return captureMode === 'thought' ? 'Tap to record a thought' : 'Tap to record a task';
+    return captureMode === 'thought' ? 'Tap to record a thought' :
+                            captureMode ==='emotion' ? 'Tap to add a voice note' :
+                            'Tap to record a task';
 };
 
     
