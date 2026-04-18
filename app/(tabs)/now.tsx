@@ -41,7 +41,7 @@ export default function NowScreen(){
     const onboardingComplete = useStore(state=> state.onboardingComplete);
     const setOnboardingComplete = useStore(state => state.setOnboardingComplete)
  
-    const [captureMode,setCaptureMode] = useState<'task'|'thought'>('task');
+    const [captureMode,setCaptureMode] = useState<'task'|'thought'| 'emotion'>('task');
     const [pendingThought, setPendingThought] = useState<string| null>(null);
     const [taggingSheetVisible, setTaggingSheetVisible] = useState(false);
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState| null>(null);
