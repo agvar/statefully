@@ -270,6 +270,17 @@ export default function NowScreen(){
                         💭 Thought
                     </Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.modeButton, captureMode === 'emotion' && styles.modeButtonActive,
+                        !!activeTask && styles.modeButtonDisabled
+                    ]}
+                    onPress={() => !activeTask && setCaptureMode('emotion')}
+                    disabled={!!activeTask}
+                >
+                    <Text style={captureMode === 'emotion' ? styles.modeButtonTextActive : styles.modeButtonText}>
+                        🌊 Mood
+                    </Text>
+                </TouchableOpacity>
             </View>
 
         {/*  Voice Button (Fixed at the Bottom) */}
