@@ -17,12 +17,25 @@ export default function TextCaptureSheet({visible,mode,onSubmit,onCancel}:TextTh
         <Modal visible={visible} transparent animationType="slide" onRequestClose={()=>{setText(''); onCancel();}}>
     <TouchableOpacity style={styles.overlay} onPress={()=>{setText(''); onCancel();}} activeOpacity={1}>
         <TouchableOpacity style={styles.sheet} activeOpacity={1} onPress={() => {}}>
-            <Text style={styles.label}>{mode=="thought"? "What's on your mind?": "What are you working on?"}</Text>
+            {/* Cancel button — top-right */}
+            <TouchableOpacity 
+                style={styles.cancelButton} 
+                onPress={() => { setText(''); onCancel(); }}
+            >
+                <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.label}>{mode=="thought"? "What's on your mind?"
+                                        : mode === 'emotion' ? "Describe how you're feeling"
+                                        : "What are you working on?"}
+            </Text>
             <TextInput
                 style={styles.input}
                 value={text}
                 onChangeText={setText}
-                placeholder= {mode=="thought"? "Type your thought...": "Type your task"}
+                placeholder= {mode==="thought"? "Type your thought...":
+                                mode==="task"? "Type your task":
+                                "Describe how you're feeling"
+                            }
                 placeholderTextColor={Colors.text.dark.secondary}
                 multiline
                 autoFocus
@@ -89,6 +102,16 @@ const styles = StyleSheet.create({
         fontSize: Typography.size.base,
         fontWeight: Typography.weight.semibold,
     },
+    cancelButton: {
+    alignSelf: 'flex-end',
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
+    marginBottom: Spacing.sm,
+},
+cancelText: {
+    color: Colors.text.dark.secondary,
+    fontSize: Typography.size.sm,
+},
 }
     
 )
