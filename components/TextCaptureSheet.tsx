@@ -5,7 +5,7 @@ import { Colors, Typography, Spacing, BorderRadius} from "@/constants/theme";
 
 interface TextThoughtInputProps{
     visible: boolean;
-    mode:ActivityType;
+    mode:'task'|'thought'|'emotion';
     onSubmit: (text: string) => void;
     onCancel :() => void;
 }
