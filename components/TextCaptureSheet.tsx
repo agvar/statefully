@@ -49,7 +49,7 @@ export default function TextCaptureSheet({visible,mode,onSubmit,onCancel}:TextTh
                 disabled={!text.trim()}
                 
             >
-                <Text style={styles.submitText}>{mode=="thought"? "Continue →" : "Start Task →" }</Text>
+                <Text style={styles.submitText}>{mode=="task"? "Start Task →" : "Continue →" }</Text>
             </TouchableOpacity>
         </TouchableOpacity>
     </TouchableOpacity>
