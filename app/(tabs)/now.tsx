@@ -99,6 +99,14 @@ export default function NowScreen(){
             } 
             const emotionAtCapture = useStore.getState().getRecentEmotion();
 
+            if (captureMode === 'emotion'){
+                if(!selectedEmotion){
+                    Alert.alert('Select a mood','Tap an emotion pill before recording your note');
+                    return;
+                }
+                addEmotionCheckin(selectedEmotion,activityName)
+            }
+
             if(captureMode=='thought' || activeTask !== null){
                 setPendingThought(transcription);
                 setTaggingSheetVisible(true);
