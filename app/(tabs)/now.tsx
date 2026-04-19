@@ -104,7 +104,8 @@ export default function NowScreen(){
                     Alert.alert('Select a mood','Tap an emotion pill before recording your note');
                     return;
                 }
-                addEmotionCheckin(selectedEmotion,activityName)
+                addEmotionCheckin(selectedEmotion,activityName);
+                return;
             }
 
             if(captureMode=='thought' || activeTask !== null){
