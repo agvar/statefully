@@ -380,8 +380,8 @@ const styles = StyleSheet.create({
             borderRadius: BorderRadius.full,
         },
         buttonWrapper: {
-            width: 120,
-            height: 120,
+            width: 170,
+            height: 170,
             justifyContent: 'center',
             alignItems: 'center',
         },
