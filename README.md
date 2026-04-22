@@ -17,7 +17,7 @@
 
 Statefully is an **energy awareness tool** for knowledge workers. Most productivity apps tell you what you did. Statefully helps you understand what it *cost* you — and what gave you energy back.
 
-Every activity you do is either **Flow** (energising) or **Drain** (depleting). Statefully captures both — via voice or touch — then surfaces patterns so you can make better choices about where your cognitive energy goes.
+Every activity you do is either **Flow** (energising) or **Drain** (depleting). Statefully captures both — via voice, keyboard, or manual form — then surfaces patterns so you can make better choices about where your cognitive energy goes.
 
 > **Not** a task manager. **Not** a journal. **Not** a habit tracker.  
 > An inner weather station — a quiet observer of where your mind actually lives.
@@ -28,7 +28,7 @@ Every activity you do is either **Flow** (energising) or **Drain** (depleting). 
 
 ### Now — *Be present with what is happening*
 
-The command center. Start activities, tag your energy state, and check in with how you're feeling — all from a single dark, focused interface. A halo-pulsing voice button lets you speak a thought or task into existence.
+The command center. Start activities, tag your energy state, and check in with how you're feeling — all from a single dark, focused interface. A halo-pulsing voice button lets you speak a thought, task, or emotion note into existence. Three capture modes — **Task**, **Thought**, and **Mood** — are always accessible via a segmented toggle. A keyboard button beside the mic lets you type instead of speak, using the same routing pipeline.
 
 | Now — Voice Capture | Now — Emotion Check-in | Now — Active Activity |
 |---|---|---|
@@ -40,7 +40,7 @@ The command center. Start activities, tag your energy state, and check in with h
 
 ### Log — *See what you have done*
 
-A chronological record of every thought, task, and emotion check-in. Activities are colour-coded by energy state — blue for Flow, orange for Drain — so patterns emerge at a glance. Swipe to delete, tap to explore.
+A chronological record of every thought, task, and emotion check-in. Activities are colour-coded by energy state — blue for Flow, orange for Drain — so patterns emerge at a glance. Tap any entry to edit it. Add thoughts or tasks manually with full control over timestamp, energy state, and emotion at capture. Resurfaced thoughts show their recurrence history.
 
 | Log — Activity List | Log — Thought Stream |
 |---|---|
@@ -66,30 +66,44 @@ Analytics, rendered beautifully. Flow vs Drain breakdown for the day, time distr
 
 | Feature | Status |
 |---|---|
-| Voice-first activity capture with animated halo button | ✅ |
-| On-device Speech-to-Text via Whisper (ExecuTorch) | ✅ |
-| Manual thought & task entry | ✅ |
-| Emotion check-in with coloured state pills | ✅ |
-| Flow / Drain energy tagging | ✅ |
+| Voice-first capture — Task, Thought, and Mood modes | ✅ |
+| Keyboard capture — same routing pipeline as voice | ✅ |
+| Manual entry form — tasks and thoughts, with timestamps | ✅ |
+| On-device Speech-to-Text via Whisper Tiny (ExecuTorch) | ✅ |
+| Emotion check-in with coloured state pills (Alive / Calm / Low / Wired) | ✅ |
+| Emotion-at-capture auto-anchoring (30-min window) | ✅ |
+| Emotion-at-completion on task tagging | ✅ |
+| Voice emotion note — speak a note into a mood check-in | ✅ |
+| Flow / Drain energy tagging (voice tasks: two-phase commit) | ✅ |
 | Activity time tracking with live timer | ✅ |
+| Thought lifecycle — resurface, edit, historical back-fill | ✅ |
 | Chronological log with energy-colour coding | ✅ |
-| Pulse analytics — daily energy breakdown | ✅ |
+| Edit any past task or thought from Log screen | ✅ |
+| Delete emotion check-ins via long press | ✅ |
+| Pulse analytics — daily energy breakdown, Flow vs Drain | ✅ |
 | On-device LLM reflection (Llama 3.2 1B SPINQUANT) | ✅ |
+| LLM prompt includes emotion notes + before/after emotion arc | ✅ |
+| Guided onboarding overlay (first launch only, persisted) | ✅ |
 | Aurora gradient design language across all screens | ✅ |
 | Full persistent state (Zustand + AsyncStorage) | ✅ |
 | Week / month reflection window | 🔜 |
 | Llama 3.2 3B upgrade for richer responses | 🔜 |
-| Widgets & home screen glanceable summary | 🔜 |
+| Anchor library — user-authored notes for low/wired moments | 🔜 |
 
 ---
 
 ## On-Device AI — No Cloud, No Compromise
 
-The reflection feature runs entirely on your device using **ExecuTorch** — the same runtime powering speech transcription. When you tap *Reflect*:
+Both AI features — speech transcription and LLM reflection — run entirely on your device using **ExecuTorch**.
 
-1. The model (`LLAMA3_2_1B_SPINQUANT`, ~1B parameters) lazy-loads on first tap
-2. Your tasks, thoughts, and emotion check-ins for the day are assembled into a structured prompt
-3. Inference runs locally — token by token, streamed to the screen
+**Speech-to-Text (Whisper Tiny EN Quantised)**
+Powered by `react-native-executorch`'s `useSpeechToText` hook. Batch transcription: audio is recorded in full, then transcribed in one pass. The model lazy-loads on first use with a visible progress indicator.
+
+**LLM Reflection (Llama 3.2 1B SPINQUANT)**
+When you tap *Reflect* in the Pulse tab:
+1. The model lazy-loads on first tap
+2. Your tasks, thoughts, and emotion check-ins — including emotion arcs (e.g. *felt calm → wired*) and voice notes — are assembled into a structured prompt
+3. Inference runs locally, streamed token by token to the screen
 4. Nothing leaves the device
 
 This is not a chatbot. It speaks once, briefly, and asks one question back. Think of it as a perceptive friend who has been quietly watching your day.
@@ -106,7 +120,7 @@ This is not a chatbot. It speaks once, briefly, and asks one question back. Thin
 | State | [Zustand](https://github.com/pmndrs/zustand) + AsyncStorage |
 | On-device AI | [react-native-executorch](https://github.com/software-mansion/react-native-executorch) |
 | LLM Model | Llama 3.2 1B SPINQUANT (quantised, on-device) |
-| STT Model | Moonshine Tiny (via ExecuTorch XNNPACK backend) |
+| STT Model | Whisper Tiny EN Quantised (via `react-native-executorch` `useSpeechToText`) |
 | Background | [expo-linear-gradient](https://docs.expo.dev/versions/latest/sdk/linear-gradient/) |
 | Icons | Ionicons via `@expo/vector-icons` |
 
@@ -134,29 +148,40 @@ All tokens live in [constants/theme.ts](constants/theme.ts).
 statefully/
 ├── app/
 │   ├── (tabs)/
-│   │   ├── now.tsx          # Now screen — capture & check-in
-│   │   ├── log.tsx          # Log screen — activity history
+│   │   ├── now.tsx          # Now screen — capture, emotion check-in, recents
+│   │   ├── log.tsx          # Log screen — activity history, edit, manual entry
 │   │   └── pulse.tsx        # Pulse screen — analytics + LLM reflection
 │   └── _layout.tsx
 ├── components/
-│   ├── VoiceButton.tsx      # Animated halo recording button
-│   ├── ThoughtBubble.tsx    # Thought display card
-│   ├── MetricCircle.tsx     # Pulse energy ring
-│   ├── TimeLineChart.tsx    # Pulse time distribution chart
-│   ├── ThoughtTaggingSheet.tsx
-│   └── cards/               # Activity, Log, and emotion cards
+│   ├── VoiceButton.tsx           # 5-state animated halo recording button
+│   ├── TextCaptureSheet.tsx      # Keyboard capture sheet (mode-aware: task/thought/mood)
+│   ├── ThoughtTaggingSheet.tsx   # Post-voice tagging sheet (intensity + energy + emotion)
+│   ├── OnboardingOverlay.tsx     # First-launch guided overlay (4 steps, persisted)
+│   ├── MetricCircle.tsx          # Pulse energy ring
+│   ├── TimeLineChart.tsx         # Pulse time distribution chart
+│   ├── cards/
+│   │   ├── ActiveActivityCard.tsx      # Live timer card for running task
+│   │   ├── UntaggedActivityCard.tsx    # Awaiting Flow/Drain tag + emotion-at-completion
+│   │   ├── CompletedActivityCard.tsx   # Tagged task — shows emotion arc
+│   │   ├── ThoughtCard.tsx             # Thought — intensity, energy, resurface button
+│   │   ├── EmotionCheckinCard.tsx      # Mood check-in — state, time, voice note
+│   │   ├── ActivityLogCard.tsx         # Log screen row — edit/delete
+│   │   └── EmotionPillRow.tsx          # Reusable emotion pill selector (sm/md sizes)
+│   ├── forms/
+│   │   └── ManualEntryForm.tsx         # Unified task+thought form with progressive disclosure
+│   └── sections/
 ├── constants/
-│   └── theme.ts             # Full design system — colors, type, spacing, shadows
+│   └── theme.ts             # Full design system — colors, type, spacing, shadows, gradients
 ├── store/
-│   └── useStore.ts          # Zustand store with date-range selectors
+│   └── useStore.ts          # Zustand store — activities, emotions, onboarding, date-range selectors
 ├── types/
-│   └── index.ts             # Activity, EmotionCheckin, and store types
+│   └── index.ts             # Activity, EmotionCheckin, EmotionState, Intensity types
 ├── utils/
-│   ├── buildReflectionPrompt.ts   # LLM prompt builder + SYSTEM_PROMPT
-│   ├── moonshineTranscription.ts  # On-device STT pipeline
-│   └── transcription.ts           # Deepgram fallback (dev)
+│   ├── buildReflectionPrompt.ts   # LLM prompt builder — tasks, thoughts, emotions, arcs
+│   ├── formatTime.ts              # 12h time formatter used across all cards
+│   └── transcription.ts           # Deepgram fallback (dev only)
 └── assets/
-    └── models/              # ExecuTorch .pte model files (Moonshine encoder/decoder)
+    └── models/              # ExecuTorch .pte model files (Whisper encoder/decoder)
 ```
 
 ---
@@ -224,5 +249,5 @@ This is a personal learning project exploring on-device AI in React Native. Issu
 - [Expo](https://expo.dev/) and the React Native community
 - [Software Mansion](https://swmansion.com/) for `react-native-executorch`
 - [Meta](https://ai.meta.com/llama/) for the Llama 3.2 model family
-- [Useful Sensors](https://usefulsensors.com/) for the Moonshine STT model
+- [OpenAI](https://openai.com/research/whisper) for the Whisper speech recognition model
 - iOS Human Interface Guidelines — the original design north star
