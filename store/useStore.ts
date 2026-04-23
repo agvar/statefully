@@ -30,7 +30,7 @@ interface StoreState{
     deleteEmotionCheckin:(id:string)=> void;
 
     //Manual CRUD
-    addManualActivity:(Activity:Omit<Activity,'id'>) => void;
+    addManualActivity:(activity:Omit<Activity,'id'>) => void;
     updateActivity:(id: string, updates:Partial<Activity>) => void;
     deleteActivity: (id:string) => void;
 
