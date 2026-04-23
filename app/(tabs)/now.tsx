@@ -8,7 +8,7 @@ import {buildReflectionPrompt, ReflectionContext } from '@/utils/buildReflection
 import { EMOTION_EMOJI,Activity,EmotionCheckin } from '@/types/index';
 import EmotionPillRow from '@/components/cards/EmotionPillRow';
 import { Ionicons } from '@expo/vector-icons';
-import OnBoardingOverlay from '@/components/OnboardingOverlay';
+import OnboardingOverlay from '@/components/OnboardingOverlay';
 
 import VoiceButton from '@/components/VoiceButton';
 import { BorderRadius, Colors, Layout, Spacing, Typography } from '@/constants/theme';
@@ -164,7 +164,7 @@ export default function NowScreen(){
 
             {/* Onboarding form */}
             {!onboardingComplete && (
-                <OnBoardingOverlay onComplete={setOnboardingComplete} />
+                <OnboardingOverlay onComplete={setOnboardingComplete} />
             )}
 
             {/* Header */}
