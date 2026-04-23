@@ -101,8 +101,8 @@ export default function ManualEntryForm({
                     {
                         name:activityName.trim(),
                         startTime: startTime,
-                        endTime: endTime,
-                        duration: durationSeconds,
+                        endTime: entryType==='thought'? startTime : endTime,
+                        duration: entryType==='thought'? 0 : durationSeconds,
                         energyState: energyState!,
                         emotionAtCapture: emotionAtCapture,
                         intensity:selectedIntensity
