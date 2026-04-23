@@ -25,11 +25,11 @@ const steps = [
     },
 ];
 
-interface OnBoardingOverlayProps{
+interface OnboardingOverlayProps{
     onComplete :() => void;
 }
 
-export  default function OnBoardingOverlay({onComplete}:OnBoardingOverlayProps){ 
+export  default function OnboardingOverlay({onComplete}:OnboardingOverlayProps){ 
     const [step, setStep] = useState(0);
 
          return(
