@@ -1,6 +1,7 @@
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
 import { Activity } from '@/types/index';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { formatTime } from '@/utils/formatTime';
 
 interface ActivityLogCardProps{
     activity: Activity;
@@ -11,15 +12,6 @@ interface ActivityLogCardProps{
 export default function ActivityLogCard({activity, onEdit, onDelete}:ActivityLogCardProps){
 
     const formatTimeRange = (start: Date, end?:Date): string => {
-        //format Time
-        const formatTime = (date: Date) =>{
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-            const ampm = hours > 12 ? 'PM': 'AM';
-            const displayHours = hours % 12 || 12;
-            const displayMinutes = minutes.toString().padStart(2, '0');
-            return `${displayHours}:${displayMinutes} ${ampm}`;
-        };
         if(!end){
              return `Started ${formatTime(start)}`;
         }
