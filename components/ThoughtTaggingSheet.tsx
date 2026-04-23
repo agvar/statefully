@@ -68,7 +68,7 @@ export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onC
                 </View>
 
                 {/*Energy state buttons */}
-                <View style={styles.EnergyPickerSection}>
+                <View style={styles.energyPickerSection}>
                     <Text style={styles.energyPrompt}>How did that feel?</Text>
                     <View style={styles.energyButtonRow}>
 
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         marginBottom: Spacing.lg,
 },
-    EnergyPickerSection: {
+    energyPickerSection: {
         alignItems: 'center',
         color: Colors.text.dark.secondary,
         marginBottom: Spacing.xs,
