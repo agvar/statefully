@@ -6,14 +6,14 @@ import { EmotionState } from "@/types";
 import EmotionPillRow from "./cards/EmotionPillRow";
 
 
-interface ThoughtTaggingSheetprops {
+interface ThoughtTaggingSheetProps {
     visible: boolean;
     transcription: string| null;
     onConfirm:(intensity: Intensity, energyState:EnergyState, emotionAtCapture?:EmotionState) => void;
     onCancel:()=>void;
 }
 
-export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onCancel}:ThoughtTaggingSheetprops) {
+export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onCancel}:ThoughtTaggingSheetProps) {
     const [selectedIntensity,setSelectedIntensity] = useState<Intensity | null>(null);
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState | null>(null);
     const [selectedEnergyState,setSelectedEnergyState] = useState<EnergyState | null>(null);
