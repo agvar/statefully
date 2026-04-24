@@ -3,6 +3,7 @@ import { Activity, EnergyState,EmotionState } from '@/types/index';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
 import EmotionPillRow from './EmotionPillRow';
+import {formatDuration} from 'utils/formatTime';
 
 interface UntaggedActivityCardProps{
     activity: Activity ;
@@ -12,19 +13,6 @@ interface UntaggedActivityCardProps{
 export default function UntaggedActivityCard({activity, onTag}:UntaggedActivityCardProps) {
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionState | null>(null);
 
-    //format seconds to readable string
-    const formatDuration = (seconds:number): string =>{
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600)/ 60);
-
-        if (hours > 0){
-            return `${hours}h ${minutes}m`;
-        }
-        if(minutes > 0){
-            return `${minutes}m`
-        }
-        return `${seconds}s`
-    };
 
     return(
         <View style={styles.container}>
