@@ -2,6 +2,7 @@ import { BorderRadius, Colors, Spacing, Typography, Shadows } from "@/constants/
 import { Activity } from "@/types/index";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { formatTime } from "@/utils/formatTime";
+import {formatDuration} from 'utils/formatTime';
 
 interface CompletedActivityCardProps {
     activity: Activity;
@@ -9,19 +10,6 @@ interface CompletedActivityCardProps {
 }
 
 export default function  CompletedActivityCard({activity,onPress}:CompletedActivityCardProps) {
-    
-    const formatDuration = (seconds:number): string =>{
-        const hours = Math.floor(seconds/ 3600);
-        const minutes = Math.floor((seconds % 3600)/60);
-        if (hours>0){
-            return `${hours}h ${minutes}m`;
-        }
-        if (minutes>0){
-            return `${minutes}m`;
-        };
-        return `${Math.floor(seconds)}s`;
-    };
-
     //Get energy state display
 
     const getEnergyDisplay = () =>{
