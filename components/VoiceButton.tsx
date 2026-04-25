@@ -343,10 +343,6 @@ const styles = StyleSheet.create({
             opacity: 0.4,  
             backgroundColor: Colors.text.dark.tertiary, 
         },
-        buttonLoading: {
-            opacity: 0.4,  
-            backgroundColor: Colors.text.dark.tertiary, 
-        },
         buttonRecording:{
             backgroundColor : '#FF3B30',
             shadowColor: '#FF3B30',
