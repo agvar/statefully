@@ -270,7 +270,7 @@ export default function NowScreen(){
                     disabled={!!activeTask}
                 >
                     <Text style={captureMode === 'emotion' ? styles.modeButtonTextActive : styles.modeButtonText}>
-                        🌊 Mood
+                        🌡 Mood
                     </Text>
                 </TouchableOpacity>
             </View>
