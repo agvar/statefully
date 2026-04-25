@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { Modal , StyleSheet, View, Text, TouchableOpacity} from "react-native"
+import { Modal , StyleSheet, View, Text, TouchableOpacity,KeyboardAvoidingView, Platform} from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from "@/constants/theme";
 
 const steps = [
@@ -38,30 +39,38 @@ export  default function OnboardingOverlay({onComplete}:OnboardingOverlayProps){
                     animationType='fade'
                     visible={true}
                 >
-                    <View style={styles.backdrop}>
-                        <View style={styles.card}>
-                            <Text style={styles.emoji}>{steps[step].emoji}</Text>
-                            <Text style={styles.title}>{steps[step].title}</Text>
-                            <Text style={styles.description}>{steps[step].description}</Text> 
+                    <SafeAreaView style={styles.container} edges={['top']}>
+                        <KeyboardAvoidingView
+                            behavior={Platform.OS === 'ios' ? 'padding': 'height'}
+                            style={{ flex:1 }}
+                        >
+                            <View style={styles.backdrop}>
+                                <View style={styles.card}>
+                                    <Text style={styles.emoji}>{steps[step].emoji}</Text>
+                                    <Text style={styles.title}>{steps[step].title}</Text>
+                                    <Text style={styles.description}>{steps[step].description}</Text> 
 
-                            <View style={styles.dots}>
-                                {[0,1,2,3].map(i => (
-                                    <View key={i} style={[styles.dot, step === i && styles.dotActive]} />
-                                ))} 
+                                    <View style={styles.dots}>
+                                        {[0,1,2,3].map(i => (
+                                            <View key={i} style={[styles.dot, step === i && styles.dotActive]} />
+                                        ))} 
+                                    </View>
+
+                                    <TouchableOpacity style={styles.button} 
+                                        onPress={() => {
+                                            if (step < steps.length - 1) {
+                                                setStep(step + 1);
+                                            } else {
+                                                onComplete();
+                                            }
+                                        }}>
+                                        <Text style={styles.buttonText}>{step < steps.length - 1 ? 'Next →' : 'Got it'}</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-
-                            <TouchableOpacity style={styles.button} 
-                                onPress={() => {
-                                    if (step < steps.length - 1) {
-                                        setStep(step + 1);
-                                    } else {
-                                        onComplete();
-                                    }
-                                }}>
-                                <Text style={styles.buttonText}>{step < steps.length - 1 ? 'Next →' : 'Got it'}</Text>
-                            </TouchableOpacity>
-                        </View>
-                </View>
+                        </KeyboardAvoidingView>
+                
+                    </SafeAreaView>
 
                 </Modal>
 
@@ -69,6 +78,10 @@ export  default function OnboardingOverlay({onComplete}:OnboardingOverlayProps){
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: Colors.background.light,
+    },
     backdrop: {
         flex :1,
         backgroundColor:'rgba(0,0,0,0.75)',
