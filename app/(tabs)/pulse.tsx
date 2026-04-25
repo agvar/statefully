@@ -74,7 +74,7 @@ export default function PulseScreen(){
             <View style={styles.header}>
                 <Text style={styles.title}>Pulse ⚡</Text>
                 <Text style={styles.subtitle}>
-                    Today:{flowHours.toFixed(1)}h Flow/ {drainHours.toFixed(1)}h Drain
+                    Today: {flowHours.toFixed(1)}h Flow / {drainHours.toFixed(1)}h Drain
                 </Text>
             </View>
             {/* Metrics Section */}
