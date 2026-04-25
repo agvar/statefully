@@ -1,6 +1,5 @@
 import { Modal, TouchableOpacity,StyleSheet,Text,TextInput} from "react-native";
 import { useState } from "react";
-import {ActivityType} from "@/types/index"
 import { Colors, Typography, Spacing, BorderRadius} from "@/constants/theme";
 
 interface TextThoughtInputProps{
