@@ -73,23 +73,6 @@ export default function NowScreen(){
             .sort((a,b) => b.timestamp.getTime() - a.timestamp.getTime());
     },[completedActivities,todayEmotions])
 
-    //check prompt for LLM start
-    const checkPromptLLM = ():string =>{
-        const store = useStore.getState();
-        const today = new Date();
-        const startOfToday = new Date(today);
-        startOfToday.setHours(0,0,0,0);
-        const ctx: ReflectionContext = {
-        tasks: store.getTasksForDateRange(startOfToday, today),
-        thoughts: store.getThoughtsForDateRange(startOfToday, today),
-        emotions: store.getEmotionCheckInsForDateRange(startOfToday, today),
-        windowLabel: 'today',
-        };
-        const prompt = buildReflectionPrompt(ctx);
-        return prompt
-
-    }
-
     //Handle voice input ->start new activity
     const handleVoiceInput = (transcription: string) => {
             const activityName = transcription;
