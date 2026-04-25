@@ -79,7 +79,7 @@ import { Alert, SectionList, StyleSheet, Text, TouchableOpacity, View } from 're
                 ListEmptyComponent={
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>
-                            No Tasks or Thoughts yet.Start tracking in the Now screen !
+                            No Tasks or Thoughts yet. Start tracking in the Now screen!
                         </Text>
 
                     </View>
