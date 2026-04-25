@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
 import { Activity } from '@/types/index';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { formatTime } from '@/utils/formatTime';
+import { formatTime ,formatDuration} from '@/utils/formatTime';
 
 interface ActivityLogCardProps{
     activity: Activity;
@@ -16,15 +16,6 @@ export default function ActivityLogCard({activity, onEdit, onDelete}:ActivityLog
              return `Started ${formatTime(start)}`;
         }
          return `Started ${formatTime(start)} - ${formatTime(end)}`;
-        };
-        //format duration
-        const formatDuration =(seconds :number )=>{
-            const hours= Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) /60);
-            if (hours > 0){
-                return `${hours}h ${minutes}m`;
-            }
-            return `${minutes}m`;
         };
 
         //Energy badge
