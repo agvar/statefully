@@ -50,7 +50,7 @@ export default function ThoughtTaggingSheet({visible,transcription,onConfirm,onC
 
                 {/*intensity pills */}
                 <Text style={styles.sectionLabel}>
-                    how overwhelming is this thought?
+                    How overwhelming is this thought?
                 </Text>
                 <View style={styles.pillRow}>
                     {( INTENSITY_ARRAY.map( intensity => (
