@@ -2,7 +2,7 @@ import { BorderRadius, Colors, Spacing, Typography, Shadows } from "@/constants/
 import { Activity } from "@/types/index";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { formatTime } from "@/utils/formatTime";
-import {formatDuration} from 'utils/formatTime';
+import {formatDuration} from '@/utils/formatTime';
 
 interface CompletedActivityCardProps {
     activity: Activity;
