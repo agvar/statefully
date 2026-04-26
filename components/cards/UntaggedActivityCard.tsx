@@ -3,7 +3,7 @@ import { Activity, EnergyState,EmotionState } from '@/types/index';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
 import EmotionPillRow from './EmotionPillRow';
-import {formatDuration} from 'utils/formatTime';
+import {formatDuration} from '@/utils/formatTime';
 
 interface UntaggedActivityCardProps{
     activity: Activity ;
