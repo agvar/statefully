@@ -14,11 +14,14 @@ export default function PulseScreen(){
     const [shouldLoad, setShouldLoad] = useState(false);
     const activities = useStore( state => state.activities);
     const { flowHours, drainHours } = useStore(useShallow(state => state.getTodayStats()));
-    const {isReady,downloadProgress,error,isGenerating,configure,
+    const {isReady,downloadProgress,error,isGenerating,
         generate,response} = useLLM({model: LLAMA3_2_1B_SPINQUANT,
         preventLoad: !shouldLoad
     });
     const [pendingPrompt,setPendingPrompt] = useState<string|null>(null);
+    const today = new Date();
+    const todayTasks = useStore(state=> state.getTasksForDate(today));
+    const todayThoughts = useStore(state=> state.getThoughtsForDate(today));
 
     useEffect(()=>{
         if(isReady && pendingPrompt){
@@ -53,16 +56,7 @@ export default function PulseScreen(){
     };
     
 
-    const todayActivities = activities.filter( activity =>
-        {   const today = new Date();
-            const activityDate = new Date(activity.startTime);
-            return(
-                activityDate.getFullYear() === today.getFullYear() &&
-                activityDate.getMonth() === today.getMonth() &&
-                activityDate.getDate() === today.getDate()
-            );
-            }
-    )
+    const todayActivities = [...todayTasks,...todayThoughts];
 
     const sentiment = calculateSentiment(todayActivities);
     const totalHours = flowHours + drainHours;
